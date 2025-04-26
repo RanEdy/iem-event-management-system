@@ -1,1 +1,1 @@
-# iem-eventmanager
+# IEM Event Management System

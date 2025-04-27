@@ -2,16 +2,20 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from 'next/navigation'; // Importar useRouter
 import { useLogin } from "./LoginProvider";
-import { IUser } from "@/entities/IUser"; // Asegúrate de que la importación sea correcta
-import { UserLevel } from "@/entities/UserLevel"; // <-- Importa el enum UserLevel
+import { IUser } from "@/entities/IUser";
+import { UserLevel } from "@/entities/UserLevel";
+import { UserService } from "@/services/UserService"; // Añadir esta línea
 
 const LoginForm = () => {
-    const { setUserSession } = useLogin()
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [emailError, setEmailError] = useState("") // Estado para el error del email
-    const [passwordError, setPasswordError] = useState("") // Estado para el error de la contraseña
+    const { setUserSession } = useLogin();
+    const router = useRouter(); // Inicializar useRouter
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [isLoading, setIsLoading] = useState(false); // Estado para indicar carga
 
     // Función básica para validar el formato del email
     const validateEmail = (email: string) => {
@@ -43,71 +47,39 @@ const LoginForm = () => {
             hasError = true;
         }
 
-        // Si hay errores de validación local, no continuar
         if (hasError) {
             return;
         }
 
+        setIsLoading(true); // Indicar que la operación está en curso
         console.log("Intentando iniciar sesión con Email: " + email);
-        // Aquí es donde harías la llamada a tu API/backend para verificar las credenciales
+
         try {
-            // const response = await fetch('/api/login', { /* ... */ }); // Llamada real a la API
-            // Simulación: Suponemos que la API responde después de 1 segundo
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Obtener instancia del servicio de usuario directamente
+            // const userService = ServiceLocator.userService; // Eliminar esta línea
+            const userService = new UserService(); // Añadir esta línea
+            const authenticatedUser = await userService.verifyCredentials(email, password);
 
-            // Simulación de respuesta de la API
-            // Cambia esto para simular éxito o error desde el backend
-            const simulatedApiSuccess = false; // Cambia a true para simular éxito
-            const simulatedApiError = "Correo electrónico o contraseña incorrectos."; // Mensaje si simulatedApiSuccess es false
+            if (authenticatedUser) {
+                // Éxito: Usuario autenticado
+                console.log("Inicio de sesión exitoso para:", authenticatedUser.email);
+                setUserSession(authenticatedUser); // Guardar sesión en el contexto
+                router.push('/main'); // Redirigir a la página principal
 
-
-            if (simulatedApiSuccess) {
-                // Si la API confirma que las credenciales son correctas:
-                console.log("Inicio de sesión exitoso (simulado)");
-                // const userData = await response.json(); // Obtener datos del usuario de la respuesta real
-
-                // **CORRECCIÓN 1:** Asegúrate de que este objeto coincida con tu interfaz IUser
-                // y usa una aserción de tipo si estás seguro de la estructura.
-                // **CORRECCIÓN:** Ajusta los tipos de id y level
-                const simulatedUserData: IUser = {
-                     id: 1, // Cambiado a number
-                     name: "Usuario Ejemplo",
-                     email: email,
-                     level: UserLevel.ADMIN, // Cambiado para usar el enum UserLevel
-                     // Asegúrate de que todos los demás campos requeridos por IUser estén presentes
-                     // y tengan los tipos correctos. Basado en IUser.ts, faltan varios campos.
-                     // Por ejemplo (necesitarás valores reales o simulados):
-                     password: "simulated_password", // IUser requiere password
-                     birthday: new Date(), // IUser requiere birthday
-                     hireDate: new Date(), // IUser requiere hireDate
-                     phone: "123-456-7890", // IUser requiere phone
-                     active: true, // IUser requiere active
-                     guardCard: false, // IUser requiere guardCard
-                     supervisorCount: 0, // IUser requiere supervisorCount
-                     managerCount: 0, // IUser requiere managerCount
-                     logisticCount: 0, // IUser requiere logisticCount
-                     driverCount: 0, // IUser requiere driverCount
-                     dispatchCount: 0, // IUser requiere dispatchCount
-                     assistantManagerCount: 0, // IUser requiere assistantManagerCount
-                     contactName: "Contacto Emergencia", // IUser requiere contactName (puede ser null/undefined si es opcional)
-                     contactPhone: "987-654-3210", // IUser requiere contactPhone (puede ser null/undefined si es opcional)
-                     eventUserlist: [] // IUser requiere eventUserlist
-                };
-                // Actualizar el estado global de la sesión a través del context
-                setUserSession(simulatedUserData);
-                // Aquí podrías redirigir al usuario, por ejemplo: router.push('/dashboard');
             } else {
-                // Si la API indica que las credenciales son incorrectas o hay otro error:
-                console.log("Error de inicio de sesión desde API (simulado)");
-                setEmailError(simulatedApiError);
-                setPasswordError(" "); // Puedes poner un espacio o repetir el error para indicar que ambos campos están relacionados con el fallo
+                // Fallo: Credenciales incorrectas
+                console.log("Error de inicio de sesión: Credenciales inválidas");
+                setEmailError("Correo electrónico o contraseña incorrectos.");
+                setPasswordError(" "); // Marcar ambos campos como relacionados al error
             }
 
         } catch (error) {
             console.error("Error en la llamada de login:", error);
-            setEmailError("Ocurrió un error inesperado al intentar iniciar sesión."); // Error genérico de red/fetch
+            setEmailError("Ocurrió un error inesperado al intentar iniciar sesión."); // Error genérico
+        } finally {
+             setIsLoading(false); // Finalizar estado de carga
         }
-    }
+    };
 
     return (
         <div className="p-6 h-full w-full">
@@ -167,8 +139,12 @@ const LoginForm = () => {
                     {passwordError && passwordError !== " " && <p id="password-error" className="text-red-500 text-xs mt-1">{passwordError}</p>}
 
                     {/* Botón tipo submit */}
-                    <button type="submit" className="h-10 w-full p-2 mt-6 rounded-md bg-cyan-900 text-white font-extrabold hover:bg-cyan-800 transition-colors duration-200">
-                        LOGIN
+                    <button
+                        type="submit"
+                        className="h-10 w-full p-2 mt-6 rounded-md bg-cyan-900 text-white font-extrabold hover:bg-cyan-800 transition-colors duration-200 disabled:opacity-50"
+                        disabled={isLoading} // Deshabilitar botón durante la carga
+                    >
+                        {isLoading ? 'INGRESANDO...' : 'LOGIN'}
                     </button>
                 </form>
             </div>

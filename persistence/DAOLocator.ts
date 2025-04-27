@@ -3,7 +3,7 @@ import { EventDAO } from "./dao/EventDAO";
 import { EventUserListDAO } from "./dao/EventUserListDAO";
 
 /**
- * This class is a locator for each DAO created in the project.
+ * This class is a locator for each DAO created within the persistence layer of the project.
  * @author Erandi Angel
  */
 
@@ -13,5 +13,5 @@ export const DAOLocator = {
      */
     userDao: new UserDAO(),
     eventDao: new EventDAO(),
-    eventUserList: new EventUserListDAO()
+    eventUserListDao: new EventUserListDAO()
 }

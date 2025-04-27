@@ -3,7 +3,7 @@ import { DAOLocator } from "@/persistence/DAOLocator";
 
 
 /**
- * Class with generic methods for CRUD.
+ * Class with methods for everything related to the user.
  * Utilizes Prisma ORM for database communication through DAO instances.
  * @author Erandi Angel
  */

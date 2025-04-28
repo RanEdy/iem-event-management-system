@@ -51,7 +51,7 @@ const EventForm = ({ title }: { title: string }) => {
     const minDateTime = today.toISOString().slice(0, 10);
 
     return (
-        <div className="p-1 h-full w-full">
+        <div className="p-1 my-4 h-full w-full overflow-visible overflow-y-scroll">
             {/* HEADER TITLE */}
             <div className="mb-5 justify-self-center">
                 <div className="text-cyan-900 text-center text-3xl lg:text-5xl font-extrabold font-maven">

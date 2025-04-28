@@ -253,7 +253,11 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\ninte\\OneDrive\\Documentos\\GitHub\\iem-event-management-system\\app\\generated\\prisma",
+<<<<<<< Updated upstream
+      "value": "C:\\Users\\Usuario\\dev\\iem-event-management-system\\app\\generated\\prisma",
+=======
+      "value": "C:\\Users\\erand\\dev\\iem-event-management-system\\app\\generated\\prisma",
+>>>>>>> Stashed changes
       "fromEnvVar": null
     },
     "config": {
@@ -267,7 +271,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\ninte\\OneDrive\\Documentos\\GitHub\\iem-event-management-system\\prisma\\schema.prisma",
+<<<<<<< Updated upstream
+    "sourceFilePath": "C:\\Users\\Usuario\\dev\\iem-event-management-system\\prisma\\schema.prisma",
+=======
+    "sourceFilePath": "C:\\Users\\erand\\dev\\iem-event-management-system\\prisma\\schema.prisma",
+>>>>>>> Stashed changes
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -281,11 +289,12 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgres://postgres:root@localhost:5432/iemdb"
+        "value": null
       }
     }
   },

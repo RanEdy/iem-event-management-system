@@ -1,5 +1,6 @@
 import { IUser } from "@/entities/IUser";
 import { GenericDAO } from "./GenericDAO";
+import { prisma } from "../lib/prisma"; // Asegúrate de importar prisma
 
 /**
  * Class with CRUD and query specific methods for the User table.
@@ -12,4 +13,15 @@ export class UserDAO extends GenericDAO<IUser, number>
      * Create a new UserDAO instance.
      */
     constructor() { super('user'); }
+
+    /**
+     * Searches for a unique user entry by email.
+     * @param email The email of the user.
+     * @returns A unique object of type User if found. Otherwise return null.
+     */
+    async findByEmail(email: string): Promise<IUser | null>
+    {
+        // Usa 'findUnique' si el email es único en tu esquema Prisma, sino 'findFirst'
+        return prisma.user.findUnique({ where: { email } });
+    }
 }

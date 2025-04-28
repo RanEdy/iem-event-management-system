@@ -1,5 +1,7 @@
 import { IUser } from "@/entities/IUser";
 import { DAOLocator } from "@/persistence/DAOLocator";
+// Importa bcrypt si vas a usar hashing de contraseñas en el futuro
+// import bcrypt from 'bcrypt';
 
 
 /**
@@ -10,6 +12,43 @@ import { DAOLocator } from "@/persistence/DAOLocator";
 export class UserService
 {
     constructor() {}
+
+    /**
+     * Finds a user by email and verifies the password.
+     * @param email The user's email.
+     * @param password The user's password.
+     * @returns The user object if credentials are valid, otherwise null.
+     */
+    async verifyCredentials(email: string, password: string): Promise<IUser | null>
+    {
+        try
+        {
+            const user = await DAOLocator.userDao.findByEmail(email);
+
+            if (!user) {
+                console.log(`User not found with email: ${email}`);
+                return null; // Usuario no encontrado
+            }
+
+            // Comparación directa de contraseñas (¡NO SEGURO PARA PRODUCCIÓN!)
+            // En un entorno real, deberíamos usar hashing (ej. bcrypt)
+            // const isPasswordValid = await bcrypt.compare(password, user.password);
+            const isPasswordValid = user.password === password;
+
+            if (!isPasswordValid) {
+                console.log(`Invalid password for email: ${email}`);
+                return null; // Contraseña incorrecta
+            }
+
+            console.log(`Credentials verified for email: ${email}`);
+            return user; // Credenciales válidas
+        }
+        catch(error)
+        {
+            console.error("Error verifying credentials:", error);
+            return null; // Error durante la verificación
+        }
+    }
 
     /**
      * Searches for a unique entry that matches with the id in the user table.

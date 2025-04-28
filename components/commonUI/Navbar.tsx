@@ -3,6 +3,7 @@
 import React from 'react';
 import { UserLevel } from '@/entities/UserLevel';
 import { NavbarButton } from './NavbarButton';
+import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser } from "react-icons/fa";
 
 type NavbarProps = {
     level: UserLevel;
@@ -22,9 +23,9 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
 
             {/* Option Buttons */}
             <div className="h-full w-auto flex flex-row justify-between flex-shrink-0">
-                <NavbarButton name={"Events"} icon={"/img/iem_icon_white.png"}/>
-                <NavbarButton name={"Users"} icon={"/img/iem_icon_white.png"}/>
-                <NavbarButton name={"Archives"} icon={"/img/iem_icon_white.png"}/>
+                <NavbarButton name={"Events"} icon={<FaClipboardList className="text-white h-3/4 w-3/4"/>}/>
+                <NavbarButton name={"Users"} icon={<FaUserFriends className="text-white h-3/4 w-3/4"/>}/>
+                <NavbarButton name={"Archives"} icon={<FaFolderOpen className="text-white h-3/4 w-3/4"/>}/>
                 {
                     level == UserLevel.MASTER ? <>
 
@@ -45,10 +46,11 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
             </div>
 
             {/* User Info */}
-            <div className="flex-shrink-0">
-                <h1>User Info</h1>
+            <div className="flex flex-shrink-0">
+                <div className="flex w-16 h-16 bg-bluedark-gradient-r justify-center rounded-full">
+                    <FaUser className="w-3/5 h-3/5 text-white self-center"/>
+                </div>
             </div>
-
         </div>
     );
 }

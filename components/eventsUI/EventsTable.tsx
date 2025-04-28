@@ -3,10 +3,11 @@
 import { USAState } from "@/entities/USAState";
 import { IEvent } from "@/entities/IEvent";
 import { FaPlus, FaSearch } from "react-icons/fa";
-import React from "react";
+import React, { useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { eventListTest } from "@/entities/tests/EventTests";
 import ContextMenu from "../commonUI/ContextMenu";
+import { EventForm } from "./EventForm";
 
 const columns: TableColumn<IEvent>[] = [
     {
@@ -89,7 +90,7 @@ export const EventsTable: React.FC = () =>
     }
 
     const data: IEvent[] = eventListTest;
-
+    const [ isDialogOpen, setIsDialogOpen ] = useState(false);
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
             <div className="p-4 flex flex-colum justify-between lg:w-1/2">
@@ -100,7 +101,6 @@ export const EventsTable: React.FC = () =>
             <hr/>
 
             <div className="flex flex-colum justify-between m-2">
-
                 {/* SEARCH BAR */}
                 <div className="flex flex-column min-w-56 lg:w-1/3 h-12 border-2 m-2 p-2 bg-bluedark-gradient-r border-zinc-100 rounded-2xl items-center">
                     <FaSearch className="text-white m-2 mr-3"/>
@@ -109,34 +109,27 @@ export const EventsTable: React.FC = () =>
 
 
                 {/* ADD NEW EVENT BUTTON */}
-                <div className="w-28 md:min-w-52 h-12 bg-bluedark-gradient-r border-2 m-2 border-zinc-100 rounded-2xl ">
+                <div className="w-28 md:min-w-52 h-12 bg-bluedark-gradient-r border-2 m-2 border-zinc-100 rounded-2xl " onClick={() => setIsDialogOpen(true)}>
                     <button className="flex flex-column pl-3 h-full w-full text-center font-bold bg-white bg-opacity-0 hover:bg-opacity-20 text-white items-center">
                         <FaPlus className="text-white mx-2"/> <span className="text-xs md:text-base">ADD NEW EVENT</span>
                     </button>
                 </div>
-<<<<<<< Updated upstream
-=======
-
+                
                 {/* EVENT DIALOG */}
                 {isDialogOpen && (
                     <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
                         <div className="relative bg-white rounded-3xl p-8 shadow-lg realtive my-4 lg:w-1/2 w-full h-full lg:h-full ">
                             {/* CLOSE BUTTON */}
-                            <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700" onClick={() => setDialogOpen(false)}>
+                            <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700" onClick={() => setIsDialogOpen(false)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
-                            
-
                             {/* CHILDREN OR CONTENT*/}
-                        
-                                { <EventForm title="Register Event" />}
-                           
+                            { <EventForm title="Register Event" />}
                         </div>
                     </div>
                 )}
->>>>>>> Stashed changes
             </div>
 
             <DataTable
@@ -151,5 +144,5 @@ export const EventsTable: React.FC = () =>
             customStyles={{headCells: {style: {fontWeight: "bold",backgroundColor: "#F5F5F5", borderRadius: "0"}}}}
             />
         </div>
-    )
+    );
 }

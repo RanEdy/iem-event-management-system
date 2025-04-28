@@ -4,7 +4,11 @@ import { useState } from "react";
 import { IEvent } from "@/entities/IEvent";
 import { USAState } from "@/app/generated/prisma";
 
-const EventForm = ({ title }: { title: string }) => {
+type EventFormProps = {
+    title: string;
+}
+
+export const EventForm: React.FC<EventFormProps> = ({title}) => {
 
     const [name, setName] = useState<string>("");
     const [city, setCity] = useState<string>("");
@@ -246,5 +250,3 @@ const EventForm = ({ title }: { title: string }) => {
         </div>
     )
 }
-
-export default EventForm;

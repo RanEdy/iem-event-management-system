@@ -4,11 +4,11 @@ import { UserLevel } from "@/entities/UserLevel";
 export default function MainLayout({children,}: Readonly<{children: React.ReactNode;}>)
 {
     return (
-        <>
+        <div className="block h-svh">
             <Navbar level={UserLevel.MASTER} options={["Events", "Users", "Archives"]}/>
-            <main className="md:flex-1 md:h-screen p-5">
+            <main className="flex h-[85%] w-full">
                 {children}
             </main>
-        </>
+        </div>
     )
 }

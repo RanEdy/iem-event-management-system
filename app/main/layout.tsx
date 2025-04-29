@@ -1,5 +1,5 @@
 import Navbar from "@/components/commonUI/Navbar";
-import { UserLevel } from "@/entities/UserLevel";
+import { UserLevel } from "../generated/prisma";
 
 export default function MainLayout({children,}: Readonly<{children: React.ReactNode;}>)
 {

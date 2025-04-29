@@ -7,7 +7,7 @@ import { prisma } from "../lib/prisma"; // Asegúrate de importar prisma
  * This class extends GenericDAO with IUser as T and number as K.
  * @author Erandi
  */
-export class UserDAO extends GenericDAO<IUser, number>
+export class UserDAO extends GenericDAO<"user", IUser>
 {
     /**
      * Create a new UserDAO instance.
@@ -22,6 +22,6 @@ export class UserDAO extends GenericDAO<IUser, number>
     async findByEmail(email: string): Promise<IUser | null>
     {
         // Usa 'findUnique' si el email es único en tu esquema Prisma, sino 'findFirst'
-        return prisma.user.findUnique({ where: { email } });
+        return this.getModel().findUnique({ where: { email } });
     }
 }

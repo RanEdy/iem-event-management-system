@@ -25,10 +25,11 @@ type DelegateReturnType<T extends ModelDelegate> =
 /**
  * Class with generic methods for CRUD.
  * It uses the ORM of prisma for the database communication.
- * @param {T} T type of the entity (table).
+ * @param {T} T name of the prisma model (table). Example 'user'.
+ * @param {E} E type of the interface that represents the entity (table). By default uses prisma's own types. Example IUser.
  * @author Erandi
  */
-export class GenericDAO<T extends ModelDelegate>
+export class GenericDAO<T extends ModelDelegate,  E = DelegateReturnType<T>>
 {
     protected client: PrismaClient;
 
@@ -45,7 +46,7 @@ export class GenericDAO<T extends ModelDelegate>
      * @param id primary key of the entity.
      * @returns A unique object of type T if found. Otherwise return null.
      */
-    async findById(id: number): Promise<DelegateReturnType<T> | null>
+    async findById(id: number): Promise<E | null>
     {
         return (this.getModel() as any).findUnique({ where: { id } });
     }
@@ -54,7 +55,7 @@ export class GenericDAO<T extends ModelDelegate>
      * Searches for all the entries of the table.
      * @returns An array of objects of type T found at the table.
      */
-    async findAll(): Promise<T[]>
+    async findAll(): Promise<E[]>
     {
         return (this.getModel() as any).findMany({});
     }
@@ -64,7 +65,7 @@ export class GenericDAO<T extends ModelDelegate>
      * @param data The data object provided. Note that the id gets omitted.
      * @returns The object that got created.
      */
-    async create(data: Omit<T, 'id'>): Promise<T>
+    async create(data: Omit<E, 'id'>): Promise<E>
     {
         return (this.getModel() as any).create({ data });
     }
@@ -74,7 +75,7 @@ export class GenericDAO<T extends ModelDelegate>
      * @param data The data object provided.
      * @returns The object that got updated.
      */
-    async update(data: T): Promise<T>
+    async update(data: E): Promise<E>
     {
         return (this.getModel() as any).update({
             where: { id: (data as any).id },
@@ -88,7 +89,7 @@ export class GenericDAO<T extends ModelDelegate>
      * @param data The data object provided.
      * @returns The object that got updated or created.
      */
-    async upsert(data: T): Promise<T>
+    async upsert(data: E): Promise<E>
     {
         return (this.getModel() as any).upsert({
             where: { id: (data as any).id },
@@ -102,7 +103,7 @@ export class GenericDAO<T extends ModelDelegate>
      * @param id The primary key of the entity.
      * @returns The object that got deleted if found.
      */
-    async deleteById(id: number): Promise<T>
+    async deleteById(id: number): Promise<E>
     {
         return (this.getModel() as any).delete({ where: { id } });
     }

@@ -3,11 +3,12 @@
 import { USAState } from "@/entities/USAState";
 import { IEvent } from "@/entities/IEvent";
 import { FaPlus, FaSearch } from "react-icons/fa";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { eventListTest } from "@/entities/tests/EventTests";
 import ContextMenu from "../commonUI/ContextMenu";
 import { EventForm } from "./EventForm";
+import { ServiceLocator } from "@/services/ServiceLocator";
 
 const columns: TableColumn<IEvent>[] = [
     {
@@ -83,20 +84,30 @@ const columns: TableColumn<IEvent>[] = [
 
 export const EventsTable: React.FC = () =>
 {
+    const [events, setEvents] = useState<IEvent[]>([])
+
+    useEffect(() => {
+        async function loadEvents() {
+            const data: IEvent[] = await ServiceLocator.eventService.findAll();
+            setEvents(data)
+        }
+        loadEvents()
+      }, []);
+      
     const handleRowClick = (row: any) =>
     {
         console.log("Selected: ");
         console.log(row);
     }
 
-    const data: IEvent[] = eventListTest;
+    
     const [ isDialogOpen, setIsDialogOpen ] = useState(false);
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
             <div className="p-4 flex flex-colum justify-between lg:w-1/2">
-                <div>Total Events: <span className="font-bold">{" " + data.length}</span></div>
-                <div>Public Events: <span className="font-bold">{" " + data.filter((event) => {if (event.public) return event}).length}</span></div>
-                <div>Private Events: <span className="font-bold">{" " + data.filter((event) => {if (!event.public) return event}).length}</span></div>
+                <div>Total Events: <span className="font-bold">{" " + events.length}</span></div>
+                <div>Public Events: <span className="font-bold">{" " + events.filter((event) => {if (event.public) return event}).length}</span></div>
+                <div>Private Events: <span className="font-bold">{" " + events.filter((event) => {if (!event.public) return event}).length}</span></div>
             </div>
             <hr/>
 
@@ -135,7 +146,7 @@ export const EventsTable: React.FC = () =>
             <DataTable
             className="h-[65%] overflow-visible"
             columns={columns}
-            data={data}
+            data={events}
             onRowClicked={handleRowClick}
             pointerOnHover
             highlightOnHover

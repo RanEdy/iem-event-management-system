@@ -1,6 +1,5 @@
 import { IUser } from "@/entities/IUser";
 import { GenericDAO } from "./GenericDAO";
-import { prisma } from "../lib/prisma"; // Asegúrate de importar prisma
 
 /**
  * Class with CRUD and query specific methods for the User table.

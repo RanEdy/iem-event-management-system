@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from 'next/navigation'; // Importar useRouter
 import { useLogin } from "./LoginProvider";
 import { IUser } from "@/entities/IUser";
-import { UserLevel } from "@/entities/UserLevel";
+import { UserLevel } from "@prisma/client";
 import { UserService } from "@/services/UserService"; // Añadir esta línea
 
 const LoginForm = () => {

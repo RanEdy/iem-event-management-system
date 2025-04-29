@@ -1,14 +1,14 @@
 import { prisma } from "../lib/prisma";
-import { Prisma, PrismaClient } from "@/app/generated/prisma";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 //This type gets the all the prisma models that can be use with PrismaClient
+type PrismaClientModelKeys = Extract<keyof PrismaClient, string>;
+
 type ModelDelegate = {
-    [K in keyof PrismaClient]: PrismaClient[K] extends {
-        findUnique: (...args: any[]) => any;
-    }
-    ? K
-    : never;
-}[keyof PrismaClient];
+  [K in PrismaClientModelKeys]: PrismaClient[K] extends {
+    findUnique: (...args: any[]) => any;
+  } ? K : never;
+}[PrismaClientModelKeys];
 
 
 //Then use a delegate to make a type based on the prisma model

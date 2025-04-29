@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { IEvent } from "@/entities/IEvent";
-import { USAState } from "@/app/generated/prisma";
+import { USAState } from "@prisma/client";
 import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
 

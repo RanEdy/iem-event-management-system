@@ -1,4 +1,4 @@
-import { USAState } from "@/app/generated/prisma";
+import { USAState } from "@prisma/client";
 
 export interface IEvent 
 {

@@ -1,4 +1,4 @@
-import { UserLevel } from "@/app/generated/prisma";
+import { UserLevel } from "@prisma/client";
 
 export interface IUser
 {

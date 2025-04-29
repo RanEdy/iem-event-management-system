@@ -1,6 +1,6 @@
 "use client";
 
-import { USAState } from "@/app/generated/prisma";
+import { USAState } from "@prisma/client";
 import { IEvent } from "@/entities/IEvent";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
@@ -19,7 +19,7 @@ const columns: TableColumn<IEvent>[] = [
         cell: row => <div className="flex flex-row items-center h-1/3">
             <div className="block items-center">
                 <div className="font-extrabold">
-                    {USAState[row.state].charAt(0) + USAState[row.state].substring(1).toLowerCase()
+                    {row.state.charAt(0) + row.state.substring(1).toLowerCase()
                     + ", " + row.city + " " + row.zipCode + ". "}
                 </div>
                 <div className="font-extrabold text-zinc-600">
@@ -86,12 +86,10 @@ export const EventsTable: React.FC = () =>
     const [events, setEvents] = useState<IEvent[]>([])
 
     useEffect(() => {
-        async function loadEvents() {
-            const data: IEvent[] = await ServiceLocator.eventService.findAll();
-            setEvents(data)
-        }
-        loadEvents()
-      }, []);
+        fetch("api/event")
+        .then(res => res.json())
+        .then(data => setEvents(data))
+    }, []);
       
     const handleRowClick = (row: any) =>
     {
@@ -114,7 +112,7 @@ export const EventsTable: React.FC = () =>
                 {/* SEARCH BAR */}
                 <div className="flex flex-column min-w-56 lg:w-1/3 h-12 border-2 m-2 p-2 bg-bluedark-gradient-r border-zinc-100 rounded-2xl items-center">
                     <FaSearch className="text-white m-2 mr-3"/>
-                    <input className="flex self-center w-full h-full p-1 bg-white rounded-xl"></input>
+                    <input type="text" className="flex self-center w-full h-full p-1 bg-white rounded-xl"></input>
                 </div>
 
 

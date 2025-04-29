@@ -1,6 +1,6 @@
 import { IEvent } from "./IEvent";
 import { IUser } from "./IUser";
-import { UserRole } from "./UserRole";
+import { UserRole } from "@/app/generated/prisma";
 
 export interface IEventUserList 
 {

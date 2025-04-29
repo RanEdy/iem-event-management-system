@@ -1,6 +1,4 @@
-import { IEventUserList } from "./IEventUserList";
-import { USAState } from "./USAState";
-import { UserLevel } from "./UserLevel";
+import { UserLevel } from "@/app/generated/prisma";
 
 export interface IUser
 {
@@ -23,9 +21,7 @@ export interface IUser
     dispatchCount: number;
     assistantManagerCount: number;
 
-    contactName: string;
-    contactPhone: string;
-
-    eventUserlist: IEventUserList[]
+    contactName: string | null;
+    contactPhone: string | null;
 
 }

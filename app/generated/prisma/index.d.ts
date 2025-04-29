@@ -1455,7 +1455,7 @@ export namespace Prisma {
 
   export type UserAvgAggregateOutputType = {
     id: number | null
-    supervisotCount: number | null
+    supervisorCount: number | null
     managerCount: number | null
     logisticCount: number | null
     driverCount: number | null
@@ -1465,7 +1465,7 @@ export namespace Prisma {
 
   export type UserSumAggregateOutputType = {
     id: number | null
-    supervisotCount: number | null
+    supervisorCount: number | null
     managerCount: number | null
     logisticCount: number | null
     driverCount: number | null
@@ -1484,7 +1484,7 @@ export namespace Prisma {
     phone: string | null
     active: boolean | null
     guardCard: boolean | null
-    supervisotCount: number | null
+    supervisorCount: number | null
     managerCount: number | null
     logisticCount: number | null
     driverCount: number | null
@@ -1505,7 +1505,7 @@ export namespace Prisma {
     phone: string | null
     active: boolean | null
     guardCard: boolean | null
-    supervisotCount: number | null
+    supervisorCount: number | null
     managerCount: number | null
     logisticCount: number | null
     driverCount: number | null
@@ -1526,7 +1526,7 @@ export namespace Prisma {
     phone: number
     active: number
     guardCard: number
-    supervisotCount: number
+    supervisorCount: number
     managerCount: number
     logisticCount: number
     driverCount: number
@@ -1540,7 +1540,7 @@ export namespace Prisma {
 
   export type UserAvgAggregateInputType = {
     id?: true
-    supervisotCount?: true
+    supervisorCount?: true
     managerCount?: true
     logisticCount?: true
     driverCount?: true
@@ -1550,7 +1550,7 @@ export namespace Prisma {
 
   export type UserSumAggregateInputType = {
     id?: true
-    supervisotCount?: true
+    supervisorCount?: true
     managerCount?: true
     logisticCount?: true
     driverCount?: true
@@ -1569,7 +1569,7 @@ export namespace Prisma {
     phone?: true
     active?: true
     guardCard?: true
-    supervisotCount?: true
+    supervisorCount?: true
     managerCount?: true
     logisticCount?: true
     driverCount?: true
@@ -1590,7 +1590,7 @@ export namespace Prisma {
     phone?: true
     active?: true
     guardCard?: true
-    supervisotCount?: true
+    supervisorCount?: true
     managerCount?: true
     logisticCount?: true
     driverCount?: true
@@ -1611,7 +1611,7 @@ export namespace Prisma {
     phone?: true
     active?: true
     guardCard?: true
-    supervisotCount?: true
+    supervisorCount?: true
     managerCount?: true
     logisticCount?: true
     driverCount?: true
@@ -1719,7 +1719,7 @@ export namespace Prisma {
     phone: string
     active: boolean
     guardCard: boolean
-    supervisotCount: number
+    supervisorCount: number
     managerCount: number
     logisticCount: number
     driverCount: number
@@ -1759,7 +1759,7 @@ export namespace Prisma {
     phone?: boolean
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: boolean
+    supervisorCount?: boolean
     managerCount?: boolean
     logisticCount?: boolean
     driverCount?: boolean
@@ -1782,7 +1782,7 @@ export namespace Prisma {
     phone?: boolean
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: boolean
+    supervisorCount?: boolean
     managerCount?: boolean
     logisticCount?: boolean
     driverCount?: boolean
@@ -1803,7 +1803,7 @@ export namespace Prisma {
     phone?: boolean
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: boolean
+    supervisorCount?: boolean
     managerCount?: boolean
     logisticCount?: boolean
     driverCount?: boolean
@@ -1824,7 +1824,7 @@ export namespace Prisma {
     phone?: boolean
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: boolean
+    supervisorCount?: boolean
     managerCount?: boolean
     logisticCount?: boolean
     driverCount?: boolean
@@ -1834,7 +1834,7 @@ export namespace Prisma {
     contactPhone?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "level" | "name" | "email" | "password" | "birthday" | "hireDate" | "phone" | "active" | "guardCard" | "supervisotCount" | "managerCount" | "logisticCount" | "driverCount" | "dispatchCount" | "assistantManagerCount" | "contactName" | "contactPhone", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "level" | "name" | "email" | "password" | "birthday" | "hireDate" | "phone" | "active" | "guardCard" | "supervisorCount" | "managerCount" | "logisticCount" | "driverCount" | "dispatchCount" | "assistantManagerCount" | "contactName" | "contactPhone", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     eventUserList?: boolean | User$eventUserListArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1858,7 +1858,7 @@ export namespace Prisma {
       phone: string
       active: boolean
       guardCard: boolean
-      supervisotCount: number
+      supervisorCount: number
       managerCount: number
       logisticCount: number
       driverCount: number
@@ -2300,7 +2300,7 @@ export namespace Prisma {
     readonly phone: FieldRef<"User", 'String'>
     readonly active: FieldRef<"User", 'Boolean'>
     readonly guardCard: FieldRef<"User", 'Boolean'>
-    readonly supervisotCount: FieldRef<"User", 'Int'>
+    readonly supervisorCount: FieldRef<"User", 'Int'>
     readonly managerCount: FieldRef<"User", 'Int'>
     readonly logisticCount: FieldRef<"User", 'Int'>
     readonly driverCount: FieldRef<"User", 'Int'>
@@ -2754,12 +2754,14 @@ export namespace Prisma {
     id: number | null
     internalNumber: number | null
     externalNumber: number | null
+    maxUsers: number | null
   }
 
   export type EventSumAggregateOutputType = {
     id: number | null
     internalNumber: number | null
     externalNumber: number | null
+    maxUsers: number | null
   }
 
   export type EventMinAggregateOutputType = {
@@ -2775,6 +2777,7 @@ export namespace Prisma {
     endDate: Date | null
     public: boolean | null
     done: boolean | null
+    maxUsers: number | null
   }
 
   export type EventMaxAggregateOutputType = {
@@ -2790,6 +2793,7 @@ export namespace Prisma {
     endDate: Date | null
     public: boolean | null
     done: boolean | null
+    maxUsers: number | null
   }
 
   export type EventCountAggregateOutputType = {
@@ -2805,6 +2809,7 @@ export namespace Prisma {
     endDate: number
     public: number
     done: number
+    maxUsers: number
     _all: number
   }
 
@@ -2813,12 +2818,14 @@ export namespace Prisma {
     id?: true
     internalNumber?: true
     externalNumber?: true
+    maxUsers?: true
   }
 
   export type EventSumAggregateInputType = {
     id?: true
     internalNumber?: true
     externalNumber?: true
+    maxUsers?: true
   }
 
   export type EventMinAggregateInputType = {
@@ -2834,6 +2841,7 @@ export namespace Prisma {
     endDate?: true
     public?: true
     done?: true
+    maxUsers?: true
   }
 
   export type EventMaxAggregateInputType = {
@@ -2849,6 +2857,7 @@ export namespace Prisma {
     endDate?: true
     public?: true
     done?: true
+    maxUsers?: true
   }
 
   export type EventCountAggregateInputType = {
@@ -2864,6 +2873,7 @@ export namespace Prisma {
     endDate?: true
     public?: true
     done?: true
+    maxUsers?: true
     _all?: true
   }
 
@@ -2966,6 +2976,7 @@ export namespace Prisma {
     endDate: Date
     public: boolean
     done: boolean
+    maxUsers: number
     _count: EventCountAggregateOutputType | null
     _avg: EventAvgAggregateOutputType | null
     _sum: EventSumAggregateOutputType | null
@@ -3000,6 +3011,7 @@ export namespace Prisma {
     endDate?: boolean
     public?: boolean
     done?: boolean
+    maxUsers?: boolean
     eventUsers?: boolean | Event$eventUsersArgs<ExtArgs>
     sections?: boolean | Event$sectionsArgs<ExtArgs>
     _count?: boolean | EventCountOutputTypeDefaultArgs<ExtArgs>
@@ -3018,6 +3030,7 @@ export namespace Prisma {
     endDate?: boolean
     public?: boolean
     done?: boolean
+    maxUsers?: boolean
   }, ExtArgs["result"]["event"]>
 
   export type EventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3033,6 +3046,7 @@ export namespace Prisma {
     endDate?: boolean
     public?: boolean
     done?: boolean
+    maxUsers?: boolean
   }, ExtArgs["result"]["event"]>
 
   export type EventSelectScalar = {
@@ -3048,9 +3062,10 @@ export namespace Prisma {
     endDate?: boolean
     public?: boolean
     done?: boolean
+    maxUsers?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "city" | "state" | "zipCode" | "street" | "internalNumber" | "externalNumber" | "startDate" | "endDate" | "public" | "done", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "city" | "state" | "zipCode" | "street" | "internalNumber" | "externalNumber" | "startDate" | "endDate" | "public" | "done" | "maxUsers", ExtArgs["result"]["event"]>
   export type EventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     eventUsers?: boolean | Event$eventUsersArgs<ExtArgs>
     sections?: boolean | Event$sectionsArgs<ExtArgs>
@@ -3078,6 +3093,7 @@ export namespace Prisma {
       endDate: Date
       public: boolean
       done: boolean
+      maxUsers: number
     }, ExtArgs["result"]["event"]>
     composites: {}
   }
@@ -3515,6 +3531,7 @@ export namespace Prisma {
     readonly endDate: FieldRef<"Event", 'DateTime'>
     readonly public: FieldRef<"Event", 'Boolean'>
     readonly done: FieldRef<"Event", 'Boolean'>
+    readonly maxUsers: FieldRef<"Event", 'Int'>
   }
     
 
@@ -7285,7 +7302,7 @@ export namespace Prisma {
     phone: 'phone',
     active: 'active',
     guardCard: 'guardCard',
-    supervisotCount: 'supervisotCount',
+    supervisorCount: 'supervisorCount',
     managerCount: 'managerCount',
     logisticCount: 'logisticCount',
     driverCount: 'driverCount',
@@ -7310,7 +7327,8 @@ export namespace Prisma {
     startDate: 'startDate',
     endDate: 'endDate',
     public: 'public',
-    done: 'done'
+    done: 'done',
+    maxUsers: 'maxUsers'
   };
 
   export type EventScalarFieldEnum = (typeof EventScalarFieldEnum)[keyof typeof EventScalarFieldEnum]
@@ -7511,7 +7529,7 @@ export namespace Prisma {
     phone?: StringFilter<"User"> | string
     active?: BoolFilter<"User"> | boolean
     guardCard?: BoolFilter<"User"> | boolean
-    supervisotCount?: IntFilter<"User"> | number
+    supervisorCount?: IntFilter<"User"> | number
     managerCount?: IntFilter<"User"> | number
     logisticCount?: IntFilter<"User"> | number
     driverCount?: IntFilter<"User"> | number
@@ -7533,7 +7551,7 @@ export namespace Prisma {
     phone?: SortOrder
     active?: SortOrder
     guardCard?: SortOrder
-    supervisotCount?: SortOrder
+    supervisorCount?: SortOrder
     managerCount?: SortOrder
     logisticCount?: SortOrder
     driverCount?: SortOrder
@@ -7558,7 +7576,7 @@ export namespace Prisma {
     phone?: StringFilter<"User"> | string
     active?: BoolFilter<"User"> | boolean
     guardCard?: BoolFilter<"User"> | boolean
-    supervisotCount?: IntFilter<"User"> | number
+    supervisorCount?: IntFilter<"User"> | number
     managerCount?: IntFilter<"User"> | number
     logisticCount?: IntFilter<"User"> | number
     driverCount?: IntFilter<"User"> | number
@@ -7580,7 +7598,7 @@ export namespace Prisma {
     phone?: SortOrder
     active?: SortOrder
     guardCard?: SortOrder
-    supervisotCount?: SortOrder
+    supervisorCount?: SortOrder
     managerCount?: SortOrder
     logisticCount?: SortOrder
     driverCount?: SortOrder
@@ -7609,7 +7627,7 @@ export namespace Prisma {
     phone?: StringWithAggregatesFilter<"User"> | string
     active?: BoolWithAggregatesFilter<"User"> | boolean
     guardCard?: BoolWithAggregatesFilter<"User"> | boolean
-    supervisotCount?: IntWithAggregatesFilter<"User"> | number
+    supervisorCount?: IntWithAggregatesFilter<"User"> | number
     managerCount?: IntWithAggregatesFilter<"User"> | number
     logisticCount?: IntWithAggregatesFilter<"User"> | number
     driverCount?: IntWithAggregatesFilter<"User"> | number
@@ -7635,6 +7653,7 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Event"> | Date | string
     public?: BoolFilter<"Event"> | boolean
     done?: BoolFilter<"Event"> | boolean
+    maxUsers?: IntFilter<"Event"> | number
     eventUsers?: EventUserListListRelationFilter
     sections?: EventSectionListRelationFilter
   }
@@ -7652,6 +7671,7 @@ export namespace Prisma {
     endDate?: SortOrder
     public?: SortOrder
     done?: SortOrder
+    maxUsers?: SortOrder
     eventUsers?: EventUserListOrderByRelationAggregateInput
     sections?: EventSectionOrderByRelationAggregateInput
   }
@@ -7672,6 +7692,7 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Event"> | Date | string
     public?: BoolFilter<"Event"> | boolean
     done?: BoolFilter<"Event"> | boolean
+    maxUsers?: IntFilter<"Event"> | number
     eventUsers?: EventUserListListRelationFilter
     sections?: EventSectionListRelationFilter
   }, "id">
@@ -7689,6 +7710,7 @@ export namespace Prisma {
     endDate?: SortOrder
     public?: SortOrder
     done?: SortOrder
+    maxUsers?: SortOrder
     _count?: EventCountOrderByAggregateInput
     _avg?: EventAvgOrderByAggregateInput
     _max?: EventMaxOrderByAggregateInput
@@ -7712,6 +7734,7 @@ export namespace Prisma {
     endDate?: DateTimeWithAggregatesFilter<"Event"> | Date | string
     public?: BoolWithAggregatesFilter<"Event"> | boolean
     done?: BoolWithAggregatesFilter<"Event"> | boolean
+    maxUsers?: IntWithAggregatesFilter<"Event"> | number
   }
 
   export type EventSectionWhereInput = {
@@ -7886,7 +7909,7 @@ export namespace Prisma {
     phone: string
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: number
+    supervisorCount?: number
     managerCount?: number
     logisticCount?: number
     driverCount?: number
@@ -7908,7 +7931,7 @@ export namespace Prisma {
     phone: string
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: number
+    supervisorCount?: number
     managerCount?: number
     logisticCount?: number
     driverCount?: number
@@ -7929,7 +7952,7 @@ export namespace Prisma {
     phone?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     guardCard?: BoolFieldUpdateOperationsInput | boolean
-    supervisotCount?: IntFieldUpdateOperationsInput | number
+    supervisorCount?: IntFieldUpdateOperationsInput | number
     managerCount?: IntFieldUpdateOperationsInput | number
     logisticCount?: IntFieldUpdateOperationsInput | number
     driverCount?: IntFieldUpdateOperationsInput | number
@@ -7951,7 +7974,7 @@ export namespace Prisma {
     phone?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     guardCard?: BoolFieldUpdateOperationsInput | boolean
-    supervisotCount?: IntFieldUpdateOperationsInput | number
+    supervisorCount?: IntFieldUpdateOperationsInput | number
     managerCount?: IntFieldUpdateOperationsInput | number
     logisticCount?: IntFieldUpdateOperationsInput | number
     driverCount?: IntFieldUpdateOperationsInput | number
@@ -7973,7 +7996,7 @@ export namespace Prisma {
     phone: string
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: number
+    supervisorCount?: number
     managerCount?: number
     logisticCount?: number
     driverCount?: number
@@ -7993,7 +8016,7 @@ export namespace Prisma {
     phone?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     guardCard?: BoolFieldUpdateOperationsInput | boolean
-    supervisotCount?: IntFieldUpdateOperationsInput | number
+    supervisorCount?: IntFieldUpdateOperationsInput | number
     managerCount?: IntFieldUpdateOperationsInput | number
     logisticCount?: IntFieldUpdateOperationsInput | number
     driverCount?: IntFieldUpdateOperationsInput | number
@@ -8014,7 +8037,7 @@ export namespace Prisma {
     phone?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     guardCard?: BoolFieldUpdateOperationsInput | boolean
-    supervisotCount?: IntFieldUpdateOperationsInput | number
+    supervisorCount?: IntFieldUpdateOperationsInput | number
     managerCount?: IntFieldUpdateOperationsInput | number
     logisticCount?: IntFieldUpdateOperationsInput | number
     driverCount?: IntFieldUpdateOperationsInput | number
@@ -8036,6 +8059,7 @@ export namespace Prisma {
     endDate: Date | string
     public?: boolean
     done?: boolean
+    maxUsers?: number
     eventUsers?: EventUserListCreateNestedManyWithoutEventInput
     sections?: EventSectionCreateNestedManyWithoutEventInput
   }
@@ -8053,6 +8077,7 @@ export namespace Prisma {
     endDate: Date | string
     public?: boolean
     done?: boolean
+    maxUsers?: number
     eventUsers?: EventUserListUncheckedCreateNestedManyWithoutEventInput
     sections?: EventSectionUncheckedCreateNestedManyWithoutEventInput
   }
@@ -8069,6 +8094,7 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     public?: BoolFieldUpdateOperationsInput | boolean
     done?: BoolFieldUpdateOperationsInput | boolean
+    maxUsers?: IntFieldUpdateOperationsInput | number
     eventUsers?: EventUserListUpdateManyWithoutEventNestedInput
     sections?: EventSectionUpdateManyWithoutEventNestedInput
   }
@@ -8086,6 +8112,7 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     public?: BoolFieldUpdateOperationsInput | boolean
     done?: BoolFieldUpdateOperationsInput | boolean
+    maxUsers?: IntFieldUpdateOperationsInput | number
     eventUsers?: EventUserListUncheckedUpdateManyWithoutEventNestedInput
     sections?: EventSectionUncheckedUpdateManyWithoutEventNestedInput
   }
@@ -8103,6 +8130,7 @@ export namespace Prisma {
     endDate: Date | string
     public?: boolean
     done?: boolean
+    maxUsers?: number
   }
 
   export type EventUpdateManyMutationInput = {
@@ -8117,6 +8145,7 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     public?: BoolFieldUpdateOperationsInput | boolean
     done?: BoolFieldUpdateOperationsInput | boolean
+    maxUsers?: IntFieldUpdateOperationsInput | number
   }
 
   export type EventUncheckedUpdateManyInput = {
@@ -8132,6 +8161,7 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     public?: BoolFieldUpdateOperationsInput | boolean
     done?: BoolFieldUpdateOperationsInput | boolean
+    maxUsers?: IntFieldUpdateOperationsInput | number
   }
 
   export type EventSectionCreateInput = {
@@ -8362,7 +8392,7 @@ export namespace Prisma {
     phone?: SortOrder
     active?: SortOrder
     guardCard?: SortOrder
-    supervisotCount?: SortOrder
+    supervisorCount?: SortOrder
     managerCount?: SortOrder
     logisticCount?: SortOrder
     driverCount?: SortOrder
@@ -8374,7 +8404,7 @@ export namespace Prisma {
 
   export type UserAvgOrderByAggregateInput = {
     id?: SortOrder
-    supervisotCount?: SortOrder
+    supervisorCount?: SortOrder
     managerCount?: SortOrder
     logisticCount?: SortOrder
     driverCount?: SortOrder
@@ -8393,7 +8423,7 @@ export namespace Prisma {
     phone?: SortOrder
     active?: SortOrder
     guardCard?: SortOrder
-    supervisotCount?: SortOrder
+    supervisorCount?: SortOrder
     managerCount?: SortOrder
     logisticCount?: SortOrder
     driverCount?: SortOrder
@@ -8414,7 +8444,7 @@ export namespace Prisma {
     phone?: SortOrder
     active?: SortOrder
     guardCard?: SortOrder
-    supervisotCount?: SortOrder
+    supervisorCount?: SortOrder
     managerCount?: SortOrder
     logisticCount?: SortOrder
     driverCount?: SortOrder
@@ -8426,7 +8456,7 @@ export namespace Prisma {
 
   export type UserSumOrderByAggregateInput = {
     id?: SortOrder
-    supervisotCount?: SortOrder
+    supervisorCount?: SortOrder
     managerCount?: SortOrder
     logisticCount?: SortOrder
     driverCount?: SortOrder
@@ -8559,12 +8589,14 @@ export namespace Prisma {
     endDate?: SortOrder
     public?: SortOrder
     done?: SortOrder
+    maxUsers?: SortOrder
   }
 
   export type EventAvgOrderByAggregateInput = {
     id?: SortOrder
     internalNumber?: SortOrder
     externalNumber?: SortOrder
+    maxUsers?: SortOrder
   }
 
   export type EventMaxOrderByAggregateInput = {
@@ -8580,6 +8612,7 @@ export namespace Prisma {
     endDate?: SortOrder
     public?: SortOrder
     done?: SortOrder
+    maxUsers?: SortOrder
   }
 
   export type EventMinOrderByAggregateInput = {
@@ -8595,12 +8628,14 @@ export namespace Prisma {
     endDate?: SortOrder
     public?: SortOrder
     done?: SortOrder
+    maxUsers?: SortOrder
   }
 
   export type EventSumOrderByAggregateInput = {
     id?: SortOrder
     internalNumber?: SortOrder
     externalNumber?: SortOrder
+    maxUsers?: SortOrder
   }
 
   export type EnumUSAStateWithAggregatesFilter<$PrismaModel = never> = {
@@ -9444,6 +9479,7 @@ export namespace Prisma {
     endDate: Date | string
     public?: boolean
     done?: boolean
+    maxUsers?: number
     eventUsers?: EventUserListCreateNestedManyWithoutEventInput
   }
 
@@ -9460,6 +9496,7 @@ export namespace Prisma {
     endDate: Date | string
     public?: boolean
     done?: boolean
+    maxUsers?: number
     eventUsers?: EventUserListUncheckedCreateNestedManyWithoutEventInput
   }
 
@@ -9512,6 +9549,7 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     public?: BoolFieldUpdateOperationsInput | boolean
     done?: BoolFieldUpdateOperationsInput | boolean
+    maxUsers?: IntFieldUpdateOperationsInput | number
     eventUsers?: EventUserListUpdateManyWithoutEventNestedInput
   }
 
@@ -9528,6 +9566,7 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     public?: BoolFieldUpdateOperationsInput | boolean
     done?: BoolFieldUpdateOperationsInput | boolean
+    maxUsers?: IntFieldUpdateOperationsInput | number
     eventUsers?: EventUserListUncheckedUpdateManyWithoutEventNestedInput
   }
 
@@ -9609,7 +9648,7 @@ export namespace Prisma {
     phone: string
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: number
+    supervisorCount?: number
     managerCount?: number
     logisticCount?: number
     driverCount?: number
@@ -9630,7 +9669,7 @@ export namespace Prisma {
     phone: string
     active?: boolean
     guardCard?: boolean
-    supervisotCount?: number
+    supervisorCount?: number
     managerCount?: number
     logisticCount?: number
     driverCount?: number
@@ -9657,6 +9696,7 @@ export namespace Prisma {
     endDate: Date | string
     public?: boolean
     done?: boolean
+    maxUsers?: number
     sections?: EventSectionCreateNestedManyWithoutEventInput
   }
 
@@ -9673,6 +9713,7 @@ export namespace Prisma {
     endDate: Date | string
     public?: boolean
     done?: boolean
+    maxUsers?: number
     sections?: EventSectionUncheckedCreateNestedManyWithoutEventInput
   }
 
@@ -9702,7 +9743,7 @@ export namespace Prisma {
     phone?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     guardCard?: BoolFieldUpdateOperationsInput | boolean
-    supervisotCount?: IntFieldUpdateOperationsInput | number
+    supervisorCount?: IntFieldUpdateOperationsInput | number
     managerCount?: IntFieldUpdateOperationsInput | number
     logisticCount?: IntFieldUpdateOperationsInput | number
     driverCount?: IntFieldUpdateOperationsInput | number
@@ -9723,7 +9764,7 @@ export namespace Prisma {
     phone?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     guardCard?: BoolFieldUpdateOperationsInput | boolean
-    supervisotCount?: IntFieldUpdateOperationsInput | number
+    supervisorCount?: IntFieldUpdateOperationsInput | number
     managerCount?: IntFieldUpdateOperationsInput | number
     logisticCount?: IntFieldUpdateOperationsInput | number
     driverCount?: IntFieldUpdateOperationsInput | number
@@ -9756,6 +9797,7 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     public?: BoolFieldUpdateOperationsInput | boolean
     done?: BoolFieldUpdateOperationsInput | boolean
+    maxUsers?: IntFieldUpdateOperationsInput | number
     sections?: EventSectionUpdateManyWithoutEventNestedInput
   }
 
@@ -9772,6 +9814,7 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     public?: BoolFieldUpdateOperationsInput | boolean
     done?: BoolFieldUpdateOperationsInput | boolean
+    maxUsers?: IntFieldUpdateOperationsInput | number
     sections?: EventSectionUncheckedUpdateManyWithoutEventNestedInput
   }
 

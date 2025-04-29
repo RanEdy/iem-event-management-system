@@ -1,6 +1,4 @@
-import { EventSection } from "@/app/generated/prisma";
-import { IEventUserList } from "./IEventUserList";
-import { USAState } from "./USAState";
+import { USAState } from "@/app/generated/prisma";
 
 export interface IEvent 
 {
@@ -10,15 +8,12 @@ export interface IEvent
     state: USAState;
     zipCode: string;
     street: string;
-    internalNumber: number;
-    externalNumber: number;
+    internalNumber: number | null;
+    externalNumber: number | null;
 
     startDate: Date;
     endDate: Date;
     public: boolean;
     done: boolean;
     maxUsers: number;
-
-    eventUsers: IEventUserList[]
-    sections: EventSection[]
 }

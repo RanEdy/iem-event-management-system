@@ -1,11 +1,10 @@
 "use client";
 
-import { USAState } from "@/entities/USAState";
+import { USAState } from "@/app/generated/prisma";
 import { IEvent } from "@/entities/IEvent";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
-import { eventListTest } from "@/entities/tests/EventTests";
 import ContextMenu from "../commonUI/ContextMenu";
 import { EventForm } from "./EventForm";
 import { ServiceLocator } from "@/services/ServiceLocator";

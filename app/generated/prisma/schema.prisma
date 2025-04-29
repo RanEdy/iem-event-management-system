@@ -101,7 +101,7 @@ model User {
   active    Boolean  @default(false)
   guardCard Boolean  @default(false)
 
-  supervisotCount       Int @default(0)
+  supervisorCount       Int @default(0)
   managerCount          Int @default(0)
   logisticCount         Int @default(0)
   driverCount           Int @default(0)
@@ -128,6 +128,7 @@ model Event {
   endDate   DateTime
   public    Boolean  @default(false)
   done      Boolean  @default(false)
+  maxUsers  Int      @default(1)
 
   eventUsers EventUserList[]
   sections   EventSection[]

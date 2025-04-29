@@ -128,7 +128,7 @@ exports.Prisma.UserScalarFieldEnum = {
   phone: 'phone',
   active: 'active',
   guardCard: 'guardCard',
-  supervisotCount: 'supervisotCount',
+  supervisorCount: 'supervisorCount',
   managerCount: 'managerCount',
   logisticCount: 'logisticCount',
   driverCount: 'driverCount',
@@ -150,7 +150,8 @@ exports.Prisma.EventScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   public: 'public',
-  done: 'done'
+  done: 'done',
+  maxUsers: 'maxUsers'
 };
 
 exports.Prisma.EventSectionScalarFieldEnum = {

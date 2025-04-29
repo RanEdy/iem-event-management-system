@@ -15,8 +15,9 @@ export interface IEvent
 
     startDate: Date;
     endDate: Date;
-    public: boolean
-    done: boolean
+    public: boolean;
+    done: boolean;
+    maxUsers: number;
 
     eventUsers: IEventUserList[]
     sections: EventSection[]

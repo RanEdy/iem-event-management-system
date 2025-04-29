@@ -1,25 +1,53 @@
 import { prisma } from "../lib/prisma";
+import { Prisma, PrismaClient } from "@/app/generated/prisma";
+
+//This type gets the all the prisma models that can be use with PrismaClient
+type ModelDelegate = {
+    [K in keyof PrismaClient]: PrismaClient[K] extends {
+        findUnique: (...args: any[]) => any;
+    }
+    ? K
+    : never;
+}[keyof PrismaClient];
 
 
+//Then use a delegate to make a type based on the prisma model
+type DelegateType<T extends ModelDelegate> = PrismaClient[T];
+
+//Then use a delegate to make the same type but for the return value type
+//This is to make the class generic with all the prisma model types, so Typescript can infer all the possibles types this class can be
+type DelegateReturnType<T extends ModelDelegate> =
+    DelegateType<T> extends {
+        findUnique: (...args: any[]) => Prisma.PrismaPromise<infer R>;
+    }
+    ? R
+    : never;
 /**
  * Class with generic methods for CRUD.
  * It uses the ORM of prisma for the database communication.
  * @param {T} T type of the entity (table).
- * @param {K} K type of the primary key of the entity.
  * @author Erandi
  */
-export class GenericDAO<T, K>
+export class GenericDAO<T extends ModelDelegate>
 {
-    constructor(protected modelName: keyof typeof prisma) { }
+    protected client: PrismaClient;
+
+    constructor(private modelName: T) { 
+        this.client = prisma;
+    }
+
+    protected getModel(): PrismaClient[T] {
+        return this.client[this.modelName];
+    }
 
     /**
      * Searches for a unique entry that matches with the id in the table of entity T.
      * @param id primary key of the entity.
      * @returns A unique object of type T if found. Otherwise return null.
      */
-    async findById(id: K): Promise<T | null>
+    async findById(id: number): Promise<DelegateReturnType<T> | null>
     {
-        return prisma[this.modelName].findUnique({ where: { id } });
+        return (this.getModel() as any).findUnique({ where: { id } });
     }
 
     /**
@@ -28,7 +56,7 @@ export class GenericDAO<T, K>
      */
     async findAll(): Promise<T[]>
     {
-        return prisma[this.modelName].findMany({});
+        return (this.getModel() as any).findMany({});
     }
 
     /**
@@ -38,7 +66,7 @@ export class GenericDAO<T, K>
      */
     async create(data: Omit<T, 'id'>): Promise<T>
     {
-        return prisma[this.modelName].create({ data });
+        return (this.getModel() as any).create({ data });
     }
 
     /**
@@ -48,7 +76,7 @@ export class GenericDAO<T, K>
      */
     async update(data: T): Promise<T>
     {
-        return prisma[this.modelName].update({
+        return (this.getModel() as any).update({
             where: { id: (data as any).id },
             data
         });
@@ -62,7 +90,7 @@ export class GenericDAO<T, K>
      */
     async upsert(data: T): Promise<T>
     {
-        return prisma[this.modelName].upsert({
+        return (this.getModel() as any).upsert({
             where: { id: (data as any).id },
             update: data,
             create: data
@@ -74,8 +102,8 @@ export class GenericDAO<T, K>
      * @param id The primary key of the entity.
      * @returns The object that got deleted if found.
      */
-    async deleteById(id: K): Promise<T>
+    async deleteById(id: number): Promise<T>
     {
-        return prisma[this.modelName].delete({ where: { id } });
+        return (this.getModel() as any).delete({ where: { id } });
     }
 }

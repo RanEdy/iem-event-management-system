@@ -1,6 +1,7 @@
 // Ruta API para verificar credenciales de usuario
 import { NextResponse } from 'next/server';
-import { DAOLocator } from '@/persistence/DAOLocator';
+// Cambio: Importar ServiceLocator en lugar de DAOLocator
+import { ServiceLocator } from '@/services/ServiceLocator';
 
 export async function POST(request: Request) {
   try {
@@ -10,8 +11,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email y contraseña son requeridos' }, { status: 400 });
     }
 
-    const userDao = DAOLocator.userDao;
-    const user = await userDao.verifyCredentials(email, password);
+    // Cambio: Usar userService desde ServiceLocator para verificar credenciales
+    const user = await ServiceLocator.userService.verifyCredentials(email, password);
 
     if (user) {
       // Excluir la contraseña del objeto de usuario antes de enviarlo

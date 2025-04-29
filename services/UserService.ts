@@ -27,7 +27,7 @@ export class UserService
 
             if (!user) {
                 console.log(`User not found with email: ${email}`);
-                return null; // Usuario no encontrado
+                return null;
             }
 
             // Comparación directa de contraseñas (¡NO SEGURO PARA PRODUCCIÓN!)

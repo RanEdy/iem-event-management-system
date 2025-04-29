@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { UserLevel } from '@/entities/UserLevel';
+import { UserLevel } from '@prisma/client';
 import { NavbarButton } from './NavbarButton';
 import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser } from "react-icons/fa";
 

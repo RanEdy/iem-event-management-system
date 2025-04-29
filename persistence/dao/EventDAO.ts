@@ -6,7 +6,7 @@ import { GenericDAO } from "./GenericDAO";
  * This class extends GenericDAO with IUser as T and number as K.
  * @author Erandi Angel
  */
-export class EventDAO extends GenericDAO<IEvent, number>
+export class EventDAO extends GenericDAO<"event", IEvent>
 {
     /**
      * Create a new EventDAO instance.

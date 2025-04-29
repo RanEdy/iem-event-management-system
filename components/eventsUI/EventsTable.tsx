@@ -27,7 +27,7 @@ const columns: TableColumn<IEvent>[] = [
                 </div>
             </div>
         </div>,
-        minWidth: "350px",
+        //minWidth: "350px",
     },
     {
         name: "DATE",
@@ -41,7 +41,7 @@ const columns: TableColumn<IEvent>[] = [
                 </div>
             </div>
         </div>,
-        minWidth: "150px"
+        //minWidth: "150px"
     },
     {
         name: "DURATION",
@@ -76,7 +76,7 @@ const columns: TableColumn<IEvent>[] = [
         cell: row => <ContextMenu row={row}/>,
         ignoreRowClick: true,
         button: true,
-        allowOverflow: true
+        //allowOverflow: true
     }
 ]
 

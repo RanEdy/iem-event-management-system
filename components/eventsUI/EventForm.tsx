@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IEvent } from "@/entities/IEvent";
 import { USAState } from "@/app/generated/prisma";
+import DatePicker from "react-datepicker"
+import 'react-datepicker/dist/react-datepicker.css';
 
 type EventFormProps = {
     title: string;
@@ -45,14 +47,10 @@ export const EventForm: React.FC<EventFormProps> = ({title}) => {
         console.log("Start Date:", startDate?.toISOString().split("T")[0] ?? "Not set");
         console.log("End Date:", endDate?.toISOString().split("T")[0] ?? "Not set");
         console.log("Max Users:", maxUsers);
-        console.log("Public Event:", publicEvent ? "Público" : "Privado");
+        console.log("Public Event:", publicEvent ? "Public" : "Private");
 
-        console.log("today:", minDateTime);
     }
 
-    // CURRENT COMPUTER DATE
-    const today = new Date(); 
-    const minDateTime = today.toISOString().slice(0, 10);
 
     return (
         <div className="p-1 my-4 h-full w-full overflow-visible overflow-y-scroll">
@@ -162,38 +160,26 @@ export const EventForm: React.FC<EventFormProps> = ({title}) => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                         {/* FIRST CELL: START DATE */}
-                        <div className="grid grid-rows-2">
-                            <label className="text-lg font-bold text-center">
-                                Start Date
-                                <hr className="border-t-2 border-gray-300 mt-2" />
-                            </label>
-                            <input
-                                type="Date"
-                                id="startDate"
-                                value={startDate ? startDate.toISOString().split("T")[0] : ""}
-                                required
-                                min={minDateTime}
-                                onChange={(e) => setStartDate(new Date(e.target.value))}
-                                className="border-2 border-gray-300 w-full p-2 rounded-md"
-                                title="Start Date*"
+                        <div className="grid grid-rows-1">
+                            <DatePicker
+                                className="w-full p-2 border-2 border-gray-300 rounded-md"
+                                selected={startDate}
+                                onChange={(date)=> setStartDate(date)}
+                                showTimeSelect
+                                dateFormat="MMMM, dd,  yyyy hh:mm aa"
+                                placeholderText="Start Date*"
                             />
                         </div>
 
                         {/* SECOND CELL: END DATE */}
-                        <div className="grid grid-rows-2">
-                            <label htmlFor="endDate" className="text-lg font-bold text-center">
-                                End Date
-                                <hr className="border-t-2 border-gray-300 mt-2" />
-                            </label>
-                            <input
-                                type="Date"
-                                id="endDate"
-                                value={endDate ? endDate.toISOString().split("T")[0] : ""}
-                                required
-                                min={minDateTime}
-                                onChange={(e) => setEndDate(new Date(e.target.value))}
-                                className="border-2 border-gray-300 w-full p-2 rounded-md"
-                                title="End Date*"
+                        <div className="grid grid-rows-1">
+                            <DatePicker
+                                className="w-full p-2 border-2 border-gray-300 rounded-md"
+                                selected={endDate}
+                                onChange={(date)=> setEndDate(date)}
+                                showTimeSelect
+                                dateFormat="MMMM, dd, yyyy hh:mm aa"
+                                placeholderText="End Date*"
                             />
                         </div>
 

@@ -7,6 +7,7 @@ import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
 import { eventListTest } from "@/entities/tests/EventTests";
 import { IEventSection } from "@/entities/IEventSection";
+import { EventDescription } from "./EventSection";
 
 type EventFormProps = {
     title: string;
@@ -229,11 +230,11 @@ export const EventForm: React.FC<EventFormProps> = ({title}) => {
                     </div>
 
                     {/* DESCRIPTION SECTION */}
-
+                    <EventDescription event={event} initialSections={sections}/>
                     {/* Save BUTTON */}
                         <button
                             type="submit"
-                            className="h-10 w-full p-2 sm:w-1/3 mt-6 rounded-md bg-blue-700 text-white font-bold">
+                            className="h-10 w-full p-2 sm:w-1/3 mt-6 rounded-md bg-blue-900 text-white font-bold">
                             Save
                         </button>
                 </form>

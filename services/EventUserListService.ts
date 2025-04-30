@@ -1,6 +1,7 @@
 import { IEventUserList } from "@/entities/IEventUserList";
 import { DAOLocator } from "@/persistence/DAOLocator";
-
+import { EventDAO } from "@/persistence/dao/EventDAO";
+import { UserRole } from "@prisma/client";
 
 /**
  * Class with methods for everything related to the EventUserList.
@@ -10,6 +11,32 @@ import { DAOLocator } from "@/persistence/DAOLocator";
 export class EventUserListService
 {
     constructor() {}
+
+    /**
+    * Returns all eventUserList entries that match the given user role.
+    * @param role The role to filter the eventUserList entries.
+    * @returns An array of IEventUserList objects matching the specified role. Returns an empty array if none match or an error occurs.
+    */
+    async findManyByRole(role: UserRole): Promise<IEventUserList[]>
+    {
+            let eventUserList: IEventUserList[] = [];
+            try
+            {
+                const eventUserListAll = await DAOLocator.eventUserListDao.findAll();
+                eventUserList = eventUserListAll.filter((data) => {
+                    if(data.role === role)
+                    {
+                        return data;
+                    }   
+                })
+            }
+            catch(error)
+            {
+                console.error("Error find many by role:", error);
+                return eventUserList;
+            }
+            return eventUserList;
+    }
 
     /**
      * Searches for a unique entry that matches with the id in the eventUserList table.

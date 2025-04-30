@@ -1,5 +1,5 @@
 import { IEvent } from "../IEvent";
-import { USAState } from "../USAState";
+import { USAState } from "@prisma/client";
 
 export const eventListTest: IEvent[] = [
     {
@@ -15,8 +15,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 0),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 2,
@@ -31,8 +30,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 11, 20),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 3,
@@ -47,8 +45,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 4,
@@ -63,8 +60,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 5,
@@ -79,8 +75,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 6,
@@ -95,8 +90,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 7,
@@ -111,8 +105,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 8,
@@ -127,8 +120,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 9,
@@ -143,8 +135,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 10,
@@ -159,8 +150,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 11,
@@ -175,8 +165,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 12,
@@ -191,8 +180,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 13,
@@ -207,8 +195,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 14,
@@ -223,8 +210,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 15,
@@ -239,8 +225,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 16,
@@ -255,8 +240,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 17,
@@ -271,8 +255,7 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
     {
         id: 18,
@@ -287,7 +270,6 @@ export const eventListTest: IEvent[] = [
         done: false,
         startDate: new Date(2025, 4, 25, 15, 30),
         endDate: new Date(2025, 4, 28, 17, 0),
-        eventUsers: [],
-        sections: []
+        maxUsers: 40
     },
 ]

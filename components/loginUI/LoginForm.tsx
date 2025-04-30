@@ -5,8 +5,9 @@ import { useState } from "react";
 import { useRouter } from 'next/navigation'; // Importar useRouter
 import { useLogin } from "./LoginProvider";
 import { IUser } from "@/entities/IUser";
-import { UserLevel } from "@prisma/client";
-import { UserService } from "@/services/UserService"; // Añadir esta línea
+import { UserLevel } from "@/entities/UserLevel";
+// Eliminar la importación directa de UserService
+// import { UserService } from "@/services/UserService"; // Esta línea ya estaba comentada, pero la elimino para limpieza
 
 const LoginForm = () => {
     const { setUserSession } = useLogin();
@@ -55,22 +56,34 @@ const LoginForm = () => {
         console.log("Intentando iniciar sesión con Email: " + email);
 
         try {
-            // Obtener instancia del servicio de usuario directamente
-            // const userService = ServiceLocator.userService; // Eliminar esta línea
-            const userService = new UserService(); // Añadir esta línea
-            const authenticatedUser = await userService.verifyCredentials(email, password);
+            // Realizar la petición fetch a la nueva API route
+            const response = await fetch('/api/user/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-            if (authenticatedUser) {
+            const data = await response.json();
+
+            if (response.ok) {
                 // Éxito: Usuario autenticado
+                const authenticatedUser: IUser = data; // Asumiendo que la API devuelve el objeto IUser
                 console.log("Inicio de sesión exitoso para:", authenticatedUser.email);
                 setUserSession(authenticatedUser); // Guardar sesión en el contexto
                 router.push('/main'); // Redirigir a la página principal
-
             } else {
-                // Fallo: Credenciales incorrectas
-                console.log("Error de inicio de sesión: Credenciales inválidas");
-                setEmailError("Correo electrónico o contraseña incorrectos.");
-                setPasswordError(" "); // Marcar ambos campos como relacionados al error
+                // Fallo: Credenciales incorrectas o error del servidor
+                console.log("Error de inicio de sesión:", data.error || 'Error desconocido');
+                setEmailError(data.error || "Correo electrónico o contraseña incorrectos.");
+                // Si el error es específico de credenciales, marcar ambos campos
+                if (response.status === 401) {
+                    setPasswordError(" "); // Marcar ambos campos como relacionados al error
+                } else {
+                    // Para otros errores (e.g., 400, 500), solo mostrar en el campo de email
+                    setPasswordError("");
+                }
             }
 
         } catch (error) {

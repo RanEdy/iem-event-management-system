@@ -7,7 +7,7 @@ import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
 import { eventListTest } from "@/entities/tests/EventTests";
 import { IEventSection } from "@/entities/IEventSection";
-import { EventDescription } from "./EventSection";
+import { EventDescription } from "./EventDescription";
 
 type EventFormProps = {
     title: string;

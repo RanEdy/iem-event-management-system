@@ -5,6 +5,8 @@ import { IEvent } from "@/entities/IEvent";
 import { USAState } from "@prisma/client";
 import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
+import { eventListTest } from "@/entities/tests/EventTests";
+import { IEventSection } from "@/entities/IEventSection";
 
 type EventFormProps = {
     title: string;
@@ -26,7 +28,15 @@ export const EventForm: React.FC<EventFormProps> = ({title}) => {
     const [done, setDone] = useState<boolean>(false);
     const [maxUsers, setMaxUsers] = useState<number | null>(null);
 
-    let event: IEvent;
+    let event: IEvent = eventListTest[0]; //test event
+    const defaultSection: IEventSection = {
+        id: 0,
+        eventId: event.id,
+        sectionName: "New Section",
+        description: "New Description",
+        event: event
+    }
+    const [sections, setSections] = useState<IEventSection[]>([defaultSection])
 
     const handleEvent = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -184,53 +194,48 @@ export const EventForm: React.FC<EventFormProps> = ({title}) => {
                         </div>
 
                     </div>
-
-                    <input
-                        type="number"
-                        id="maxUsers"
-                        value={maxUsers ?? ""}
-                        required
-                        onChange={(e) => setMaxUsers(Number(e.target.value))}
-                        placeholder="Max Users*"
-                        min={1}
-                        max={10000}
-                        className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
-                        title="Max Users*"
-                    />
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                        <input
+                            type="number"
+                            id="maxUsers"
+                            value={maxUsers ?? ""}
+                            required
+                            onChange={(e) => setMaxUsers(Number(e.target.value))}
+                            placeholder="Max Users*"
+                            min={1}
+                            max={10000}
+                            className="grid border-2 border-gray-300 grid-rows-1 p-2 placeholder-gray-400 rounded-md"
+                            title="Max Users*"
+                        />
+                        {/* STATUS BUTTON (PUBLIC 0R PRIVATE) */}
+                        <div className="grid grid-rows-1 justify-start xs:justify-center lg:justify-start">
+                            <label className="flex items-center cursor-pointer">
+                                {/* SWITCH TEXT */}
+                                <span className="ml-3 font-bold p-3">{publicEvent ? "Public" : "Private"}</span>
+                                {/* HIDDEN INPUT */}
+                                <input
+                                    type="checkbox"
+                                    checked={publicEvent}
+                                    onChange={() => setPublicEvent(!publicEvent)}
+                                    className="hidden"
+                                />
+                                {/* SWITCH BUTTON STYLE */}
+                                <div className={`w-14 h-7 flex items-center p-1 rounded-full transition-all ${publicEvent ? 'bg-green-500' : 'bg-red-500'}`}>
+                                    {/* CIRCLE ANIMATION */}
+                                    <div className={`w-6 h-6 bg-white rounded-full transform transition-transform ${publicEvent ? 'translate-x-6' : 'translate-x-0'}`} />
+                                </div>
+                            </label>
+                        </div>
+                    </div>
 
                     {/* DESCRIPTION SECTION */}
-                    <div className="w-full h-52  bg-cyan-900 mt-6 text-white">
-                        User Story [PBI-EVNT-US6] - Event description sections go here.
-                    </div>
-
-                    {/* STATUS BUTTON (PUBLIC 0R PRIVATE) */}
-                    <div className="w-full mt-4 mb-4 flex justify-center sm:justify-center lg:justify-start">
-                        <label className="flex items-center cursor-pointer">
-                            {/* SWITCH TEXT */}
-                            <span className="ml-3 font-bold p-3">{publicEvent ? "Public" : "Private"}</span>
-                            {/* HIDDEN INPUT */}
-                            <input
-                                type="checkbox"
-                                checked={publicEvent}
-                                onChange={() => setPublicEvent(!publicEvent)}
-                                className="hidden"
-                            />
-                            {/* SWITCH BUTTON STYLE */}
-                            <div className={`w-20 h-7 flex items-center p-1 rounded-full transition-all ${publicEvent ? 'bg-green-500' : 'bg-red-500'}`}>
-                                {/* CIRCLE ANIMATION */}
-                                <div className={`w-6 h-6 bg-white rounded-full transform transition-transform ${publicEvent ? 'translate-x-12' : 'translate-x-0'}`} />
-                            </div>
-                        </label>
-                    </div>
 
                     {/* Save BUTTON */}
-                    <div className="w-full sm:w-1/3 pb-6">
                         <button
                             type="submit"
-                            className="h-10 w-full p-2 rounded-md bg-blue-700 text-white font-bold">
+                            className="h-10 w-full p-2 sm:w-1/3 mt-6 rounded-md bg-blue-700 text-white font-bold">
                             Save
                         </button>
-                    </div>
                 </form>
             </div>
         </div>

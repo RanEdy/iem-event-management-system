@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useRouter } from 'next/navigation'; // Importar useRouter
 import { useLogin } from "./LoginProvider";
 import { IUser } from "@/entities/IUser";
-import { UserLevel } from "@/entities/UserLevel";
 // Eliminar la importación directa de UserService
 // import { UserService } from "@/services/UserService"; // Esta línea ya estaba comentada, pero la elimino para limpieza
 

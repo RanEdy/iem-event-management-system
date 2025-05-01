@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IEvent } from "@/entities/IEvent";
 import { USAState } from "@prisma/client";
 import DatePicker from "react-datepicker"
@@ -8,12 +8,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { eventListTest } from "@/entities/tests/EventTests";
 import { IEventSection } from "@/entities/IEventSection";
 import { EventDescription } from "./EventDescription";
+import { ISectionFile } from "@/entities/ISectionFile";
 
 type EventFormProps = {
     title: string;
+    eventId?: number; //If this component will be use to modified an event
 }
 
-export const EventForm: React.FC<EventFormProps> = ({title}) => {
+export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
 
     const [name, setName] = useState<string>("");
     const [city, setCity] = useState<string>("");
@@ -29,15 +31,29 @@ export const EventForm: React.FC<EventFormProps> = ({title}) => {
     const [done, setDone] = useState<boolean>(false);
     const [maxUsers, setMaxUsers] = useState<number | null>(null);
 
-    let event: IEvent = eventListTest[0]; //test event
-    const defaultSection: IEventSection = {
-        id: 0,
-        eventId: event.id,
-        sectionName: "New Section",
-        description: "New Description",
-        event: event
-    }
-    const [sections, setSections] = useState<IEventSection[]>([defaultSection])
+    
+
+    
+    // IMPORTANT: If you want to create a new Event with new Sections
+    // First Create the event, then get the id >> then replace that id in the sections >> then create the sections
+    // >> then get the id from every section >> then replace every id of the section in the files for each section 
+    // >> then create each file
+    const [event, setEvent] = useState<IEvent>(eventListTest[0]) //default value for event (this will get replaced with the new info)
+    // State for grouping Sections + Files
+    const [sections, setSections] = useState<(IEventSection & { files: ISectionFile[] })[]>
+      (
+        [
+            //Default value for the first section when creating a new event
+            {
+              id: 1, //auto generated
+              eventId: 0, //replace this
+              sectionName: "Section 1",
+              description: "",
+              event,
+              files: [],
+            },
+        ]
+      );
 
     const handleEvent = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,6 +75,8 @@ export const EventForm: React.FC<EventFormProps> = ({title}) => {
         console.log("End Date:", endDate?.toISOString().split("T")[0] ?? "Not set");
         console.log("Max Users:", maxUsers);
         console.log("Public Event:", publicEvent ? "Public" : "Private");
+
+        console.log()
 
     }
 
@@ -230,7 +248,7 @@ export const EventForm: React.FC<EventFormProps> = ({title}) => {
                     </div>
 
                     {/* DESCRIPTION SECTION */}
-                    <EventDescription event={event} initialSections={sections}/>
+                    <EventDescription event={event} sections={sections} setSections={setSections}/>
                     {/* Save BUTTON */}
                         <button
                             type="submit"

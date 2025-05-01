@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ServiceLocator } from '@/services/ServiceLocator';
 
-async function GET(){
+export async function GET(){
     try{
 
         return NextResponse.json(ServiceLocator.eventService.obtainRecentEvent())

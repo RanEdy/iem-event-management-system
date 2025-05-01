@@ -28,7 +28,7 @@ export class SectionFileService {
         * @param sectionFileData The object containing the sectionFileData's information, excluding the ID.
         * @returns A boolean, "true" if the creation was successful, otherwise "false".
         */
-        async create(sectionFileData: Omit<ISectionFile, 'id'>): Promise<boolean>
+        async create(sectionFileData: Omit<ISectionFile, 'id, section'>): Promise<boolean>
         {
             try
             {

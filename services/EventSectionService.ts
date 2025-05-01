@@ -8,6 +8,11 @@ export class EventSectionService {
         return DAOLocator.eventSectionDao.findByEvent(id);
     }
 
+    async findRecent(): Promise<IEventSection | null>
+    {
+        return DAOLocator.eventSectionDao.findFirst();
+    }
+
     /**
      * Searches for a unique entry that matches with the id in the eventSection table.
      * @param id The primary key of the eventSection.
@@ -30,7 +35,7 @@ export class EventSectionService {
     * @param eventSectionData The object containing the eventSection's information, excluding the ID.
     * @returns A boolean, "true" if the creation was successful, otherwise "false".
     */
-    async create(eventSectionData: Omit<IEventSection, 'id'>): Promise<boolean> {
+    async create(eventSectionData: Omit<IEventSection, 'id, event'>): Promise<boolean> {
         try {
             await DAOLocator.eventSectionDao.create(eventSectionData);
             return true;

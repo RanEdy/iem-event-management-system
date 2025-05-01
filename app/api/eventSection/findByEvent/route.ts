@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ServiceLocator } from '@/services/ServiceLocator';
 
-async function GET(req: Request){
+export async function GET(req: Request){
     try{
         const { id } = await req.json();
         return NextResponse.json(ServiceLocator.eventSectionService.findByEvent(id))

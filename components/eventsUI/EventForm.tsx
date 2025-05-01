@@ -81,6 +81,7 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
 
         try {
 
+            // Create a new Event
             const responseCreateEvent = await fetch('/api/event', {
                 method: 'POST',
                 headers: {
@@ -89,46 +90,78 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
                 body: JSON.stringify({ event }),
             });
 
-            const dataCreateEvent = await responseCreateEvent.json();
+            //Get response from the api
+            const dataCreateEvent: boolean = await responseCreateEvent.json();
 
-            const responseObtainRecentEvent = await fetch('/api/event/obtainRecentEvent', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            //Verification that the new event was created succesfully
+            if (dataCreateEvent)
+            {
+                const responseObtainRecentEvent = await fetch('/api/event/obtainRecentEvent', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+    
+                const recentEvent: IEvent = await responseObtainRecentEvent.json();
+    
+                //Update all sections with the id from the new event created
+                setSections(sections.map( section => {
+                    section.eventId = recentEvent.id;
+                    section.event = recentEvent; 
+                    return section;
+                }))
 
-            const dataObtainRecentEvent = await responseObtainRecentEvent.json();
+                //Create a new section for each one in the array
+                sections.forEach(async (section) => {
+                    const responseCreateEventSection = await fetch('/api/eventSection', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ section }),
+                    });
 
-            setSections( sections.map(section =>
-                    section.eventId = dataObtainRecentEvent.id
-                  )
-            )
+                    const success: boolean  = await responseCreateEventSection.json();
+                    if (success)
+                    {
+                        //Get the last section created
+                        const responseFindRecent = await fetch('/api/eventSection/findRecent',
+                            {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            }
+                        )
+                        //Update the id
+                        const updatedSection: IEventSection = await responseFindRecent.json();
+                        section.id = updatedSection.id
+                    }
+                })
+    
+                //Create the files for each section
+                sections.forEach( async (section) => {
+                    section.files.forEach( async (file) =>
+                    {
+                        file.sectionId = section.id
+                        file.section = section
+                        const responseFile = await fetch('/api/sectionFile',
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type' : 'application/json',
+                                },
+                                body: JSON.stringify(file)
+                            }
+                        )
+                        const success: boolean = await responseFile.json()
+                        if (!success) console.log("Error: trying to create a file")
+                    })
+                })
 
-            const responseCreateEventSection = await fetch('/api/eventSection', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ sections }),
-            });
-
-            const dataCreateEventSection = await responseCreateEventSection.json();
-
-            const responseFindByEvent = await fetch('/api/eventSection/findByEvent', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id: dataObtainRecentEvent.id }),
-            });
-
-            // const dataFindByEvent: { IEventSection[] } = await responseFindByEvent.json();
-
-            // setSections( sections.map(section =>
-            //     section.eventId == dataObtainRecentEvent.id
-            //   )
-            // )
+            }
+            
 
         } catch (error) {
             console.error("ERROR", error);

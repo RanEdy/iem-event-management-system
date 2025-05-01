@@ -11,6 +11,16 @@ export class EventService
 {
     constructor() {}
 
+    async obtainRecentEvent(): Promise<IEvent | null> {
+        const location = await DAOLocator.eventDao.findAll();
+        
+        if(location.length <= 0)
+            return location[0];
+        else
+            return location[location.length - 1];
+    }
+
+
     /**
      * Searches for a unique entry that matches with the id in the event table.
      * @param id The primary key of the event.

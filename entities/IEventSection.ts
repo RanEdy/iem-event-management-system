@@ -4,6 +4,6 @@ export interface IEventSection {
     id: number;
     eventId: number;
     sectionName: string;
-    description: string;
+    description: string | null;
     event: IEvent;
 }

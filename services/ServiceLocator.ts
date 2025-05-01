@@ -1,5 +1,7 @@
 import { UserService } from "./UserService";
 import { EventService } from "./EventService"; 
+import { EventSectionService } from "./EventSectionService";
+import { SectionFileService } from "./SectionFileService";
 import { EventUserListService } from "./EventUserListService";
 
 /**
@@ -13,5 +15,7 @@ export const ServiceLocator = {
      */
     userService: new UserService(),
     eventService: new EventService(),
-    eventUserListService: new EventUserListService()
+    eventUserListService: new EventUserListService(),
+    eventSectionService: new EventSectionService(),
+    sectionFileService: new SectionFileService()
 }

@@ -19,17 +19,16 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
 
     const [name, setName] = useState<string>("");
     const [city, setCity] = useState<string>("");
-    const [state, setState] = useState<USAState | null>(null);
+    const [state, setState] = useState<USAState>(USAState.CALIFORNIA);
     const [zipCode, setZipCode] = useState<string>("");
     const [street, setStreet] = useState<string>("");
     const [internalNumber, setInternalNumber] = useState<number | null>(null);
     const [externalNumber, setExternalNumber] = useState<number | null>(null);
 
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [startDate, setStartDate] = useState<Date>(new Date());
+    const [endDate, setEndDate] = useState<Date>(new Date());
     const [publicEvent, setPublicEvent] = useState<boolean>(false);
-    const [done, setDone] = useState<boolean>(false);
-    const [maxUsers, setMaxUsers] = useState<number | null>(null);
+    const [maxUsers, setMaxUsers] = useState<number>(1);
 
     
 
@@ -76,6 +75,65 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
         console.log("Max Users:", maxUsers);
         console.log("Public Event:", publicEvent ? "Public" : "Private");
 
+        setEvent({ id: 1, name: name, state: state,city: city, zipCode: zipCode, street: street, externalNumber: externalNumber,
+                    internalNumber: internalNumber, startDate: startDate, endDate: endDate, maxUsers: maxUsers, public: publicEvent, done: false
+         })
+
+        try {
+
+            const responseCreateEvent = await fetch('/api/event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ event }),
+            });
+
+            const dataCreateEvent = await responseCreateEvent.json();
+
+            const responseObtainRecentEvent = await fetch('/api/event/obtainRecentEvent', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const dataObtainRecentEvent = await responseObtainRecentEvent.json();
+
+            setSections( sections.map(section =>
+                    section.eventId = dataObtainRecentEvent.id
+                  )
+            )
+
+            const responseCreateEventSection = await fetch('/api/eventSection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sections }),
+            });
+
+            const dataCreateEventSection = await responseCreateEventSection.json();
+
+            const responseFindByEvent = await fetch('/api/eventSection/findByEvent', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: dataObtainRecentEvent.id }),
+            });
+
+            // const dataFindByEvent: { IEventSection[] } = await responseFindByEvent.json();
+
+            // setSections( sections.map(section =>
+            //     section.eventId == dataObtainRecentEvent.id
+            //   )
+            // )
+
+        } catch (error) {
+            console.error("ERROR", error);
+        }
+        
         console.log()
 
     }
@@ -163,7 +221,6 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
                             type="number"
                             id="externalNumber"
                             value={externalNumber ?? ""}
-                            required
                             onChange={(e) => setExternalNumber(Number(e.target.value))}
                             placeholder="External Number*"
                             className="border-2 border-gray-300 w-full p-2 rounded-md"
@@ -193,7 +250,12 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
                             <DatePicker
                                 className="w-full p-2 border-2 border-gray-300 rounded-md"
                                 selected={startDate}
-                                onChange={(date)=> setStartDate(date)}
+                                onChange={(date)=> {
+                                    if(date) {
+                                        setStartDate(date)
+                                    } else {
+                                        setStartDate(new Date())
+                                    } } }
                                 showTimeSelect
                                 dateFormat="MMMM, dd,  yyyy hh:mm aa"
                                 placeholderText="Start Date*"
@@ -205,7 +267,12 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
                             <DatePicker
                                 className="w-full p-2 border-2 border-gray-300 rounded-md"
                                 selected={endDate}
-                                onChange={(date)=> setEndDate(date)}
+                                onChange={(date)=> {
+                                    if(date) {
+                                        setEndDate(date)
+                                    } else {
+                                        setEndDate(new Date())
+                                    } } }
                                 showTimeSelect
                                 dateFormat="MMMM, dd, yyyy hh:mm aa"
                                 placeholderText="End Date*"

@@ -4,7 +4,8 @@ import { FaCog, FaTrash, FaClipboardList, FaCheck } from 'react-icons/fa'; // Ic
 
 const ContextMenu = ({ row }: { row: any }) => {
     const [open, setOpen] = useState(false);
-    const [dialogType, setDialogType] = useState<null | 'edit' | 'delete' | 'deleteSuccess' | 'requests' | 'done' | 'doneError'>(null);
+    const [dialogType, setDialogType] = useState<null | 'edit' | 'delete' | 'requests' | 'done' | 'doneError'>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const toggleDropdown = () => {
         setOpen(!open);
@@ -19,26 +20,55 @@ const ContextMenu = ({ row }: { row: any }) => {
         setDialogType(null);
     };
 
-    const deleteEvent = async (eventId: number) => {
+    // Función para marcar un evento como completado
+    const markEventAsDone = async (eventId: number) => {
+        setIsLoading(true);
         try {
+            // Obtener el evento actual
             const response = await fetch(`/api/event/${eventId}`, {
-                method: 'DELETE',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-
+            
             if (!response.ok) {
-                throw new Error('Failed to delete event');
+                throw new Error('Error al obtener el evento');
+            }
+            
+            const event = await response.json();
+            
+            // Actualizar el estado "done" a true
+            const updateResponse = await fetch(`/api/event/${eventId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...event, done: true }),
+            });
+            
+            if (!updateResponse.ok) {
+                throw new Error('Error al actualizar el evento');
+            }
+            
+            const result = await updateResponse.json();
+            
+            if (result.success) {
+                // Actualización exitosa
+                alert('El evento ha sido archivado correctamente');
+                // Aquí podrías recargar la lista de eventos o actualizar la UI
+                window.location.reload();
             } else {
-                console.log('Event deleted successfully');
-                setDialogType('deleteSuccess');
+                throw new Error('No se pudo actualizar el evento');
             }
         } catch (error) {
-            console.error('Error deleting event:', error);
-            alert('Failed to delete event');
+            console.error('Error al marcar el evento como completado:', error);
+            alert('Ocurrió un error al archivar el evento');
+        } finally {
+            setIsLoading(false);
+            closeDialog();
         }
-    }
+    };
 
     return (
         <div className="absolute">
@@ -82,14 +112,11 @@ const ContextMenu = ({ row }: { row: any }) => {
                             <div className="grid grid-rows-1">
                                 <button
                                     type="button"
-                                    className="bg-green-600 text-white font-bold px-6 py-2 rounded-md hover:bg-green-700 w-full sm:w-auto"
-                                    onClick={() => {
-                                        {/* Here goes the confirm logic */ }
-                                        console.log('Confirm Done Action');
-                                        closeDialog();
-                                    }}
+                                    className="bg-green-600 text-white font-bold px-6 py-2 rounded-md hover:bg-green-700 w-full sm:w-auto disabled:opacity-50"
+                                    onClick={() => markEventAsDone(row.id)}
+                                    disabled={isLoading}
                                 >
-                                    DONE
+                                    {isLoading ? 'PROCESANDO...' : 'DONE'}
                                 </button>
                             </div>
                             <div className="grid grid-rows-1">
@@ -97,10 +124,10 @@ const ContextMenu = ({ row }: { row: any }) => {
                                     type="button"
                                     className="border-2 border-pink-700 text-pink-700 font-bold px-6 py-2 rounded-md hover:bg-pink-100 w-full sm:w-auto"
                                     onClick={() => {
-                                        {/* Close dialog */ }
                                         console.log("Canceled");
                                         closeDialog();
                                     }}
+                                    disabled={isLoading}
                                 >
                                     CANCEL
                                 </button>
@@ -154,11 +181,6 @@ const ContextMenu = ({ row }: { row: any }) => {
                                 <button
                                     type="button"
                                     className="bg-pink-700 text-white font-bold px-2 py-2 rounded-md hover:bg-pink-800"
-                                    onClick={() => {
-                                        {/* Here goes the confirm logic */ }
-                                        console.log('Confirm Delete Action');
-                                        deleteEvent(row.id);
-                                    }}
                                 >
                                     DELETE
                                 </button>
@@ -176,27 +198,6 @@ const ContextMenu = ({ row }: { row: any }) => {
                                     CANCEL
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {dialogType === 'deleteSuccess' && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white rounded-3xl p-10 shadow-xl">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-10">Event successfully deleted</h2>
-                        <div className="grid grid-cols-1 justify-items-center">
-                            <button
-                                type="button"
-                                className="bg-green-400 text-white font-bold px-20 py-2 rounded-md hover:bg-green-500"
-                                onClick={() => {
-                                    {/* Close dialog */ }
-                                    console.log("Event successfully deleted, reloading page");
-                                    window.location.reload();
-                                    closeDialog();
-                                }}
-                            >
-                                Continue
-                            </button>
                         </div>
                     </div>
                 </div>

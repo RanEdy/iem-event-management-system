@@ -4,7 +4,7 @@ import { FaCog, FaTrash, FaClipboardList, FaCheck } from 'react-icons/fa'; // Ic
 
 const ContextMenu = ({ row }: { row: any }) => {
     const [open, setOpen] = useState(false);
-    const [dialogType, setDialogType] = useState<null | 'edit' | 'delete' | 'requests' | 'done' | 'doneError'>(null);
+    const [dialogType, setDialogType] = useState<null | 'edit' | 'delete' | 'deleteSuccess' | 'requests' | 'done' | 'doneError'>(null);
 
     const toggleDropdown = () => {
         setOpen(!open);
@@ -32,12 +32,11 @@ const ContextMenu = ({ row }: { row: any }) => {
                 throw new Error('Failed to delete event');
             } else {
                 console.log('Event deleted successfully');
+                setDialogType('deleteSuccess');
             }
         } catch (error) {
             console.error('Error deleting event:', error);
             alert('Failed to delete event');
-        } finally {
-            closeDialog();
         }
     }
 
@@ -177,6 +176,27 @@ const ContextMenu = ({ row }: { row: any }) => {
                                     CANCEL
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {dialogType === 'deleteSuccess' && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white rounded-3xl p-10 shadow-xl">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-10">Event successfully deleted</h2>
+                        <div className="grid grid-cols-1 justify-items-center">
+                            <button
+                                type="button"
+                                className="bg-green-400 text-white font-bold px-20 py-2 rounded-md hover:bg-green-500"
+                                onClick={() => {
+                                    {/* Close dialog */ }
+                                    console.log("Event successfully deleted, reloading page");
+                                    window.location.reload();
+                                    closeDialog();
+                                }}
+                            >
+                                Continue
+                            </button>
                         </div>
                     </div>
                 </div>

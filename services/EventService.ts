@@ -11,13 +11,8 @@ export class EventService
 {
     constructor() {}
 
-    async obtainRecentEvent(): Promise<IEvent | null> {
-        const location = await DAOLocator.eventDao.findAll();
-        
-        if(location.length <= 0)
-            return location[0];
-        else
-            return location[location.length - 1];
+    async findFirst(): Promise<IEvent | null> {
+        return DAOLocator.eventDao.findFirst();
     }
 
 

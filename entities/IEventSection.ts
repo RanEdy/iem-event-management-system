@@ -5,5 +5,4 @@ export interface IEventSection {
     eventId: number;
     sectionName: string;
     description: string | null;
-    event: IEvent;
 }

@@ -7,7 +7,6 @@ import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import ContextMenu from "../commonUI/ContextMenu";
 import { EventForm } from "./EventForm";
-import { ServiceLocator } from "@/services/ServiceLocator";
 
 const columns: TableColumn<IEvent>[] = [
     {

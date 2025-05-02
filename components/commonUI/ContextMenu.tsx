@@ -19,6 +19,28 @@ const ContextMenu = ({ row }: { row: any }) => {
         setDialogType(null);
     };
 
+    const deleteEvent = async (eventId: number) => {
+        try {
+            const response = await fetch(`/api/event/${eventId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete event');
+            } else {
+                console.log('Event deleted successfully');
+            }
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            alert('Failed to delete event');
+        } finally {
+            closeDialog();
+        }
+    }
+
     return (
         <div className="absolute">
             <button
@@ -133,6 +155,11 @@ const ContextMenu = ({ row }: { row: any }) => {
                                 <button
                                     type="button"
                                     className="bg-pink-700 text-white font-bold px-2 py-2 rounded-md hover:bg-pink-800"
+                                    onClick={() => {
+                                        {/* Here goes the confirm logic */ }
+                                        console.log('Confirm Delete Action');
+                                        deleteEvent(row.id);
+                                    }}
                                 >
                                     DELETE
                                 </button>

@@ -4,15 +4,19 @@ import { FaCog, FaTrash, FaClipboardList, FaCheck } from 'react-icons/fa'; // Ic
 
 const ContextMenu = ({ row }: { row: any }) => {
     const [open, setOpen] = useState(false);
-    const [dialogType, setDialogType] = useState<null | 'edit' | 'delete' | 'requests' | 'done'>(null);
+    const [dialogType, setDialogType] = useState<null | 'edit' | 'delete' | 'requests' | 'done' | 'doneError'>(null);
 
     const toggleDropdown = () => {
         setOpen(!open);
     };
 
-    const handleAction = (type: 'edit' | 'delete' | 'requests' | 'done') => {
+    const handleAction = (type: 'edit' | 'delete' | 'requests' | 'done' | 'doneError') => {
         setDialogType(type);
         setOpen(false);
+    };
+
+    const closeDialog = () => {
+        setDialogType(null);
     };
 
     return (
@@ -38,19 +42,117 @@ const ContextMenu = ({ row }: { row: any }) => {
                     <button onClick={() => handleAction('delete')} className="flex items-center w-[95%] px-4 m-1 bg-red-200 py-2 hover:bg-red-300 rounded-md">
                         <FaTrash className="mr-2 text-rose-700" /> <span className="text-rose-700 font-bold">Delete Event</span>
                     </button>
-                    
+
                 </div>
             )}
 
             {/* Show Dialog depending on action */}
+            {dialogType === 'done' && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white rounded-3xl p-8 shadow-xl w-full max-w-md">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">CONFIRMATION</h2>
+                        <p className="text-gray-700 mb-3">
+                            Are you sure you want to mark this event as done?
+                        </p>
+                        <p className="text-gray-500 italic mb-7">
+                            This event will be archived to the records and will not be available to workers.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-rows-1">
+                                <button
+                                    type="button"
+                                    className="bg-green-600 text-white font-bold px-6 py-2 rounded-md hover:bg-green-700 w-full sm:w-auto"
+                                    onClick={() => {
+                                        {/* Here goes the confirm logic */ }
+                                        console.log('Confirm Done Action');
+                                        closeDialog();
+                                    }}
+                                >
+                                    DONE
+                                </button>
+                            </div>
+                            <div className="grid grid-rows-1">
+                                <button
+                                    type="button"
+                                    className="border-2 border-pink-700 text-pink-700 font-bold px-6 py-2 rounded-md hover:bg-pink-100 w-full sm:w-auto"
+                                    onClick={() => {
+                                        {/* Close dialog */ }
+                                        console.log("Canceled");
+                                        closeDialog();
+                                    }}
+                                >
+                                    CANCEL
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {dialogType === 'doneError' && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white rounded-3xl p-10 shadow-xl">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-3">This event can't be archived</h2>
+                        <p className="text-gray-700 mb-3">This event has already begun.</p>
+                        <p className="text text-gray-500 italic mb-9">
+                            Events that have already started can only be archived.
+                        </p>
+                        <div className="grid grid-cols-1 justify-items-center">
+                            <button
+                                type="button"
+                                className="bg-orange-400 text-white font-bold px-20 py-2 rounded-md hover:bg-orange-500"
+                                onClick={() => {
+                                    {/* Close dialog */ }
+                                    console.log("Exit");
+                                    closeDialog();
+                                }}
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {dialogType === 'edit' && (
                 <></>
             )}
+
             {dialogType === 'requests' && (
                 <></>
-            )}
+            )
+            }
             {dialogType === 'delete' && (
-                <></>
+                <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+                    <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-3">CONFIRMATION</h2>
+                        <p className="text-gray-700 mb-3">Are you sure you want to delete this event?</p>
+                        <p className="text text-gray-500 italic mb-5">This event will be deleted permanently from the list.</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-rows-1">
+                                <button
+                                    type="button"
+                                    className="bg-pink-700 text-white font-bold px-2 py-2 rounded-md hover:bg-pink-800"
+                                >
+                                    DELETE
+                                </button>
+                            </div>
+                            <div className="grid grid-rows-1">
+                                <button
+                                    type="button"
+                                    className="border-2 border-pink-700 text-pink-700 font-bold px-2 py-2 rounded-md hover:bg-pink-100"
+                                    onClick={() => {
+                                        {/* Close dialog */ }
+                                        console.log("Exit delete Dialog");
+                                        closeDialog();
+                                    }}
+                                >
+                                    CANCEL
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

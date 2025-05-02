@@ -34,10 +34,12 @@ const columns: TableColumn<IEvent>[] = [
         cell: row => <div className="flex flex-row items-center h-1/3 p-4 py-6 rounded-lg bg-zinc-200">
             <div className="block items-center">
                 <div className="font-extrabold">
-                    {row.startDate.toDateString()}
+                    {/* Asegúrate que row.startDate es un objeto Date */}
+                    {row.startDate instanceof Date ? row.startDate.toDateString() : 'Invalid Date'}
                 </div>
                 <div className="font-extrabold text-zinc-600">
-                    {row.startDate.getHours() + ":" + (row.startDate.getMinutes() == 0 ? "00" : row.startDate.getMinutes())}
+                    {/* Asegúrate que row.startDate es un objeto Date */}
+                    {row.startDate instanceof Date ? `${row.startDate.getHours()}:${row.startDate.getMinutes() === 0 ? "00" : row.startDate.getMinutes()}` : ''}
                 </div>
             </div>
         </div>,
@@ -75,7 +77,7 @@ const columns: TableColumn<IEvent>[] = [
         name: "OPTIONS",
         cell: row => <ContextMenu row={row}/>,
         ignoreRowClick: true,
-        button: true,
+        // button: true, // <-- Eliminamos esta línea para corregir el error de atributo booleano
         //allowOverflow: true
     }
 ]
@@ -88,7 +90,16 @@ export const EventsTable: React.FC = () =>
     useEffect(() => {
         fetch("api/event")
         .then(res => res.json())
-        .then(data => setEvents(data))
+        .then((data: IEvent[]) => {
+            // Convertir las cadenas de fecha a objetos Date
+            const parsedEvents = data.map(event => ({
+                ...event,
+                startDate: new Date(event.startDate),
+                endDate: new Date(event.endDate),
+            }));
+            setEvents(parsedEvents);
+        })
+        .catch(error => console.error("Error fetching or parsing events:", error)); // Añadir manejo de errores
     }, []);
       
     const handleRowClick = (row: any) =>

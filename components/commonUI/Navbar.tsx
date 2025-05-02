@@ -4,6 +4,7 @@ import React from 'react';
 import { UserLevel } from '@prisma/client';
 import { NavbarButton } from './NavbarButton';
 import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser } from "react-icons/fa";
+import { useNavigation } from '@/contexts/NavigationContext';
 
 type NavbarProps = {
     level: UserLevel;
@@ -13,7 +14,8 @@ type NavbarProps = {
 
 const Navbar: React.FC<NavbarProps> = ({level, options}) => 
 {
-    let selected: number = -1;
+    const { currentPage, setCurrentPage } = useNavigation();
+    
     return (
         <div className="flex h-32 w-full p-6 m-0 shadow-lg shadow-gray-700 items-center justify-between bg-bluedark-gradient-r">
             {/* Logo Img */}
@@ -23,9 +25,20 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
 
             {/* Option Buttons */}
             <div className="h-full w-auto flex flex-row justify-between flex-shrink-0">
-                <NavbarButton name={"Events"} icon={<FaClipboardList className="text-white h-3/4 w-3/4"/>}/>
-                <NavbarButton name={"Users"} icon={<FaUserFriends className="text-white h-3/4 w-3/4"/>}/>
-                <NavbarButton name={"Archives"} icon={<FaFolderOpen className="text-white h-3/4 w-3/4"/>}/>
+                <NavbarButton 
+                    name={"Events"} 
+                    icon={<FaClipboardList className="text-white h-3/4 w-3/4"/>}
+                    onClick={() => setCurrentPage("Events")}
+                />
+                <NavbarButton 
+                    name={"Users"} 
+                    icon={<FaUserFriends className="text-white h-3/4 w-3/4"/>}
+                />
+                <NavbarButton 
+                    name={"Archives"} 
+                    icon={<FaFolderOpen className="text-white h-3/4 w-3/4"/>}
+                    onClick={() => setCurrentPage("Archives")}
+                />
                 {
                     level == UserLevel.MASTER ? <>
 

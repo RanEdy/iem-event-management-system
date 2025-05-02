@@ -6,12 +6,20 @@ type NavbarButtonProps =
     {
         icon: ReactNode
         name: string
+        onClick?: () => void
     }
 
 
-export const NavbarButton: React.FC<NavbarButtonProps> = ({ name, icon }) => {
+export const NavbarButton: React.FC<NavbarButtonProps> = ({ name, icon, onClick }) => {
+    // Manejador de eventos que verifica si onClick existe antes de llamarlo
+    const handleClick = () => {
+        if (onClick) {
+            onClick();
+        }
+    };
+
     return (
-        <button className="flex flex-col">
+        <button className="flex flex-col" onClick={handleClick}>
             {/* Focus Icon */}
             <div className="h-12 active:bg-white">
 

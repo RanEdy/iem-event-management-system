@@ -12,4 +12,16 @@ export class EventDAO extends GenericDAO<"event", IEvent>
      * Create a new EventDAO instance.
      */
     constructor() { super('event'); }
+
+    async findFirst(): Promise<IEvent | null> {
+
+        const latest = await this.getModel().findFirst({
+            orderBy: {
+                id: 'desc',
+            },
+        });
+
+        return latest;
+    }
+    
 }

@@ -138,7 +138,7 @@ model EventSection {
   eventId Int
   sectionName String
   description String?
-  event Event @relation(fields: [eventId], references: [id])
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   files SectionFile[]
 }
@@ -148,7 +148,7 @@ model SectionFile {
   sectionId Int
   name String
   dataBytes Bytes
-  section EventSection @relation(fields: [sectionId], references: [id])
+  section EventSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 }
 
 model EventUserList {
@@ -156,6 +156,6 @@ model EventUserList {
   userId Int 
   eventId Int
   role UserRole
-  user User @relation(fields: [userId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }

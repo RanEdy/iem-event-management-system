@@ -5,5 +5,4 @@ export interface ISectionFile {
     sectionId: number;
     name: string;
     dataBytes: Buffer;
-    section: IEventSection;
 }

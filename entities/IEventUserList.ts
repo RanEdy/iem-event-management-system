@@ -8,6 +8,4 @@ export interface IEventUserList
     userId: number;
     eventId: number;
     role: UserRole;
-    user: IUser;
-    event: IEvent;
 }

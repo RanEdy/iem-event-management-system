@@ -34,7 +34,6 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
       eventId: event.id,
       sectionName: `Section ${nextId}`,
       description: "",
-      event,
       files: [],
     };
     setSections([...sections, newSec]);
@@ -120,11 +119,10 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
       filesArr.map(async (file) => {
         const arrayBuffer = await file.arrayBuffer();
         return {
-          id: Date.now() + Math.random(), // temporal hasta backend
+          id: 0, // temporal hasta backend
           sectionId: activeSection.id,
           name: file.name,
           dataBytes: Buffer.from(arrayBuffer),
-          section: activeSection,
         };
       })
     );

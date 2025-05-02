@@ -35,13 +35,17 @@ export class EventSectionService {
     * @param eventSectionData The object containing the eventSection's information, excluding the ID.
     * @returns A boolean, "true" if the creation was successful, otherwise "false".
     */
-    async create(eventSectionData: Omit<IEventSection, 'id, event'>): Promise<boolean> {
+    async create(eventSectionData: Omit<IEventSection, 'id'>): Promise<boolean> {
         try {
-            await DAOLocator.eventSectionDao.create(eventSectionData);
+            const { id, ...dataWithoutId } = eventSectionData as any;
+
+            const section = await DAOLocator.eventSectionDao.create(dataWithoutId);
+            console.log("Section created: ");
+            console.log(section);
             return true;
         }
         catch (error) {
-            console.error("Event Section could not be created");
+            console.error("Event Section could not be created:", error);
             return false;
         }
     }

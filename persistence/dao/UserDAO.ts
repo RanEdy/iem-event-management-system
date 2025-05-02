@@ -20,7 +20,6 @@ export class UserDAO extends GenericDAO<"user", IUser>
      */
     async findByEmail(email: string): Promise<IUser | null>
     {
-        // Usa 'findUnique' si el email es único en tu esquema Prisma, sino 'findFirst'
         return this.getModel().findUnique({ where: { email } });
     }
 }

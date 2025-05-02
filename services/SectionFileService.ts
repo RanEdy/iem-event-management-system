@@ -13,6 +13,11 @@ export class SectionFileService {
         {
             return DAOLocator.sectionFileDao.findById(id);
         }
+
+        async findBySection(id: number): Promise<ISectionFile[]>
+        {
+            return DAOLocator.sectionFileDao.findBySection(id);
+        }
     
         /**
          * Searches for all the entries of the sectionFileData table.
@@ -28,16 +33,20 @@ export class SectionFileService {
         * @param sectionFileData The object containing the sectionFileData's information, excluding the ID.
         * @returns A boolean, "true" if the creation was successful, otherwise "false".
         */
-        async create(sectionFileData: Omit<ISectionFile, 'id, section'>): Promise<boolean>
+        async create(sectionFileData: Omit<ISectionFile, 'id'>): Promise<boolean>
         {
+            console.log("Data receive: ");
+            console.log(sectionFileData);
             try
             {
-                await DAOLocator.sectionFileDao.create(sectionFileData);
+                const file = await DAOLocator.sectionFileDao.create(sectionFileData);
+                console.log("File created: ")
+                console.log(file)
                 return true;
             }
             catch(error)
             {
-                console.error("Section File could not be created");
+                console.error("Section File could not be created: ", error);
                 return false;
             }
         }

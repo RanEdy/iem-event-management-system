@@ -11,9 +11,6 @@ export class EventSectionDAO extends GenericDAO<'eventSection', IEventSection>
             orderBy: {
               id: 'desc',
             },
-            include: {
-              event: true,
-            },
           });
 
         return latest;
@@ -24,9 +21,6 @@ export class EventSectionDAO extends GenericDAO<'eventSection', IEventSection>
         const sections = await this.getModel().findMany({
             where: {
                 eventId: id
-            },
-            include: {
-              event: true,
             },
         });
 

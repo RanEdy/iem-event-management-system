@@ -20,7 +20,7 @@ const columns: TableColumn<IEvent>[] = [
             <div className="block items-center">
                 <div className="font-extrabold">
                     {row.state.charAt(0) + row.state.substring(1).toLowerCase()
-                        + ", " + row.city + " " + row.zipCode + ". "}
+                    + ", " + row.city + " " + row.zipCode + ". "}
                 </div>
                 <div className="font-extrabold text-zinc-600">
                     {row.externalNumber + " " + row.street + " #" + row.internalNumber}
@@ -34,10 +34,12 @@ const columns: TableColumn<IEvent>[] = [
         cell: row => <div className="flex flex-row items-center h-1/3 p-4 py-6 rounded-lg bg-zinc-200">
             <div className="block items-center">
                 <div className="font-extrabold">
-                    {row.startDate.toDateString()}
+                    {/* Asegúrate que row.startDate es un objeto Date */}
+                    {row.startDate instanceof Date ? row.startDate.toDateString() : 'Invalid Date'}
                 </div>
                 <div className="font-extrabold text-zinc-600">
-                    {row.startDate.getHours() + ":" + (row.startDate.getMinutes() == 0 ? "00" : row.startDate.getMinutes())}
+                    {/* Asegúrate que row.startDate es un objeto Date */}
+                    {row.startDate instanceof Date ? `${row.startDate.getHours()}:${row.startDate.getMinutes() === 0 ? "00" : row.startDate.getMinutes()}` : ''}
                 </div>
             </div>
         </div>,
@@ -55,11 +57,11 @@ const columns: TableColumn<IEvent>[] = [
                     <div className="w-3 h-3 rounded-full bg-lime-600 self-center mr-3"></div>
                     <div className="font-bold">Public</div>
                 </div>
-                    :
-                    <div className="flex flex-column items-center">
-                        <div className="w-3 h-3 rounded-full bg-red-700 self-center mr-3"></div>
-                        <div className="font-bold">Private</div>
-                    </div>
+                :
+                <div className="flex flex-column items-center">
+                    <div className="w-3 h-3 rounded-full bg-red-700 self-center mr-3"></div>
+                    <div className="font-bold">Private</div>
+                </div>
             }
         </>
     },
@@ -73,47 +75,54 @@ const columns: TableColumn<IEvent>[] = [
     },
     {
         name: "OPTIONS",
-        cell: row => <ContextMenu row={row} />,
+        cell: row => <ContextMenu row={row}/>,
         ignoreRowClick: true,
-        button: true,
+        // button: true, // <-- Eliminamos esta línea para corregir el error de atributo booleano
         //allowOverflow: true
     }
 ]
 
 
-export const EventsTable: React.FC = () => {
+export const EventsTable: React.FC = () =>
+{
     const [events, setEvents] = useState<IEvent[]>([])
 
     useEffect(() => {
         fetch("api/event")
-            .then(res => res.json())
-            .then(data => setEvents(data))
+        .then(res => res.json())
+        .then((data: IEvent[]) => {
+            // Convertir las cadenas de fecha a objetos Date
+            const parsedEvents = data.map(event => ({
+                ...event,
+                startDate: new Date(event.startDate),
+                endDate: new Date(event.endDate),
+            }));
+            setEvents(parsedEvents);
+        })
+        .catch(error => console.error("Error fetching or parsing events:", error)); // Añadir manejo de errores
     }, []);
-
-    const handleRowClick = (row: any) => {
+      
+    const handleRowClick = (row: any) =>
+    {
         console.log("Selected: ");
         console.log(row);
     }
 
-
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isDialogDelOpen, setIsDialogDelOpen] = useState(false);
-    const [isDialogArchOpen, setIsDialogArchOpen] = useState(false);
-    const [isDiaglAEOpen, setIsDiagAEOpen] = useState(false);
-
+    
+    const [ isDialogOpen, setIsDialogOpen ] = useState(false);
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
             <div className="p-4 flex flex-colum justify-between lg:w-1/2">
                 <div>Total Events: <span className="font-bold">{" " + events.length}</span></div>
-                <div>Public Events: <span className="font-bold">{" " + events.filter((event) => { if (event.public) return event }).length}</span></div>
-                <div>Private Events: <span className="font-bold">{" " + events.filter((event) => { if (!event.public) return event }).length}</span></div>
+                <div>Public Events: <span className="font-bold">{" " + events.filter((event) => {if (event.public) return event}).length}</span></div>
+                <div>Private Events: <span className="font-bold">{" " + events.filter((event) => {if (!event.public) return event}).length}</span></div>
             </div>
-            <hr />
+            <hr/>
 
             <div className="flex flex-colum justify-between m-2">
                 {/* SEARCH BAR */}
                 <div className="flex flex-column min-w-56 lg:w-1/3 h-12 border-2 m-2 p-2 bg-bluedark-gradient-r border-zinc-100 rounded-2xl items-center">
-                    <FaSearch className="text-white m-2 mr-3" />
+                    <FaSearch className="text-white m-2 mr-3"/>
                     <input type="text" className="flex self-center w-full h-full p-1 bg-white rounded-xl"></input>
                 </div>
 
@@ -121,14 +130,14 @@ export const EventsTable: React.FC = () => {
                 {/* ADD NEW EVENT BUTTON */}
                 <div className="w-28 md:min-w-52 h-12 bg-bluedark-gradient-r border-2 m-2 border-zinc-100 rounded-2xl " onClick={() => setIsDialogOpen(true)}>
                     <button className="flex flex-column pl-3 h-full w-full text-center font-bold bg-white bg-opacity-0 hover:bg-opacity-20 text-white items-center">
-                        <FaPlus className="text-white mx-2" /> <span className="text-xs md:text-base">ADD NEW EVENT</span>
+                        <FaPlus className="text-white mx-2"/> <span className="text-xs md:text-base">ADD NEW EVENT</span>
                     </button>
                 </div>
-
+                
                 {/* EVENT DIALOG */}
                 {isDialogOpen && (
                     <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-                        <div className="relative bg-white rounded-3xl p-8 shadow-lg realtive my-4 lg:w-1/2 w-full h-full lg:h-full">
+                        <div className="relative bg-white rounded-3xl p-8 shadow-lg realtive my-4 lg:w-1/2 w-full h-full lg:h-full ">
                             {/* CLOSE BUTTON */}
                             <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700" onClick={() => setIsDialogOpen(false)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -136,22 +145,22 @@ export const EventsTable: React.FC = () => {
                                 </svg>
                             </button>
                             {/* CHILDREN OR CONTENT*/}
-                            {<EventForm title="Register Event" />}
+                            { <EventForm title="Register Event" />}
                         </div>
                     </div>
                 )}
             </div>
 
             <DataTable
-                className="h-[65%] overflow-visible"
-                columns={columns}
-                data={events}
-                onRowClicked={handleRowClick}
-                pointerOnHover
-                highlightOnHover
-                pagination
-                fixedHeader
-                customStyles={{ headCells: { style: { fontWeight: "bold", backgroundColor: "#F5F5F5", borderRadius: "0" } } }}
+            className="h-[65%] overflow-visible"
+            columns={columns}
+            data={events}
+            onRowClicked={handleRowClick}
+            pointerOnHover
+            highlightOnHover
+            pagination
+            fixedHeader
+            customStyles={{headCells: {style: {fontWeight: "bold",backgroundColor: "#F5F5F5", borderRadius: "0"}}}}
             />
         </div>
     );

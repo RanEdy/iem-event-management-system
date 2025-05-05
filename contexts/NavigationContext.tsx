@@ -2,22 +2,22 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
-// Definir el tipo para el contexto
+// Define the type for the context
 type NavigationContextType = {
     currentPage: string;
     setCurrentPage: (page: string) => void;
 };
 
-// Crear el contexto con valores por defecto
+// Create the context with default values
 export const NavigationContext = createContext<NavigationContextType>({
     currentPage: "Events",
     setCurrentPage: () => {}
 });
 
-// Hook personalizado para usar el contexto
+// Customised Hook to use the context
 export const useNavigation = () => useContext(NavigationContext);
 
-// Proveedor del contexto
+// Context provider
 export const NavigationProvider = ({ children }: { children: ReactNode }) => {
     const [currentPage, setCurrentPage] = useState("Events");
 

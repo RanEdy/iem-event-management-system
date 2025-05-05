@@ -31,7 +31,7 @@ const ContextMenu = ({ row }: { row: any }) => {
             });
 
             if (!eventResponse.ok) {
-                throw new Error('Error al obtener información del evento');
+                throw new Error('Error getting event information');
             }
 
             const event = await eventResponse.json();
@@ -65,11 +65,11 @@ const ContextMenu = ({ row }: { row: any }) => {
         }
     }
 
-    // Función para marcar un evento como completado
+    // Function to mark an event as completed
     const markEventAsDone = async (eventId: number) => {
         setIsLoading(true);
         try {
-            // Obtener el evento actual
+            // Get current event
             const response = await fetch(`/api/event/${eventId}`, {
                 method: 'GET',
                 headers: {
@@ -78,12 +78,12 @@ const ContextMenu = ({ row }: { row: any }) => {
             });
 
             if (!response.ok) {
-                throw new Error('Error al obtener el evento');
+                throw new Error('Error getting the event');
             }
 
             const event = await response.json();
 
-            // Actualizar el estado "done" a true
+            // Update "done" status to true
             const updateResponse = await fetch(`/api/event/${eventId}`, {
                 method: 'PUT',
                 headers: {
@@ -93,22 +93,22 @@ const ContextMenu = ({ row }: { row: any }) => {
             });
 
             if (!updateResponse.ok) {
-                throw new Error('Error al actualizar el evento');
+                throw new Error('Error updating the event');
             }
 
             const result = await updateResponse.json();
 
             if (result.success) {
-                // Actualización exitosa
-                alert('El evento ha sido archivado correctamente');
-                // Aquí podrías recargar la lista de eventos o actualizar la UI
+                // Successful update
+                alert('The event has been successfully archived');
+                // Here you could reload the event list or update the UI.
                 window.location.reload();
             } else {
-                throw new Error('No se pudo actualizar el evento');
+                throw new Error('Event could not be updated');
             }
         } catch (error) {
-            console.error('Error al marcar el evento como completado:', error);
-            alert('Ocurrió un error al archivar el evento');
+            console.error('Error marking event as completed:', error);
+            alert('An error occurred while archiving the event.');
         } finally {
             setIsLoading(false);
             closeDialog();

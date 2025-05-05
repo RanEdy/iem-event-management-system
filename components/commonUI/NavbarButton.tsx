@@ -11,7 +11,7 @@ type NavbarButtonProps =
 
 
 export const NavbarButton: React.FC<NavbarButtonProps> = ({ name, icon, onClick }) => {
-    // Manejador de eventos que verifica si onClick existe antes de llamarlo
+    // Event handler that checks if onClick exists before calling it
     const handleClick = () => {
         if (onClick) {
             onClick();

@@ -1,7 +1,7 @@
 import { IUser } from "@/entities/IUser";
 import { DAOLocator } from "@/persistence/DAOLocator";
-// Importa bcrypt si vas a usar hashing de contraseñas en el futuro
-// import bcrypt from 'bcrypt';
+// Import bcrypt if you are going to use password hashing in the future.
+import bcrypt from 'bcrypt'; // <-- Uncomment or add this line
 
 
 /**
@@ -11,12 +11,16 @@ import { DAOLocator } from "@/persistence/DAOLocator";
  */
 export class UserService
 {
+    // Defines the number of salting rounds (cost factor).
+    // A higher value is safer but slower. 10-12 is a good starting point.
+    private saltRounds = 10;
+
     constructor() {}
 
     /**
-     * Finds a user by email and verifies the password.
+     * Finds a user by email and verifies the password using bcrypt.
      * @param email The user's email.
-     * @param password The user's password.
+     * @param password The plain text password to verify.
      * @returns The user object if credentials are valid, otherwise null.
      */
     async verifyCredentials(email: string, password: string): Promise<IUser | null>
@@ -30,10 +34,8 @@ export class UserService
                 return null;
             }
 
-            // Direct comparison of passwords (NOT SAFE FOR PRODUCTION!)
-            // In a real environment, we should use hashing (e.g. bcrypt).
-            //const isPasswordValid = await bcrypt.compare(password, user.password); 
-            const isPasswordValid = user.password === password;
+            // Compare the password provided with the stored hash
+            const isPasswordValid = await bcrypt.compare(password, user.password);
 
             if (!isPasswordValid) {
                 console.log(`Invalid password for email: ${email}`);
@@ -46,6 +48,7 @@ export class UserService
         catch(error)
         {
             console.error("Error verifying credentials:", error);
+            // Consider whether to return null or throw a specific error
             return null; // Error during verification
         }
     }
@@ -70,26 +73,40 @@ export class UserService
     }
 
     /**
-    * Creates a new user entry in the database.
+    * Creates a new user entry in the database with a hashed password.
     * @param userData The object containing the user's information, excluding the ID.
+    *                 The password should be plain text here.
     * @returns A boolean, "true" if the creation was successful, otherwise "false".
     */
     async create(userData: Omit<IUser, 'id'>): Promise<boolean>
     {
         try
         {
-            await DAOLocator.userDao.create(userData);
+            // Hash the password before saving it
+            const hashedPassword = await bcrypt.hash(userData.password, this.saltRounds);
+
+            // Create user object with hashed password
+            const userToCreate = {
+                ...userData,
+                password: hashedPassword
+            };
+
+            await DAOLocator.userDao.create(userToCreate);
+            console.log(`User created successfully for email: ${userData.email}`);
             return true;
         }
         catch(error)
         {
-            console.error("User could not be created");
+            console.error("User could not be created:", error);
             return false;
         }
     }
 
     /**
     * Updates an existing user entry in the database.
+    * IMPORTANT: If updating the password, ensure it's hashed first.
+    * This example assumes the password in userData might already be hashed
+    * or is not being updated. Add hashing logic if plain text password update is needed.
     * @param userData The object containing the user's updated information.
     * @returns A boolean, "true" if the update was successful, otherwise "false".
     */
@@ -97,12 +114,21 @@ export class UserService
     {
         try
         {
+            // !! WARNING !!
+            // If you allow password updates here, you MUST make sure you
+            // that the password in `userData.password` is hashed BEFORE
+            // to call this function, or add logic here to hash it
+            // if it is detected to be a plaintext password.
+            // For simplicity, this example assumes that the password is not updated.
+            // or that it is already hashed.
+
             await DAOLocator.userDao.update(userData);
+            console.log(`User updated successfully for ID: ${userData.id}`);
             return true;
         }
         catch(error)
         {
-            console.error("User could not be updated");
+            console.error("User could not be updated:", error);
             return false;
         }
     }

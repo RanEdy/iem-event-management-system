@@ -33,11 +33,11 @@ const columns: TableColumn<IEvent>[] = [
         cell: row => <div className="flex flex-row items-center h-1/3 p-4 py-6 rounded-lg bg-zinc-200">
             <div className="block items-center">
                 <div className="font-extrabold">
-                    {/* Asegúrate que row.startDate es un objeto Date */}
+                    {/* Make sure row.startDate is a Date object. */}
                     {row.startDate instanceof Date ? row.startDate.toDateString() : 'Invalid Date'}
                 </div>
                 <div className="font-extrabold text-zinc-600">
-                    {/* Asegúrate que row.startDate es un objeto Date */}
+                    {/* Make sure row.startDate is a Date object. */}
                     {row.startDate instanceof Date ? `${row.startDate.getHours()}:${row.startDate.getMinutes() === 0 ? "00" : row.startDate.getMinutes()}` : ''}
                 </div>
             </div>
@@ -76,7 +76,6 @@ const columns: TableColumn<IEvent>[] = [
         name: "OPTIONS",
         cell: row => <ContextMenu row={row}/>,
         ignoreRowClick: true,
-        // button: true, // <-- Eliminamos esta línea para corregir el error de atributo booleano
         //allowOverflow: true
     }
 ]
@@ -90,9 +89,9 @@ export const EventsTable: React.FC = () =>
         fetch("api/event")
         .then(res => res.json())
         .then((data: IEvent[]) => {
-            // Convertir las cadenas de fecha a objetos Date y filtrar solo eventos no completados
+            // Convert date strings to Date objects and filter out only uncompleted events
             const parsedEvents = data
-                .filter(event => event.done !== true) // Filtrar solo eventos donde done no es true
+                .filter(event => event.done !== true) // Filter only events where done is not true
                 .map(event => ({
                     ...event,
                     startDate: new Date(event.startDate),
@@ -100,7 +99,7 @@ export const EventsTable: React.FC = () =>
                 }));
             setEvents(parsedEvents);
         })
-        .catch(error => console.error("Error fetching or parsing events:", error)); // Añadir manejo de errores
+        .catch(error => console.error("Error fetching or parsing events:", error)); // Add error handling
     }, []);
       
     const handleRowClick = (row: any) =>

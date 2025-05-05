@@ -1,23 +1,21 @@
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from 'next/navigation'; // Importar useRouter
 import { useLogin } from "./LoginProvider";
 import { IUser } from "@/entities/IUser";
-// Eliminar la importación directa de UserService
-// import { UserService } from "@/services/UserService"; // Esta línea ya estaba comentada, pero la elimino para limpieza
+// Remove direct import of UserService
 
 const LoginForm = () => {
     const { setUserSession } = useLogin();
-    const router = useRouter(); // Inicializar useRouter
+    const router = useRouter(); // Initialise useRouter
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
-    const [isLoading, setIsLoading] = useState(false); // Estado para indicar carga
+    const [isLoading, setIsLoading] = useState(false); // Status to indicate load
 
-    // Función básica para validar el formato del email
+    // Basic function to validate the email format
     const validateEmail = (email: string) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(String(email).toLowerCase());
@@ -28,22 +26,22 @@ const LoginForm = () => {
         e.preventDefault();
         let hasError = false;
 
-        // Limpiar errores previos
+        // Clean up previous errors
         setEmailError("");
         setPasswordError("");
 
-        // Validar campo de email
+        // Validate email field
         if (!email) {
-            setEmailError("El campo de correo electrónico no puede estar vacío.");
+            setEmailError("The email field cannot be empty.");
             hasError = true;
         } else if (!validateEmail(email)) {
-            setEmailError("Por favor, introduce un formato de correo electrónico válido.");
+            setEmailError("Please enter a valid e-mail address format.");
             hasError = true;
         }
 
-        // Validar campo de contraseña
+        // Validate password field
         if (!password) {
-            setPasswordError("El campo de contraseña no puede estar vacío.");
+            setPasswordError("Password field cannot be empty.");
             hasError = true;
         }
 
@@ -51,11 +49,11 @@ const LoginForm = () => {
             return;
         }
 
-        setIsLoading(true); // Indicar que la operación está en curso
-        console.log("Intentando iniciar sesión con Email: " + email);
+        setIsLoading(true); // Indicate that the operation is in progress
+        console.log("Trying to log in with Email: " + email);
 
         try {
-            // Realizar la petición fetch a la nueva API route
+            // Perform the fetch request to the new API route
             const response = await fetch('/api/user/verify', {
                 method: 'POST',
                 headers: {
@@ -67,29 +65,29 @@ const LoginForm = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Éxito: Usuario autenticado
-                const authenticatedUser: IUser = data; // Asumiendo que la API devuelve el objeto IUser
-                console.log("Inicio de sesión exitoso para:", authenticatedUser.email);
-                setUserSession(authenticatedUser); // Guardar sesión en el contexto
-                router.push('/main'); // Redirigir a la página principal
+                // Success: User authenticated
+                const authenticatedUser: IUser = data; // Assuming that the API returns the object IUser
+                console.log("Successful login for:", authenticatedUser.email);
+                setUserSession(authenticatedUser); // Save session in context
+                router.push('/main'); // Redirect to homepage
             } else {
-                // Fallo: Credenciales incorrectas o error del servidor
-                console.log("Error de inicio de sesión:", data.error || 'Error desconocido');
-                setEmailError(data.error || "Correo electrónico o contraseña incorrectos.");
-                // Si el error es específico de credenciales, marcar ambos campos
+                // Fault: Incorrect credentials or server error
+                console.log("Login error:", data.error || 'Unknown error');
+                setEmailError(data.error || "Incorrect e-mail address or password.");
+                // If the error is specific to credentials, check both fields
                 if (response.status === 401) {
-                    setPasswordError(" "); // Marcar ambos campos como relacionados al error
+                    setPasswordError(" "); // Mark both fields as related to the error
                 } else {
-                    // Para otros errores (e.g., 400, 500), solo mostrar en el campo de email
+                    // For other errors (e.g., 400, 500), only show in the email field
                     setPasswordError("");
                 }
             }
 
         } catch (error) {
-            console.error("Error en la llamada de login:", error);
-            setEmailError("Ocurrió un error inesperado al intentar iniciar sesión."); // Error genérico
+            console.error("Error in login call:", error);
+            setEmailError("An unexpected error occurred while trying to log in.."); // Generic error
         } finally {
-             setIsLoading(false); // Finalizar estado de carga
+             setIsLoading(false); // End state of charge
         }
     };
 
@@ -114,18 +112,18 @@ const LoginForm = () => {
                         value={email}
                         onChange={(e) => {
                             setEmail(e.target.value);
-                            // Limpiar error al escribir
+                            // Clear typing error
                             if (emailError) setEmailError("");
-                            // Limpiar el error de contraseña si estaba marcado como error de API general
+                            // Clear password error if marked as general API error
                             if (passwordError === " ") setPasswordError("");
                         }}
                         placeholder="EMAIL"
-                        // Resaltar borde si hay error
+                        // Highlight border if there is an error
                         className={`border-2 ${emailError ? 'border-red-500' : 'border-gray-300'} w-full p-2 mt-6 placeholder-gray-400 rounded-md`}
-                        aria-invalid={!!emailError} // Para accesibilidad
+                        aria-invalid={!!emailError} // For accessibility
                         aria-describedby="email-error"
                     />
-                    {/* Mostrar mensaje de error para el email */}
+                    {/* Show error message for email */}
                     {emailError && <p id="email-error" className="text-red-500 text-xs mt-1">{emailError}</p>}
 
 
@@ -135,26 +133,25 @@ const LoginForm = () => {
                         value={password}
                         onChange={(e) => {
                             setPassword(e.target.value);
-                            // Limpiar error al escribir
+                            // Clear typing error
                             if (passwordError) setPasswordError("");
-                            // **CORRECCIÓN 2:** Eliminada la línea que causaba el error de ámbito
-                            // if (emailError === simulatedApiError) setEmailError("");
+                            // **CORRECTION 2:** Removed the line causing the scope error
                         }}
                         placeholder="PASSWORD"
-                        // Resaltar borde si hay error
+                        // Highlight border if there is an error
                         className={`border-2 ${passwordError && passwordError !== " " ? 'border-red-500' : 'border-gray-300'} w-full p-2 mt-6 placeholder-gray-400 rounded-md`}
-                        aria-invalid={!!passwordError && passwordError !== " "} // Para accesibilidad
+                        aria-invalid={!!passwordError && passwordError !== " "} // For accessibility
                         aria-describedby="password-error"
                     />
-                    {/* Mostrar mensaje de error para la contraseña */}
-                    {/* Evitar mostrar el espacio usado para limpiar el error de email */}
+                    {/* Show error message for password */}
+                    {/* Avoid displaying the space used to clear the email error */}
                     {passwordError && passwordError !== " " && <p id="password-error" className="text-red-500 text-xs mt-1">{passwordError}</p>}
 
-                    {/* Botón tipo submit */}
+                    {/* Submit button */}
                     <button
                         type="submit"
                         className="h-10 w-full p-2 mt-6 rounded-md bg-cyan-900 text-white font-extrabold hover:bg-cyan-800 transition-colors duration-200 disabled:opacity-50"
-                        disabled={isLoading} // Deshabilitar botón durante la carga
+                        disabled={isLoading} // Disable button during charging
                     >
                         {isLoading ? 'INGRESANDO...' : 'LOGIN'}
                     </button>

@@ -30,23 +30,23 @@ export class UserService
                 return null;
             }
 
-            // Comparación directa de contraseñas (¡NO SEGURO PARA PRODUCCIÓN!)
-            // En un entorno real, deberíamos usar hashing (ej. bcrypt)
-            // const isPasswordValid = await bcrypt.compare(password, user.password);
+            // Direct comparison of passwords (NOT SAFE FOR PRODUCTION!)
+            // In a real environment, we should use hashing (e.g. bcrypt).
+            //const isPasswordValid = await bcrypt.compare(password, user.password); 
             const isPasswordValid = user.password === password;
 
             if (!isPasswordValid) {
                 console.log(`Invalid password for email: ${email}`);
-                return null; // Contraseña incorrecta
+                return null; // Incorrect password
             }
 
             console.log(`Credentials verified for email: ${email}`);
-            return user; // Credenciales válidas
+            return user; // Valid credentials
         }
         catch(error)
         {
             console.error("Error verifying credentials:", error);
-            return null; // Error durante la verificación
+            return null; // Error during verification
         }
     }
 

@@ -1,94 +1,94 @@
-// Ruta API para gestionar un usuario específico (GET por id, PUT, DELETE)
+// API path to manage a specific user (GET by id, PUT, DELETE)
 import { NextResponse } from 'next/server';
-import { ServiceLocator } from '@/services/ServiceLocator'; // Cambiado de DAOLocator a ServiceLocator
-import { IUser } from '@/entities/IUser'; // Mantenido por si es necesario para tipos
+import { ServiceLocator } from '@/services/ServiceLocator'; // Changed from DAOLocator to ServiceLocator
+import { IUser } from '@/entities/IUser'; // Held in case it is necessary for types
 
-// GET: Obtener un usuario por ID
+// GET: Get a user by ID
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   try {
     const id = Number(params.id);
     if (isNaN(id)) {
-      return NextResponse.json({ error: 'ID de usuario inválido' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
     const user = await ServiceLocator.userService.findById(id);
 
     if (!user) {
-      return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Excluir contraseña antes de enviar
+    // Exclude password before sending
     const { password, ...userWithoutPassword } = user;
     return NextResponse.json(userWithoutPassword);
 
   } catch (error) {
-    console.error(`Error al obtener usuario con ID ${params.id}:`, error);
-    return NextResponse.json({ error: 'Error interno del servidor al obtener usuario' }, { status: 500 });
+    console.error(`Error getting user with ID ${params.id}:`, error);
+    return NextResponse.json({ error: 'Internal server error when getting user' }, { status: 500 });
   }
 }
 
-// PUT: Actualizar un usuario por ID
+// PUT: Update user by ID
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
     const id = Number(params.id);
     if (isNaN(id)) {
-      return NextResponse.json({ error: 'ID de usuario inválido' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
     const body = await request.json();
-    // Excluimos explícitamente la contraseña si viene en el body, aunque el servicio no debería usarla.
+    // We explicitly exclude the password if it comes in the body, although the service should not use it.
     const { password, ...updateData } = body;
 
-    // Validación básica
+    // Basic validation
     if (Object.keys(updateData).length === 0) {
-        return NextResponse.json({ error: 'No se proporcionaron datos para actualizar' }, { status: 400 });
+        return NextResponse.json({ error: 'No data provided to update' }, { status: 400 });
     }
 
-    // El servicio se encarga de la lógica de actualización
-    // Nota: La contraseña no se actualiza aquí por seguridad.
+    // The service takes care of the update logic
+    // Note: The password is not updated here for security reasons.
     const success = await ServiceLocator.userService.update({ ...updateData, id });
 
     if (success) {
-        // Opcional: podrías devolver el usuario actualizado si el servicio lo retornara
+        // Optional: you could return the updated user if the service returns it.
         // const updatedUser = await ServiceLocator.userService.findById(id);
         // if (updatedUser) {
         //    const { password, ...userWithoutPassword } = updatedUser;
         //    return NextResponse.json(userWithoutPassword);
         // }
-        return NextResponse.json({ success: true }); // Respuesta simple como en event
+        return NextResponse.json({ success: true }); // Simple answer as in event
     } else {
-        // El servicio devolvió false, podría ser porque el usuario no existe o falló la actualización
-        // Podríamos verificar si existe para dar un 404 más específico, pero simplificamos
-         return NextResponse.json({ success: false, error: 'No se pudo actualizar el usuario (puede que no exista)' }, { status: 400 }); // O 500 si es error interno
+        // The service returned false, it could be because the user does not exist or the update failed.
+        // We could check if it exists to give a more specific 404, but we simplify it by
+         return NextResponse.json({ success: false, error: 'Could not update user (may not exist)' }, { status: 400 }); // Or 500 if internal error
     }
 
   } catch (error) {
-    console.error(`Error al actualizar usuario con ID ${params.id}:`, error);
-    return NextResponse.json({ success: false, error: 'Error interno del servidor al actualizar usuario' }, { status: 500 });
+    console.error(`Error updating user with ID ${params.id}:`, error);
+    return NextResponse.json({ success: false, error: 'Internal server error when updating user' }, { status: 500 });
   }
 }
 
-// DELETE: Eliminar un usuario por ID
+// DELETE: Delete a user by ID
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   try {
     const id = Number(params.id);
     if (isNaN(id)) {
-      return NextResponse.json({ error: 'ID de usuario inválido' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
     const success = await ServiceLocator.userService.deleteById(id);
 
-    // Devolvemos un objeto { success } como en event
+    // We return an object { success } as in event
     if (success) {
         return NextResponse.json({ success: true });
     } else {
-        // Si deleteById devuelve false, asumimos que no se encontró el usuario
-        return NextResponse.json({ success: false, error: 'Usuario no encontrado para eliminar' }, { status: 404 });
+        // If deleteById returns false, we assume that the user was not found.
+        return NextResponse.json({ success: false, error: 'User not found to delete' }, { status: 404 });
     }
 
   } catch (error) {
-    console.error(`Error al eliminar usuario con ID ${params.id}:`, error);
-    // Considerar errores de restricción de clave externa si los hay
-    return NextResponse.json({ success: false, error: 'Error interno del servidor al eliminar usuario' }, { status: 500 });
+    console.error(`Error deleting user with ID ${params.id}:`, error);
+    // Consider foreign key constraint errors if any
+    return NextResponse.json({ success: false, error: 'Internal server error when deleting user' }, { status: 500 });
   }
 }

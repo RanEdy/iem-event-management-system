@@ -8,6 +8,8 @@ import DataTable, { TableColumn } from "react-data-table-component";
 import ContextMenu from "../commonUI/ContextMenu";
 import { EventForm } from "./EventForm";
 
+import { UserForm } from "../usersUI/UserForm"; //Only for testing purposes, remove later
+
 const columns: TableColumn<IEvent>[] = [
     {
         name: "EVENT",
@@ -187,6 +189,13 @@ export const EventsTable: React.FC = () =>
                                     loadEvents();
                                 }}/>
                             }
+
+                            {/* Register user form */}
+
+                                {/* { <UserForm title="Register User" />} */} 
+                                
+                            {/* Only for testing purposes, remove later */}
+
                         </div>
                     </div>
                 )}

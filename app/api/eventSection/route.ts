@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("api/eventSection/POST: body")
     console.log(body)
-    const success = await ServiceLocator.eventSectionService.create(body);
-    console.log(success)
-    return NextResponse.json({ success });
+    const section = await ServiceLocator.eventSectionService.create(body);
+    console.log(section)
+    return NextResponse.json({ success: true, section });
 }

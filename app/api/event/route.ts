@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     }
 
     // Validate address fields
-    if (!eventData.city || !eventData.state || !eventData.street || !eventData.zipCode) {
+    if (!eventData.city || !eventData.state || !eventData.address || !eventData.zipCode) {
         return NextResponse.json({ success: false, error: 'Address fields are missing to create the event' }, { status: 400 });
     }
 
@@ -47,39 +47,17 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error: 'The value of the max users must be greater than 0.' }, { status: 400 });
     }
 
-    // Validate external number if present
-    if(eventData.externalNumber){
-        if(isNaN(Number(eventData.externalNumber))){ //Validate that the external number is of type number
-            return NextResponse.json({ success: false, error: 'The value of the external number is not of type number.' }, { status: 400 });
-        }
-        else if(eventData.externalNumber <= 0) //Validate that the external number is not less than or equal to 0
-        {
-            return NextResponse.json({ success: false, error: 'The external number must be greater than 0.' }, { status: 400 });
-        }
-    }
-
-    // Validate internal number if present
-    if(eventData.internalNumber){
-        if(isNaN(Number(eventData.internalNumber))){ //Validate that the internal number is of type number
-            return NextResponse.json({ success: false, error: 'The value of the internal number is not of type number.' }, { status: 400 });
-        }
-        else if(eventData.internalNumber <= 0) //Validate that the internal number is not less than or equal to 0
-        {
-            return NextResponse.json({ success: false, error: 'The internal number must be greater than 0.' }, { status: 400 });
-        }
-    }
-
     try {
         // Attempt to create the event
-        const success = await ServiceLocator.eventService.create(eventData);
+        const event = await ServiceLocator.eventService.create(eventData);
 
         //Handles the error that occurred when registering the event
-        if (!success) {
+        if (!event) {
             return NextResponse.json({ success: false, error: "Failed to create the event." }, { status: 500 });
         }
 
         //Registration was successful
-        return NextResponse.json({ success, message: "Event created successfully" }, { status: 201 });
+        return NextResponse.json({ success: true, event, message: "Event created successfully" }, { status: 201 });
 
     } catch (error) {
         return NextResponse.json({ success: false, error: "Internal server error while creating the event"}, { status: 500 });

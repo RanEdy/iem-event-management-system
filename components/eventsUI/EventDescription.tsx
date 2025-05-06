@@ -269,12 +269,12 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          {activeSection.files.map((fileObj) => {
+          {activeSection.files.map((fileObj, i) => {
             const url = createFileUrl(fileObj);
 
             return fileObj.name.endsWith('.pdf') ? (
               <a
-                key={fileObj.id}
+                key={i}
                 href={url}
                 target="_blank"
                 rel="noreferrer"
@@ -284,7 +284,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
               </a>
             ) : (
               <img
-                key={fileObj.id}
+                key={i}
                 src={url}
                 alt={fileObj.name}
                 className="h-24 object-cover rounded-md border"

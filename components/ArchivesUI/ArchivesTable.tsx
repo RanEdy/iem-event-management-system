@@ -5,7 +5,7 @@ import { IEvent } from "@/entities/IEvent";
 import { FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
-import ContextMenu from "../commonUI/ContextMenu";
+import ContextMenuArchives from "../commonUI/ContexMenuArchives";
 
 const columns: TableColumn<IEvent>[] = [
     {
@@ -65,7 +65,7 @@ const columns: TableColumn<IEvent>[] = [
     },
     {
         name: "OPTIONS",
-        cell: row => <ContextMenu row={row}/>,
+        cell: row => <ContextMenuArchives row={row}/>,
         ignoreRowClick: true,
     }
 ]

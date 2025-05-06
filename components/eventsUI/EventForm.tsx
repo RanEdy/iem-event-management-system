@@ -228,7 +228,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
             />
           </div>
 
-          {/* SECOND ROW: STATE, CITY AND ZIP CODE  */}
+          {/* SECOND ROW: STATE, CITY AND ZIP CODE */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6 mb-6">
             <select
               id="state"

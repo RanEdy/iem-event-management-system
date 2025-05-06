@@ -10,8 +10,8 @@ export async function GET(request: Request, context: { params: { id: string } })
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const body = await req.json();
-  const success = await ServiceLocator.eventService.update({ ...body, id: Number(params.id) });
-  return NextResponse.json({ success });
+  const event = await ServiceLocator.eventService.update({ ...body, id: Number(params.id) });
+  return NextResponse.json({ event });
 }
 
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {

@@ -38,39 +38,39 @@ export class EventService
     /**
     * Creates a new event entry in the database.
     * @param eventData The object containing the event's information, excluding the ID.
-    * @returns A boolean, "true" if the creation was successful, otherwise "false".
+    * @returns the event if the creation was successful, otherwise null.
     */
-    async create(eventData: Omit<IEvent, 'id'>): Promise<boolean>
+    async create(eventData: Omit<IEvent, 'id'>): Promise<IEvent | null>
     {
+        let event: IEvent | null = null;
         try
         {
-            await DAOLocator.eventDao.create(eventData);
-            return true;
+            event = await DAOLocator.eventDao.create(eventData);
         }
         catch(error)
         {
             console.error("Event could not be created");
-            return false;
         }
+        return event;
     }
 
     /**
     * Updates an existing event entry in the database.
     * @param eventData The object containing the event's updated information.
-    * @returns A boolean, "true" if the update was successful, otherwise "false".
+    * @returns the event if the creation was successful, otherwise null.
     */
-    async update(eventData: IEvent): Promise<boolean>
+    async update(eventData: IEvent): Promise<IEvent | null>
     {
+        let event: IEvent | null = null;
         try
         {
-            await DAOLocator.eventDao.update(eventData);
-            return true;
+            event = await DAOLocator.eventDao.update(eventData);
         }
         catch(error)
         {
             console.error("Event could not be updated");
-            return false;
         }
+        return event;
     }
 
     /**

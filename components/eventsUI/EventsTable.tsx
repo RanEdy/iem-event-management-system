@@ -1,6 +1,6 @@
 "use client";
 
-import { USAState } from "@prisma/client";
+import { EventStatus, USAState } from "@prisma/client";
 import { IEvent } from "@/entities/IEvent";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
@@ -22,7 +22,7 @@ const columns: TableColumn<IEvent>[] = [
                     + ", " + row.city + " " + row.zipCode + ". "}
                 </div>
                 <div className="font-extrabold text-zinc-600">
-                    {row.externalNumber + " " + row.street + " #" + row.internalNumber}
+                    {row.address}
                 </div>
             </div>
         </div>,
@@ -92,7 +92,7 @@ export const EventsTable: React.FC = () =>
         .then((data: IEvent[]) => {
             // Convertir las cadenas de fecha a objetos Date y filtrar solo eventos no completados
             const parsedEvents = data
-                .filter(event => event.done !== true) // Filtrar solo eventos donde done no es true
+                .filter(event => event.status === EventStatus.IN_PROCESS) // Filtrar solo eventos donde done no es true
                 .map(event => ({
                     ...event,
                     startDate: new Date(event.startDate),

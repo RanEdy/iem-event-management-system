@@ -34,6 +34,12 @@ enum GenericRequestStatus {
   ACCEPTED
 }
 
+enum EventStatus {
+  IN_PROCESS
+  DONE
+  CANCELLED
+}
+
 enum USAState {
   ALABAMA
   ALASKA
@@ -119,14 +125,12 @@ model Event {
   city String
   state USAState @default(CALIFORNIA)
   zipCode String
-  street String
-  internalNumber Int?
-  externalNumber Int?
+  address String
 
   startDate DateTime
   endDate DateTime
   public Boolean @default(false)
-  done Boolean @default(false)
+  status EventStatus @default(IN_PROCESS)
   maxUsers Int @default(1)
 
   eventUsers EventUserList[]

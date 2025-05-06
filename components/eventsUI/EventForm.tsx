@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { IEvent } from "@/entities/IEvent";
-import { USAState } from "@prisma/client";
+import { EventStatus, USAState } from "@prisma/client";
 import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
 import { eventListTest } from "@/entities/tests/EventTests";
@@ -21,17 +21,12 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
     const [city, setCity] = useState<string>("");
     const [state, setState] = useState<USAState>(USAState.CALIFORNIA);
     const [zipCode, setZipCode] = useState<string>("");
-    const [street, setStreet] = useState<string>("");
-    const [internalNumber, setInternalNumber] = useState<number | null>(null);
-    const [externalNumber, setExternalNumber] = useState<number | null>(null);
+    const [address, setAddress] = useState<string>("");
 
     const [startDate, setStartDate] = useState<Date>(new Date());
     const [endDate, setEndDate] = useState<Date>(new Date());
     const [publicEvent, setPublicEvent] = useState<boolean>(false);
     const [maxUsers, setMaxUsers] = useState<number>(1);
-
-    
-
     
     // IMPORTANT: If you want to create a new Event with new Sections
     // First Create the event, then get the id >> then replace that id in the sections >> then create the sections
@@ -66,9 +61,7 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
         console.log("State:", state);
         console.log("City:", city);
         console.log("Zip Code:", zipCode);
-        console.log("Street:", street);
-        console.log("External Number:", externalNumber);
-        console.log("Internal Number:", internalNumber);
+        console.log("Address:", address);
         console.log("Start Date:", startDate?.toISOString().split("T")[0] ?? "Not set");
         console.log("End Date:", endDate?.toISOString().split("T")[0] ?? "Not set");
         console.log("Max Users:", maxUsers);
@@ -79,14 +72,12 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
           state,
           city,
           zipCode,
-          street,
-          externalNumber,
-          internalNumber,
+          address,
           startDate,
           endDate,
           maxUsers,
           public: publicEvent,
-          done: false
+          status: EventStatus.IN_PROCESS
         };
       
         try {
@@ -99,19 +90,12 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
             body: JSON.stringify(eventToSend),
           });
       
+          // { success, event, message}
           const dataCreateEvent = await responseCreateEvent.json();
           console.log(dataCreateEvent);
       
           if (dataCreateEvent.success) {
-            console.log("fetching: obtainRecentEvent");
-            const responseObtainRecentEvent = await fetch('/api/event/obtainRecentEvent', {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-      
-            const recentEvent: IEvent = await responseObtainRecentEvent.json();
+            const recentEvent: IEvent = dataCreateEvent.event;
             console.log(recentEvent);
       
             console.log("Updating sections id...");
@@ -142,14 +126,7 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
                 console.log(resp);
       
                 if (resp.success) {
-                  const responseFindRecent = await fetch('/api/eventSection/findRecent', {
-                    method: 'GET',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                  });
-      
-                  const updatedSection: IEventSection = await responseFindRecent.json();
+                  const updatedSection: IEventSection = resp.section;
                   section.id = updatedSection.id;
                 } else {
                   console.log("Error: Failed to create the section: ");
@@ -166,6 +143,7 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
               console.log("Files creation for each section...");
       
               // Create files
+              // Problem: the async of the maps dont asign the right id for each file
               await Promise.all(
                 updatedSections.map(async (currentSection) => {
                   console.log(currentSection);
@@ -173,7 +151,7 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
                   await Promise.all(
                     currentSection.files.map(async (file) => {
                       file.sectionId = currentSection.id;
-      
+                      
                       const responseFile = await fetch('/api/sectionFile', {
                         method: 'POST',
                         headers: {
@@ -267,40 +245,16 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId}) => {
                     </div>
 
                     {/* SECOND ROW: STREET, EXTERNAL NUMBER, INTERNAL NUMBER */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6 mb-6">
+                    <div className="grid grid-cols-1 gap-4 mt-6 mb-6">
                         <input
                             type="text"
                             id="street"
-                            value={street}
+                            value={address}
                             required
-                            onChange={(e) => setStreet(e.target.value)}
-                            placeholder="Street*"
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="Address*"
                             className="border-2 border-gray-300 w-full p-2 rounded-md"
                             title="Street*"
-                        />
-
-                        <input
-                            type="number"
-                            id="externalNumber"
-                            value={externalNumber ?? ""}
-                            onChange={(e) => setExternalNumber(Number(e.target.value))}
-                            placeholder="External Number*"
-                            className="border-2 border-gray-300 w-full p-2 rounded-md"
-                            title="External Number*"
-                            min={1}
-                            max={10000}
-                        />
-
-                        <input
-                            type="number"
-                            id="internalNumber"
-                            value={internalNumber ?? ""}
-                            onChange={(e) => setInternalNumber(Number(e.target.value))}
-                            placeholder="Internal Number"
-                            className="border-2 border-gray-300 w-full p-2 rounded-md"
-                            title="Internal Number"
-                            min={0}
-                            max={10000}
                         />
                     </div>
 

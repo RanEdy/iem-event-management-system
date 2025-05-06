@@ -33,37 +33,37 @@ export class EventSectionService {
     /**
     * Creates a new eventSection entry in the database.
     * @param eventSectionData The object containing the eventSection's information, excluding the ID.
-    * @returns A boolean, "true" if the creation was successful, otherwise "false".
+    * @returns the event section if the creation was successful, otherwise null.
     */
-    async create(eventSectionData: Omit<IEventSection, 'id'>): Promise<boolean> {
+    async create(eventSectionData: Omit<IEventSection, 'id'>): Promise<IEventSection | null> {
+        let section: IEventSection | null = null;
         try {
             const { id, ...dataWithoutId } = eventSectionData as any;
 
-            const section = await DAOLocator.eventSectionDao.create(dataWithoutId);
+            section = await DAOLocator.eventSectionDao.create(dataWithoutId);
             console.log("Section created: ");
             console.log(section);
-            return true;
         }
         catch (error) {
             console.error("Event Section could not be created:", error);
-            return false;
         }
+        return section;
     }
 
     /**
     * Updates an existing eventSection entry in the database.
     * @param eventSectionData The object containing the eventSection's updated information.
-    * @returns A boolean, "true" if the update was successful, otherwise "false".
+    * @returns the event section if the creation was successful, otherwise null.
     */
-    async update(eventSectionData: IEventSection): Promise<boolean> {
+    async update(eventSectionData: IEventSection): Promise<IEventSection | null> {
+        let section: IEventSection | null = null;
         try {
-            await DAOLocator.eventSectionDao.update(eventSectionData);
-            return true;
+            section = await DAOLocator.eventSectionDao.update(eventSectionData);
         }
         catch (error) {
             console.error("Event Section could not be updated");
-            return false;
         }
+        return section;
     }
 
     /**

@@ -8,7 +8,7 @@ import { UserLevel } from "@prisma/client";
 
 type UserFormProps = {
     title: string;
-    userId?: number; //If this component will be use to modified an event
+    userId?: number; //If this component will be use to modified an user
 }
 
 export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {

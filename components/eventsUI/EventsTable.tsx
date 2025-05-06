@@ -8,6 +8,8 @@ import DataTable, { TableColumn } from "react-data-table-component";
 import ContextMenu from "../commonUI/ContextMenu";
 import { EventForm } from "./EventForm";
 
+import { UserForm } from "../usersUI/UserForm"; // Import the UserForm component, only for testing purposes
+
 const columns: TableColumn<IEvent>[] = [
     {
         name: "EVENT",
@@ -146,6 +148,7 @@ export const EventsTable: React.FC = () =>
                             </button>
                             {/* CHILDREN OR CONTENT*/}
                             { <EventForm title="Register Event" />}
+                            {/* { <UserForm title="Register User" />} */}
                         </div>
                     </div>
                 )}

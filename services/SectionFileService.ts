@@ -31,43 +31,43 @@ export class SectionFileService {
         /**
         * Creates a new sectionFileData entry in the database.
         * @param sectionFileData The object containing the sectionFileData's information, excluding the ID.
-        * @returns A boolean, "true" if the creation was successful, otherwise "false".
+        * @returns the file, if the creation was successful, otherwise null.
         */
-        async create(sectionFileData: Omit<ISectionFile, 'id'>): Promise<boolean>
+        async create(sectionFileData: Omit<ISectionFile, 'id'>): Promise<ISectionFile | null>
         {
             console.log("Data receive: ");
             console.log(sectionFileData);
+            let file: ISectionFile | null = null;
             try
             {
-                const file = await DAOLocator.sectionFileDao.create(sectionFileData);
+                file = await DAOLocator.sectionFileDao.create(sectionFileData);
                 console.log("File created: ")
                 console.log(file)
-                return true;
             }
             catch(error)
             {
                 console.error("Section File could not be created: ", error);
-                return false;
             }
+            return file;
         }
     
         /**
         * Updates an existing sectionFileData entry in the database.
         * @param sectionFileData The object containing the sectionFileData's updated information.
-        * @returns A boolean, "true" if the update was successful, otherwise "false".
+        * @returns the file, if the creation was successful, otherwise null.
         */
-        async update(sectionFileData: ISectionFile): Promise<boolean>
+        async update(sectionFileData: ISectionFile): Promise<ISectionFile | null>
         {
+            let file: ISectionFile | null = null;
             try
             {
-                await DAOLocator.sectionFileDao.update(sectionFileData);
-                return true;
+                file = await DAOLocator.sectionFileDao.update(sectionFileData);
             }
             catch(error)
             {
                 console.error("Section File could not be updated");
-                return false;
             }
+            return file;
         }
     
         /**

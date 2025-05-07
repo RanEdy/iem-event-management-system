@@ -1,12 +1,14 @@
 "use client";
 
-import { USAState } from "@prisma/client";
+import { EventStatus, USAState } from "@prisma/client";
 import { IEvent } from "@/entities/IEvent";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import ContextMenu from "../commonUI/ContextMenu";
 import { EventForm } from "./EventForm";
+
+import { UserForm } from "../usersUI/UserForm"; //Only for testing purposes, remove later
 
 const columns: TableColumn<IEvent>[] = [
     {
@@ -22,7 +24,7 @@ const columns: TableColumn<IEvent>[] = [
                     + ", " + row.city + " " + row.zipCode + ". "}
                 </div>
                 <div className="font-extrabold text-zinc-600">
-                    {row.externalNumber + " " + row.street + " #" + row.internalNumber}
+                    {row.address}
                 </div>
             </div>
         </div>,
@@ -33,11 +35,11 @@ const columns: TableColumn<IEvent>[] = [
         cell: row => <div className="flex flex-row items-center h-1/3 p-4 py-6 rounded-lg bg-zinc-200">
             <div className="block items-center">
                 <div className="font-extrabold">
-                    {/* Make sure row.startDate is a Date object. */}
+                    {/* Asegúrate que row.startDate es un objeto Date */}
                     {row.startDate instanceof Date ? row.startDate.toDateString() : 'Invalid Date'}
                 </div>
                 <div className="font-extrabold text-zinc-600">
-                    {/* Make sure row.startDate is a Date object. */}
+                    {/* Asegúrate que row.startDate es un objeto Date */}
                     {row.startDate instanceof Date ? `${row.startDate.getHours()}:${row.startDate.getMinutes() === 0 ? "00" : row.startDate.getMinutes()}` : ''}
                 </div>
             </div>
@@ -46,7 +48,21 @@ const columns: TableColumn<IEvent>[] = [
     },
     {
         name: "DURATION",
-        selector: row => (row.endDate.getTime() - row.startDate.getTime()),
+        selector: row => {
+            const durationMs = row.endDate.getTime() - row.startDate.getTime();
+
+            const msInHour = 1000 * 60 * 60;
+            const msInDay = msInHour * 24;
+
+            const days = Math.floor(durationMs / msInDay);
+            const hours = Math.floor((durationMs % msInDay) / msInHour);
+
+            let durationText = "";
+            if (days > 0) durationText += `${days} day${days > 1 ? "s" : ""} `;
+            if (hours > 0) durationText += `${hours} hour${hours > 1 ? "s" : ""} `;
+
+            return durationText.trim();
+        },
     },
     {
         name: "VISIBILITY",
@@ -66,7 +82,7 @@ const columns: TableColumn<IEvent>[] = [
     },
     {
         name: "USERS",
-        selector: row => "34/50"
+        selector: row => "0/" + row.maxUsers
     },
     {
         name: "REQUESTS",
@@ -76,6 +92,7 @@ const columns: TableColumn<IEvent>[] = [
         name: "OPTIONS",
         cell: row => <ContextMenu row={row}/>,
         ignoreRowClick: true,
+        // button: true, // <-- Eliminamos esta línea para corregir el error de atributo booleano
         //allowOverflow: true
     }
 ]
@@ -84,14 +101,19 @@ const columns: TableColumn<IEvent>[] = [
 export const EventsTable: React.FC = () =>
 {
     const [events, setEvents] = useState<IEvent[]>([])
+    const [ isDialogOpen, setIsDialogOpen ] = useState(false);
+    //Para el mensaje de registro exitoso
+    const [toastMessage, setToastMessage] = useState('');
+    const [showToast, setShowToast] = useState(false);
 
-    useEffect(() => {
+    const loadEvents = async () =>
+    {
         fetch("api/event")
         .then(res => res.json())
         .then((data: IEvent[]) => {
-            // Convert date strings to Date objects and filter out only uncompleted events
+            // Cast string dates to Date objects and filter only events in process
             const parsedEvents = data
-                .filter(event => event.done !== true) // Filter only events where done is not true
+                .filter(event => event.status === EventStatus.IN_PROCESS)
                 .map(event => ({
                     ...event,
                     startDate: new Date(event.startDate),
@@ -99,7 +121,10 @@ export const EventsTable: React.FC = () =>
                 }));
             setEvents(parsedEvents);
         })
-        .catch(error => console.error("Error fetching or parsing events:", error)); // Add error handling
+        .catch(error => console.error("Error fetching or parsing events:", error));
+    }
+    useEffect(() => {
+        loadEvents();
     }, []);
       
     const handleRowClick = (row: any) =>
@@ -108,10 +133,22 @@ export const EventsTable: React.FC = () =>
         console.log(row);
     }
 
+    const showToastMessage = (message: string) => {
+        setToastMessage(message);
+        setShowToast(true);
+        setTimeout(() => {
+            setShowToast(false);
+        }, 4000); // 4 seconds
+    };
+
     
-    const [ isDialogOpen, setIsDialogOpen ] = useState(false);
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
+            {showToast && (
+                <div className="fixed top-5 left-1/2 transform-translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
+                    {toastMessage}
+                </div>
+            )}
             <div className="p-4 flex flex-colum justify-between lg:w-1/2">
                 <div>Total Events: <span className="font-bold">{" " + events.length}</span></div>
                 <div>Public Events: <span className="font-bold">{" " + events.filter((event) => {if (event.public) return event}).length}</span></div>
@@ -145,7 +182,20 @@ export const EventsTable: React.FC = () =>
                                 </svg>
                             </button>
                             {/* CHILDREN OR CONTENT*/}
-                            { <EventForm title="Register Event" />}
+                            { <EventForm title="Register Event" onSave={() =>
+                                {
+                                    setIsDialogOpen(false);
+                                    showToastMessage("Event added succesfully");
+                                    loadEvents();
+                                }}/>
+                            }
+
+                            {/* Register user form */}
+
+                                {/* { <UserForm title="Register User" />} */} 
+                                
+                            {/* Only for testing purposes, remove later */}
+
                         </div>
                     </div>
                 )}

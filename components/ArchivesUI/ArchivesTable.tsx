@@ -5,7 +5,7 @@ import { IEvent } from "@/entities/IEvent";
 import { FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
-import ContextMenu from "../commonUI/ContextMenu";
+import ContextMenuArchives from "../commonUI/ContexMenuArchives";
 
 const columns: TableColumn<IEvent>[] = [
     {
@@ -21,7 +21,7 @@ const columns: TableColumn<IEvent>[] = [
                     + ", " + row.city + " " + row.zipCode + ". "}
                 </div>
                 <div className="font-extrabold text-zinc-600">
-                    {row.externalNumber + " " + row.street + " #" + row.internalNumber}
+                    {row.address}
                 </div>
             </div>
         </div>,
@@ -65,7 +65,7 @@ const columns: TableColumn<IEvent>[] = [
     },
     {
         name: "OPTIONS",
-        cell: row => <ContextMenu row={row}/>,
+        cell: row => <ContextMenuArchives row={row}/>,
         ignoreRowClick: true,
     }
 ]
@@ -81,7 +81,7 @@ export const ArchivesTable: React.FC = () =>
         .then((data: IEvent[]) => {
             // Convert date strings to Date objects and filter only completed events
             const parsedEvents = data
-                .filter(event => event.done === true)
+                .filter(event => event.status === true)
                 .map(event => ({
                     ...event,
                     startDate: new Date(event.startDate),

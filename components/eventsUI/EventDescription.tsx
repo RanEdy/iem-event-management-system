@@ -10,10 +10,10 @@ type EventDescriptionProps = {
     event: IEvent;
     sections: (IEventSection & { files: ISectionFile[] })[];
     setSections: React.Dispatch<React.SetStateAction<(IEventSection & { files: ISectionFile[] })[]>>;
-  };
+};
   
 export const EventDescription: React.FC<EventDescriptionProps> = ({event, sections, setSections}) =>
-  {
+{
 
   const [activeIdx, setActiveIdx] = useState(0);
   const activeSection = sections[activeIdx];
@@ -28,17 +28,20 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
   // Add new section
   const handleAddSection = (e: MouseEvent) => {
     e.preventDefault();
-    const nextId = Math.max(...sections.map((s) => s.id)) + 1;
-    const newSec: IEventSection & { files: ISectionFile[] } = {
-      id: nextId,
-      eventId: event.id,
-      sectionName: `Section ${nextId}`,
-      description: "",
-      files: [],
-    };
-    setSections([...sections, newSec]);
-    setActiveIdx(sections.length);
-    console.log(sections);
+    if (sections.length < 5)
+    {
+      const nextId = Math.max(...sections.map((s) => s.id)) + 1;
+      const newSec: IEventSection & { files: ISectionFile[] } = {
+        id: nextId,
+        eventId: event.id,
+        sectionName: `Section ${nextId}`,
+        description: "",
+        files: [],
+      };
+      setSections([...sections, newSec]);
+      setActiveIdx(sections.length);
+      console.log(sections);
+    }
   };
 
   // Select tab
@@ -53,7 +56,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
     e.stopPropagation(); // Prevent tab selection when deleting
 
     if (sections.length <= 1) {
-      alert("Cannot delete the only section");
+      alert("The event needs at least 1 description section");
       return;
     }
 
@@ -106,20 +109,33 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
 
   // Change description
   const handleDescChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const upd = [...sections];
-    upd[activeIdx].description = e.target.value;
-    setSections(upd);
+    if (e.target.value.length <= 3000)
+    {
+      const upd = [...sections];
+      upd[activeIdx].description = e.target.value;
+      setSections(upd);
+    }
   };
 
   // File management using ISectionFile
   const handleFilesChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const filesArr = Array.from(e.target.files);
+
+    //5 MB (5 * 1024 * 1024 bytes)
+    const maxSize = 5 * 1024 * 1024;
+    const oversizedFiles = filesArr.filter(file => file.size > maxSize);
+
+    //Oversize valdiation
+    if (oversizedFiles.length > 0) {
+      alert("Some files have a size more than 5 MB and will not be submitted.");
+      return;
+    }
     const newFiles: ISectionFile[] = await Promise.all(
       filesArr.map(async (file) => {
         const arrayBuffer = await file.arrayBuffer();
         return {
-          id: 0, // temporal hasta backend
+          id: 0, // temporal
           sectionId: activeSection.id,
           name: file.name,
           dataBytes: Buffer.from(arrayBuffer),
@@ -225,12 +241,15 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
             )}
           </div>
         ))}
-        <button
+        {/** Add section button */
+          sections.length < 5 &&
+          <button
           onClick={handleAddSection}
-          className="p-2 border-2 border-zinc-200 bg-gray-100 rounded-md hover:border-zinc-400"
-        >
+          className="p-2 border-2 border-zinc-200 bg-gray-100 rounded-md hover:border-zinc-400">
           <FaPlus />
         </button>
+        }
+        
       </div>
 
       {/* Content Active Section */}

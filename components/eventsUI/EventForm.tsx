@@ -56,6 +56,12 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
       return null;
     }
 
+    if (parseInt(zipCode) < 0)
+    {
+      alert("The zip code cannot be less than 1.");
+      return null;
+    }
+
     const eventToSend: Omit<IEvent, 'id'> = {
       name,
       state,
@@ -336,7 +342,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
                 onChange={(e) => setMaxUsers(Number(e.target.value))}
                 placeholder="Max Users*"
                 min={1}
-                max={10000}
+                max={100000}
                 className="grid border-2 border-gray-300 grid-rows-1 p-2 placeholder-gray-400 rounded-md"
                 title="Max Users*"
               />

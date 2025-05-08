@@ -83,17 +83,20 @@ const ContextMenu = ({ row }: { row: any }) => {
 
             const event = await response.json();
 
-            // Update "done" status to true
+            // Update "status" to 'DONE'
             const updateResponse = await fetch(`/api/event/${eventId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...event, done: true }),
+                body: JSON.stringify({ ...event, status: 'DONE' }), // Changed 'done: true' to 'status: 'DONE''
             });
 
             if (!updateResponse.ok) {
-                throw new Error('Error updating the event');
+                // It's good practice to also check the response status text or body for more details from the API
+                const errorData = await updateResponse.text(); // Try to get more error info
+                console.error('API Error:', errorData);
+                throw new Error('Error updating the event. Status: ' + updateResponse.status);
             }
 
             const result = await updateResponse.json();
@@ -104,7 +107,9 @@ const ContextMenu = ({ row }: { row: any }) => {
                 // Here you could reload the event list or update the UI.
                 window.location.reload();
             } else {
-                throw new Error('Event could not be updated');
+                // Log the specific error message from the API if available
+                console.error('API returned success:false', result.error);
+                throw new Error(result.error || 'Event could not be updated');
             }
         } catch (error) {
             console.error('Error marking event as completed:', error);
@@ -113,7 +118,6 @@ const ContextMenu = ({ row }: { row: any }) => {
             setIsLoading(false);
             closeDialog();
         }
-
     };
 
     return (

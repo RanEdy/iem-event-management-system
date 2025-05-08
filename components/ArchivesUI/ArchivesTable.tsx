@@ -74,6 +74,7 @@ const columns: TableColumn<IEvent>[] = [
 export const ArchivesTable: React.FC = () =>
 {
     const [events, setEvents] = useState<IEvent[]>([])
+    const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
 
     useEffect(() => {
         fetch("api/event")
@@ -81,7 +82,7 @@ export const ArchivesTable: React.FC = () =>
         .then((data: IEvent[]) => {
             // Convert date strings to Date objects and filter only completed events
             const parsedEvents = data
-                .filter(event => event.status === true)
+                .filter(event => event.status === 'DONE' || event.status === 'CANCELLED')
                 .map(event => ({
                     ...event,
                     startDate: new Date(event.startDate),
@@ -98,12 +99,23 @@ export const ArchivesTable: React.FC = () =>
         console.log(row);
     }
 
+    // Manejador para actualizar el término de búsqueda
+    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(event.target.value);
+    };
+
+    // Filtrar eventos basados en el término de búsqueda (nombre del evento)
+    const filteredEvents = events.filter(event =>
+        event.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
             <div className="p-4 flex flex-colum justify-between lg:w-1/2">
-                <div>Total Archived Events: <span className="font-bold">{" " + events.length}</span></div>
-                <div>Public Events: <span className="font-bold">{" " + events.filter((event) => {if (event.public) return event}).length}</span></div>
-                <div>Private Events: <span className="font-bold">{" " + events.filter((event) => {if (!event.public) return event}).length}</span></div>
+                {/* Se usa filteredEvents.length para los contadores si quieres que reflejen la búsqueda */}
+                <div>Total Archived Events: <span className="font-bold">{" " + filteredEvents.length}</span></div>
+                <div>Public Events: <span className="font-bold">{" " + filteredEvents.filter((event) => event.public).length}</span></div>
+                <div>Private Events: <span className="font-bold">{" " + filteredEvents.filter((event) => !event.public).length}</span></div>
             </div>
             <hr/>
 
@@ -111,20 +123,26 @@ export const ArchivesTable: React.FC = () =>
                 {/* SEARCH BAR */}
                 <div className="flex flex-column min-w-56 lg:w-1/3 h-12 border-2 m-2 p-2 bg-bluedark-gradient-r border-zinc-100 rounded-2xl items-center">
                     <FaSearch className="text-white m-2 mr-3"/>
-                    <input type="text" className="flex self-center w-full h-full p-1 bg-white rounded-xl" placeholder="Search archived events..."></input>
+                    <input
+                        type="text"
+                        className="flex self-center w-full h-full p-1 bg-white rounded-xl"
+                        placeholder="Search archived events by name..."
+                        value={searchTerm}
+                        onChange={handleSearchChange} // Conectar el manejador
+                    />
                 </div>
             </div>
 
             <DataTable
             className="h-[65%] overflow-visible"
             columns={columns}
-            data={events}
+            data={filteredEvents} // Usar los eventos filtrados
             onRowClicked={handleRowClick}
             pointerOnHover
             highlightOnHover
             pagination
             fixedHeader
-            noDataComponent="No archived events available"
+            noDataComponent={searchTerm ? "No events match your search" : "No archived events available"} // Mensaje dinámico
             customStyles={{headCells: {style: {fontWeight: "bold",backgroundColor: "#F5F5F5", borderRadius: "0"}}}}
             />
         </div>

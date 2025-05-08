@@ -11,12 +11,12 @@ import { EventDescription } from "./EventDescription";
 import { ISectionFile } from "@/entities/ISectionFile";
 
 type EventFormProps = {
-    title: string;
-    eventId?: number; //If this component will be use to modified an event
-    onSave: () => void
+  title: string;
+  eventId?: number; //If this component will be use to modified an event
+  onSave: () => void
 }
 
-export const EventForm: React.FC<EventFormProps> = ({title, eventId, onSave}) => {
+export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) => {
 
   const [name, setName] = useState<string>("");
   const [city, setCity] = useState<string>("");
@@ -56,6 +56,12 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId, onSave}) =>
       return null;
     }
 
+    if (parseInt(zipCode) < 0)
+    {
+      alert("The zip code cannot be less than 1.");
+      return null;
+    }
+
     const eventToSend: Omit<IEvent, 'id'> = {
       name,
       state,
@@ -88,8 +94,7 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId, onSave}) =>
   }
 
   //Returns the success array
-  const createSections = async (eventId: number): Promise<any[]> =>
-  {
+  const createSections = async (eventId: number): Promise<any[]> => {
     console.log("Updating sections id...");
     const updatedSections = sections.map(section => {
       section.eventId = eventId;
@@ -132,8 +137,7 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId, onSave}) =>
     return sectionResponses;
   }
 
-  const createFiles = async (): Promise<boolean> =>
-  {
+  const createFiles = async (): Promise<boolean> => {
     await Promise.all(
       sections.map(async (currentSection, i) => {
         console.log("Section #" + i + ":\n", currentSection);
@@ -216,7 +220,21 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId, onSave}) =>
             title="Event Name*"
           />
 
-          {/* FIRST ROW: STATE, CITY AND ZIP CODE */}
+          {/* FIRST ROW: STREET */}
+          <div className="grid grid-cols-1 gap-4 mt-6 mb-6">
+            <input
+              type="text"
+              id="street"
+              value={address}
+              required
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Address*"
+              className="border-2 border-gray-300 w-full p-2 rounded-md"
+              title="Street*"
+            />
+          </div>
+
+          {/* SECOND ROW: STATE, CITY AND ZIP CODE */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6 mb-6">
             <select
               id="state"
@@ -257,25 +275,15 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId, onSave}) =>
             />
           </div>
 
-          {/* SECOND ROW: STREET, EXTERNAL NUMBER, INTERNAL NUMBER */}
-          <div className="grid grid-cols-1 gap-4 mt-6 mb-6">
-            <input
-              type="text"
-              id="street"
-              value={address}
-              required
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Address*"
-              className="border-2 border-gray-300 w-full p-2 rounded-md"
-              title="Street*"
-            />
-          </div>
-
           {/* DATE TABLE */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4  mt-4">
 
             {/* FIRST CELL: START DATE */}
-            <div className="grid grid-rows-1">
+            <div className="grid grid-rows-2">
+              <label className="text-lg font-bold text-center">
+                Start date*
+                <hr className="border-t-2 border-gray-300 mt-2" />
+              </label>
               <DatePicker
                 className="w-full p-2 border-2 border-gray-300 rounded-md"
                 selected={startDate}
@@ -293,7 +301,11 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId, onSave}) =>
             </div>
 
             {/* SECOND CELL: END DATE */}
-            <div className="grid grid-rows-1">
+            <div className="grid grid-rows-2">
+              <label className="text-lg font-bold text-center">
+                End date*
+                <hr className="border-t-2 border-gray-300 mt-2" />
+              </label>
               <DatePicker
                 className="w-full p-2 border-2 border-gray-300 rounded-md"
                 selected={endDate}
@@ -309,23 +321,36 @@ export const EventForm: React.FC<EventFormProps> = ({title, eventId, onSave}) =>
                 placeholderText="End Date*"
               />
             </div>
-
           </div>
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            <input
-              type="number"
-              id="maxUsers"
-              value={maxUsers ?? ""}
-              required
-              onChange={(e) => setMaxUsers(Number(e.target.value))}
-              placeholder="Max Users*"
-              min={1}
-              max={10000}
-              className="grid border-2 border-gray-300 grid-rows-1 p-2 placeholder-gray-400 rounded-md"
-              title="Max Users*"
-            />
-            {/* STATUS BUTTON (PUBLIC 0R PRIVATE) */}
-            <div className="grid grid-rows-1 justify-start xs:justify-center lg:justify-start">
+
+          <hr className="border-t-2 border-gray-300 mt-6" />
+
+          {/* MAX USERS AND PUBLIC/PRIVATE BUTTON */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4  mt-4">
+
+            {/* FIRST CELL: MAX USERS */}
+            <div className="grid grid-rows-2">
+              <label className="text-lg font-bold text-center">
+                Max Users*
+                <hr className="border-t-2 border-gray-300 mt-2" />
+              </label>
+              <input
+                type="number"
+                id="maxUsers"
+                value={maxUsers ?? ""}
+                required
+                onChange={(e) => setMaxUsers(Number(e.target.value))}
+                placeholder="Max Users*"
+                min={1}
+                max={100000}
+                className="grid border-2 border-gray-300 grid-rows-1 p-2 placeholder-gray-400 rounded-md"
+                title="Max Users*"
+              />
+            </div>
+
+            {/* SECOND CELL: PUBLIC/PRIVATE BUTTON */}
+            <div className="grid grid-rows-2">
+              <div></div>
               <label className="flex items-center cursor-pointer">
                 {/* SWITCH TEXT */}
                 <span className="ml-3 font-bold p-3">{publicEvent ? "Public" : "Private"}</span>

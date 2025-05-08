@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react";
+import { useLogin } from '../loginUI/LoginProvider';
 import { IUser } from "@/entities/IUser";
 import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
@@ -12,6 +13,12 @@ type UserFormProps = {
 }
 
 export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
+    const { userSession } = useLogin();
+
+    useEffect(() => {
+        console.log("CURRENT USER:", userSession?.name);
+        console.log("CURRENT USER LEVEL:", userSession?.level);
+    }, [userSession]);
 
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
@@ -24,7 +31,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
     const [isActive, setIsActive] = useState<boolean>(false);
 
     //if the person who is modifying has the MASTER role
-    const [level, setLevel] = useState<UserLevel>(UserLevel.STAFF);
+    const [level, setLevel] = useState<UserLevel | "">("");
 
     const createUser = async (): Promise<any | null> => {
         try {
@@ -101,6 +108,19 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
         }
     };
 
+    const CleanForm = () => {
+        setName('');
+        setEmail('');
+        setPhone('');
+        setBirthday(new Date());
+        setHireDate(new Date());
+        setContactName('');
+        setContactPhone('');
+        setGuardCard(false);
+        setIsActive(false);
+        setLevel("");
+    }
+
     const handleUser = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -113,7 +133,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
                 //This alert is necessary to see what the password is, because it is encrypted in the database,
                 //so even the developers themselves would not know what password was generated.
                 alert(`User created successfully!\nPassword for the user: ${newUSER.generatedPassword}`);
-                
+
                 // Clear the form
                 setName('');
                 setEmail('');
@@ -124,7 +144,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
                 setContactPhone('');
                 setGuardCard(false);
                 setIsActive(false);
-                setLevel(UserLevel.STAFF);
+                setLevel("");
             } else {
                 alert('Error creating user: ' + (newUSER.error || 'Unknown error'));
             }
@@ -185,7 +205,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
 
                         {/* FIRST CELL: BIRTHDAY DATE */}
                         <div className="grid grid-rows-2">
-                            <label className="text-lg font-bold text-center">
+                            <label className="text-lg font-bold text-center mb-5">
                                 Birthday
                                 <hr className="border-t-2 border-gray-300 mt-2" />
                             </label>
@@ -207,7 +227,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
 
                         {/* SECOND CELL: HIRE DATE */}
                         <div className="grid grid-rows-2">
-                            <label htmlFor="endDate" className="text-lg font-bold text-center">
+                            <label htmlFor="endDate" className="text-lg font-bold text-center mb-5">
                                 Hire Date
                                 <hr className="border-t-2 border-gray-300 mt-2" />
                             </label>
@@ -227,7 +247,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
 
                     </div>
 
-                    <hr className="border-t-2 border-gray-300 mt-6" />
+                    <hr className="border-t-2 border-gray-300 sm:mt-2 mt-5" />
 
                     {/* CONTACT INFO */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -259,6 +279,29 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
                             />
                         </div>
                     </div>
+
+                    {/* USER LEVEL: ONLY AVAILABLE FOR MASTER */}
+                    {userSession?.level === UserLevel.MASTER && (
+                        <div className="justify-start xs:justify-center lg:justify-start mt-8 w-full sm:w-1/3">
+                            <label className="flex items-center">
+                                <select
+                                    id="userLevel"
+                                    value={level ?? ""}
+                                    required
+                                    onChange={(e) => setLevel(e.target.value as UserLevel)}
+                                    className="border-2 border-gray-300 w-full p-2 rounded-md"
+                                    title="User Level*"
+                                >
+                                    <option value="">User level</option>
+                                    {Object.values(UserLevel).map((userLevel) => (
+                                        <option key={userLevel} value={userLevel}>
+                                            {userLevel}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                        </div>
+                    )}
 
                     {/* GUARD CARD */}
                     <div className="grid grid-rows-1 justify-start xs:justify-center lg:justify-start mt-6">
@@ -298,12 +341,20 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
                             </div>
                         </label>
                     </div>
+                    <div className="grid grid-cols-2 gap-2 mt-4 w-full sm:w-1/2 sm:justify-start sm:ml-0">
+                        <button
+                            type="button"
+                            onClick={CleanForm}
+                            className="h-10 w-full p-2 rounded-md bg-red-600 text-white font-bold">
+                            Clean
+                        </button>
+                        <button
+                            type="submit"
+                            className="h-10 w-full p-2 rounded-md bg-blue-900 text-white font-bold">
+                            Save
+                        </button>
+                    </div>
 
-                    <button
-                        type="submit"
-                        className="h-10 w-full p-2 sm:w-1/3 mt-6 rounded-md bg-blue-900 text-white font-bold">
-                        Save
-                    </button>
                 </form>
             </div>
         </div>

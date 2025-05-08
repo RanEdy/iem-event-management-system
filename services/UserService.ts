@@ -197,6 +197,12 @@ export class UserService {
         if (!emailRegex.test(email)) return { isValid: false, error: 'The email format is not valid' };
         if (!phone?.trim()) return { isValid: false, error: 'The phone number is required' };
         if (!phoneRegex.test(phone)) return { isValid: false, error: 'The phone number must only contain numbers, parentheses, or hyphens' };
+
+        //Check if the email is already registered
+        const existingUser = await DAOLocator.userDao.findByEmail(email);
+        if (existingUser) {
+            return { isValid: false, error: 'The e-mail address is already registered' };
+        }
         
         //Let's make sure birthday is a Date object
         //For reasons unknown to me, for age validations, the value of birthday cannot be used directly, since it is not recognized as a date type object.

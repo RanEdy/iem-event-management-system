@@ -33,6 +33,13 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
     //if the person who is modifying has the MASTER role
     const [level, setLevel] = useState<UserLevel | "">("");
 
+    useEffect(() => {
+        // Check if the user is not MASTER and set STAFF as the default value
+        if (userSession?.level !== UserLevel.MASTER) {
+            setLevel(UserLevel.STAFF);
+        }
+    }, [userSession]);
+
     const createUser = async (): Promise<any | null> => {
         try {
             // We validate the data before sending it to the database.

@@ -5,7 +5,6 @@ import { IUser } from "@/entities/IUser";
 import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
 import { UserLevel } from "@prisma/client";
-import bcrypt from 'bcryptjs'; // If "npm install" doesn't work, use the following command: "npm install bcryptjs @types/bcryptjs"
 
 type UserFormProps = {
     title: string;
@@ -27,163 +26,95 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
     //if the person who is modifying has the MASTER role
     const [level, setLevel] = useState<UserLevel>(UserLevel.STAFF);
 
-    // Algorithm to create a password based on the data of the user
-    const passwordGenerator = () => {
-        // Get the first name
-        const firstName = name.split(' ')[0].toLowerCase();
-
-        // Calculate age based on date of birth
-        const today = new Date();
-        const age = today.getFullYear() - birthday.getFullYear();
-
-        // Get the part of the email before the @ or the first dot 
-        const emailPrefix = email.split('@')[0].split('.')[0];
-
-        // Get the last 4 digits of the phone
-        const lastFourDigits = phone.replace(/\D/g, '').slice(-4);
-
-        // Combine everything to create the password
-        const password = `${firstName}${age}${emailPrefix}${lastFourDigits}`;
-
-        return password;
-    };
-
-    // Function to hash the password
-    const hashPassword = async (plainPassword: string) => {
-        const salt = await bcrypt.genSalt(10);
-        return bcrypt.hash(plainPassword, salt);
-    };
-
-    // Function to validate form fields
-    const validateForm = (): { isValid: boolean, error: string } => {
-
-        if (!name.trim()) {
-            return { isValid: false, error: 'The name is required' };
-        }
-
-        const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-        if (!nameRegex.test(name)) {
-            return { isValid: false, error: 'The name must only contain letters' };
-        }
-
-        if (!email.trim()) {
-            return { isValid: false, error: 'The email is required' };
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return { isValid: false, error: 'The email format is not valid' };
-        }
-
-        if (!phone.trim()) {
-            return { isValid: false, error: 'The phone number is required' };
-        }
-
-        const phoneRegex = /^[\d\s()-]+$/;
-        if (!phoneRegex.test(phone)) {
-            return { isValid: false, error: 'The phone number must only contain numbers, parentheses, or hyphens' };
-        }
-
-        if (!birthday) {
-            return { isValid: false, error: 'The birth date is required' };
-        }
-
-        const today = new Date();
-        const age = today.getFullYear() - birthday.getFullYear();
-        const monthDiff = today.getMonth() - birthday.getMonth();
-        if (age < 16 || (age === 16 && monthDiff < 0)) {
-            return { isValid: false, error: 'The minimum age must be 16 years old' };
-        }
-
-        if (!hireDate) {
-            return { isValid: false, error: 'The hire date is required' };
-        }
-
-        if (hireDate > today) {
-            return { isValid: false, error: 'The hire date cannot be in the future' };
-        }
-
-        if (!contactName.trim()) {
-            return { isValid: false, error: 'The emergency contact name is required' };
-        }
-
-        if (!nameRegex.test(contactName)) {
-            return { isValid: false, error: 'The emergency contact name must only contain letters' };
-        }
-
-        if (!contactPhone.trim()) {
-            return { isValid: false, error: 'The emergency contact phone number is required' };
-        }
-
-        if (!phoneRegex.test(contactPhone)) {
-            return { isValid: false, error: 'The emergency contact phone number must only contain numbers, parentheses, or hyphens' };
-        }
-
-        return { isValid: true, error: '' };
-    };
-
     const createUser = async (): Promise<any | null> => {
-        // Validate the form before creating the user
-        const validation = validateForm();
-        if (!validation.isValid) {
-            alert(validation.error);
+        try {
+            // We validate the data before sending it to the database.
+            // If the data is valid, we generate a password.
+            const validation = await fetch('/api/user/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    phone,
+                    birthday,
+                    hireDate,
+                    contactName,
+                    contactPhone
+                }),
+            });
+
+            //validation response
+            const validationResult = await validation.json();
+
+            if (!validationResult.success) {
+                alert(validationResult.error);
+                return null;
+            }
+
+            // We save the password in our local variable, to send it as a response from the method and thus be able to use it later.
+            let generatedPassword = validationResult.generatedPassword;
+
+            // Once everything has been validated, proceed to fill out the interface.
+            const userToSend = {
+                name,
+                password: generatedPassword,
+                level,
+                email,
+                phone,
+                birthday,
+                hireDate,
+                contactName,
+                contactPhone,
+                guardCard,
+                active: isActive,
+                supervisorCount: 0,
+                managerCount: 0,
+                logisticCount: 0,
+                driverCount: 0,
+                dispatchCount: 0,
+                assistantManagerCount: 0,
+            };
+
+            //Just to observe what is being stored in the database
+            //This should only be seen by developers, before releasing it to production, this console should be removed for security reasons.
+            console.log("User to send:", userToSend);
+
+            //Once we have the interface correctly filled out, we proceed to store it in the database
+            const responseCreateUser = await fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userToSend),
+            });
+
+            const response = await responseCreateUser.json();
+
+            // We return the result of the registration and the password generated before being encrypted.
+            return { success: response.success, generatedPassword };
+        } catch (error) {
+            console.error('Error creating user:', error);
             return null;
         }
-
-        const plainPassword = passwordGenerator();
-        const hashedPassword = await hashPassword(plainPassword);
-
-        const userToSend: Omit<IUser, 'id'> = {
-            name,
-            password: hashedPassword,
-            level,
-            email,
-            phone,
-            birthday,
-            hireDate,
-            contactName,
-            contactPhone,
-            guardCard,
-            active: isActive,
-            supervisorCount: 0,
-            managerCount: 0,
-            logisticCount: 0,
-            driverCount: 0,
-            dispatchCount: 0,
-            assistantManagerCount: 0,
-        };
-
-        console.log('Password generado (guardar para enviarlo al usuario):', plainPassword);
-        console.log('Password hasheado:', hashedPassword);
-        console.log(userToSend);
-
-        // Create a new Event
-        const responseCreateUser = await fetch('/api/user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userToSend),
-        });
-
-        // { success, event, message}
-        const dataCreateUser = await responseCreateUser.json();
-        console.log(dataCreateUser);
-        return dataCreateUser;
-    }
+    };
 
     const handleUser = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const newUSER = await createUser();
-            console.log(newUSER);
 
             if (newUSER.success) {
-                // Mostrar diálogo de éxito
-                alert('User created successfully!\nPassword for user: ' + 
-                      passwordGenerator());
+
+                //Display successful user registration dialog and generated password
+
+                //This alert is necessary to see what the password is, because it is encrypted in the database,
+                //so even the developers themselves would not know what password was generated.
+                alert(`User created successfully!\nPassword for the user: ${newUSER.generatedPassword}`);
                 
-                // Limpiar el formulario
+                // Clear the form
                 setName('');
                 setEmail('');
                 setPhone('');

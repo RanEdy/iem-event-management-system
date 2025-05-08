@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     // Change: Use userService from ServiceLocator to create
     const success = await ServiceLocator.userService.create(userData);
 
-    // Cambio: Devolver { success: boolean } como en event/route.ts
+    // Change: Return { success: boolean } as in event/route.ts
     if (success) {
         // We do not return the user, only the confirmation. Status 201 indicates successful creation.
         return NextResponse.json({ success: true }, { status: 201 });

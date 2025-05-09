@@ -33,6 +33,16 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
     //if the person who is modifying has the MASTER role
     const [level, setLevel] = useState<UserLevel | "">("");
 
+    // Dialog state for "ok" button in the dialog
+    const [succesDialogOpen, setSuccesDialogOpen] = useState(false);
+    // This const obtains the generated password, we can delete it later. But for now, we will leave it here to see how it works.
+    const [generatedPassword, setGeneratedPassword] = useState<string>('');
+    // This will be used to clean the form after the user has been created.
+
+    // Dialog state for "error" button in the dialog
+    const [ errorDialogOpen, setErrorDialogOpen ] = useState(false);
+    const [ errorMessage, setErrorMessage ] = useState<string>('');
+
     useEffect(() => {
         // Check if the user is not MASTER and set STAFF as the default value
         if (userSession?.level !== UserLevel.MASTER) {
@@ -64,7 +74,8 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
             const validationResult = await validation.json();
 
             if (!validationResult.success) {
-                alert(validationResult.error);
+                setErrorMessage(validationResult.error);
+                setErrorDialogOpen(true);
                 return null;
             }
 
@@ -111,6 +122,8 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
             return { success: response.success, generatedPassword };
         } catch (error) {
             console.error('Error creating user:', error);
+            setErrorMessage('An unexpected error occurred while creating the user.');
+            setErrorDialogOpen(true);
             return null;
         }
     };
@@ -126,6 +139,12 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
         setGuardCard(false);
         setIsActive(false);
         setLevel("");
+
+        if (userSession?.level === UserLevel.MASTER) {
+            setLevel("");
+        } else {
+            setLevel(UserLevel.STAFF);
+        }
     }
 
     const handleUser = async (e: React.FormEvent) => {
@@ -139,19 +158,13 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
 
                 //This alert is necessary to see what the password is, because it is encrypted in the database,
                 //so even the developers themselves would not know what password was generated.
-                alert(`User created successfully!\nPassword for the user: ${newUSER.generatedPassword}`);
 
-                // Clear the form
-                setName('');
-                setEmail('');
-                setPhone('');
-                setBirthday(new Date());
-                setHireDate(new Date());
-                setContactName('');
-                setContactPhone('');
-                setGuardCard(false);
-                setIsActive(false);
-                setLevel("");
+                // alert(`User created successfully!\nPassword for the user: ${newUSER.generatedPassword}`);
+
+                // We set the state of the dialog to true, so it will be displayed.
+                // We also set the state of the generated password, so it will be displayed in the dialog.
+                setGeneratedPassword(newUSER.generatedPassword);
+                setSuccesDialogOpen(true);
 
             } 
 
@@ -364,6 +377,48 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
 
                 </form>
             </div>
+
+            {/* DIALOG CONFIRMATION */}
+            {succesDialogOpen && (
+                <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+                    <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+                        <h2 className="text-2xl font-bold text-center text-gray-800 mb-3">User created successfully!</h2>
+                        <p className="text-gray-700 mb-5">Password for the user: <span className="font-bold">{generatedPassword}</span></p>
+                        <div className="grid grid-cols-1 justify-items-center">
+                            <button
+                                type="button"
+                                className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
+                                onClick={() => {
+                                    setSuccesDialogOpen(false);
+                                    setTimeout(() => {
+                                        cleanForm();
+                                    }, 100);
+                                }}
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* DIALOG ERROR */}
+            {errorDialogOpen && (
+                <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+                    <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+                        <h2 className="text-2xl font-bold text-center text-red-600 mb-3">This user can't be created</h2>
+                        <p className="text-gray-700 mb-5 text-center">{errorMessage}</p>
+                        <div className="grid grid-cols-1 justify-items-center">
+                            <button
+                                type="button"
+                                className="bg-red-500 text-white font-bold px-20 py-2 rounded-md hover:bg-red-600"
+                                onClick={() => setErrorDialogOpen(false)}
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

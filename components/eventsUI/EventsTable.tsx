@@ -182,7 +182,8 @@ export const EventsTable: React.FC = () =>
                                 </svg>
                             </button>
                             {/* CHILDREN OR CONTENT*/}
-                            { <EventForm title="Register Event" onSave={() =>
+                            { <EventForm title="Register Event" 
+                                onSave={() =>
                                 {
                                     setIsDialogOpen(false);
                                     showToastMessage("Event added succesfully");

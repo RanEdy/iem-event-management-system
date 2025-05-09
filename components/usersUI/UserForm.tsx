@@ -10,10 +10,9 @@ import { UserLevel } from "@prisma/client";
 type UserFormProps = {
     title: string;
     userId?: number; //If this component will be use to modified an user
-    onSave?: () => void; // <-- AÑADIR ESTA LÍNEA
 }
 
-export const UserForm: React.FC<UserFormProps> = ({ title, userId, onSave }) => { // <-- AÑADIR onSave AQUÍ
+export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => { 
     const { userSession } = useLogin();
 
     useEffect(() => {
@@ -116,7 +115,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId, onSave }) => 
         }
     };
 
-    const CleanForm = () => {
+    const cleanForm = () => {
         setName('');
         setEmail('');
         setPhone('');
@@ -134,7 +133,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId, onSave }) => 
         try {
             const newUSER = await createUser();
 
-            if (newUSER && newUSER.success) { // Asegurarse que newUSER no es null
+            if (newUSER && newUSER.success) { // Ensure that newUSER is not null
 
                 //Display successful user registration dialog and generated password
 
@@ -154,14 +153,11 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId, onSave }) => 
                 setIsActive(false);
                 setLevel("");
 
-                onSave?.(); // <-- AÑADIR ESTA LÍNEA: LLAMAR A onSave SI EXISTE
-            } else {
-                alert('Error creating user: ' + (newUSER?.error || 'Unknown error'));
-            }
+            } 
 
         } catch (error) {
             console.error("ERROR", error);
-            alert('An unexpected error occurred while creating the user.'); // Mensaje de error genérico
+            alert('An unexpected error occurred while creating the user.'); 
         }
     }
 
@@ -355,7 +351,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId, onSave }) => 
                     <div className="grid grid-cols-2 gap-2 mt-4 w-full sm:w-1/2 sm:justify-start sm:ml-0">
                         <button
                             type="button"
-                            onClick={CleanForm}
+                            onClick={cleanForm}
                             className="h-10 w-full p-2 rounded-md bg-red-600 text-white font-bold">
                             Clean
                         </button>

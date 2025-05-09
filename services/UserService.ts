@@ -187,16 +187,24 @@ export class UserService {
         // Regular expressions for validation
         const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phoneRegex = /^[\d\s()-]+$/;
+        const phoneRegex = /^[+\d\s()-]+$/; 
         const today = new Date();
 
         // Validate each field
         if (!name?.trim()) return { isValid: false, error: 'The name is required' };
         if (!nameRegex.test(name)) return { isValid: false, error: 'The name must only contain letters' };
+        if (name.length > 40) return { isValid: false, error: 'The name cannot exceed 40 characters' };
         if (!email?.trim()) return { isValid: false, error: 'The email is required' };
         if (!emailRegex.test(email)) return { isValid: false, error: 'The email format is not valid' };
-        if (!phone?.trim()) return { isValid: false, error: 'The phone number is required' };
-        if (!phoneRegex.test(phone)) return { isValid: false, error: 'The phone number must only contain numbers, parentheses, or hyphens' };
+        if (email.length > 40) return { isValid: false, error: 'The email cannot exceed 40 characters' };
+        if (!phone?.trim()) return { isValid: false, error: 'The phone number is required' };        
+        if (!phoneRegex.test(phone)) return { isValid: false, error: 'The phone number must only contain numbers, +, parentheses, or hyphens' };  
+        if (phone.length > 18) return { isValid: false, error: 'The phone number cannot exceed 18 characters in total' };
+         
+        const numericDigits = phone.replace(/\D/g, '');
+        if (numericDigits.length < 7 || numericDigits.length > 15) {
+            return { isValid: false, error: 'The phone number must contain between 7 and 15 digits' };
+        }
 
         //Check if the email is already registered
         const existingUser = await DAOLocator.userDao.findByEmail(email);
@@ -204,26 +212,42 @@ export class UserService {
             return { isValid: false, error: 'The e-mail address is already registered' };
         }
         
-        //Let's make sure birthday is a Date object
-        //For reasons unknown to me, for age validations, the value of birthday cannot be used directly, since it is not recognized as a date type object.
+        //Let's make sure birthday and hireDate are a Date object
         const birthdayDate = new Date(birthday);
+        const hireDateDate = new Date(hireDate);
 
         if (!birthday) return { isValid: false, error: 'The birth date is required' };
-        
-        // Use birthdayDate instead of birthday
+
+        // Check if the user is at least 16 years old
         const age = today.getFullYear() - birthdayDate.getFullYear();
         const monthDiff = today.getMonth() - birthdayDate.getMonth();
-        
         if (age < 16 || (age === 16 && monthDiff < 0)) {
             return { isValid: false, error: 'The minimum age must be 16 years old' };
         }
 
         if (!hireDate) return { isValid: false, error: 'The hire date is required' };
-        if (hireDate > today) return { isValid: false, error: 'The hire date cannot be in the future' };
+        if (hireDateDate > today) return { isValid: false, error: 'The hire date cannot be in the future' };
+        if (hireDateDate < birthdayDate) return { isValid: false, error: 'The hire date cannot be before the birth date' };
+
+        // Check if the user has at least 16 years between birth date and hire date
+        const yearDiff = hireDateDate.getFullYear() - birthdayDate.getFullYear();
+        const hireMonthDiff = hireDateDate.getMonth() - birthdayDate.getMonth();
+        const dayDiff = hireDateDate.getDate() - birthdayDate.getDate();
+        if (yearDiff < 16 || (yearDiff === 16 && (hireMonthDiff < 0 || (hireMonthDiff === 0 && dayDiff < 0)))) {
+            return { isValid: false, error: 'There must be at least 16 years between birth date and hire date' };
+        }
+
         if (!contactName?.trim()) return { isValid: false, error: 'The emergency contact name is required' };
         if (!nameRegex.test(contactName)) return { isValid: false, error: 'The emergency contact name must only contain letters' };
-        if (!contactPhone?.trim()) return { isValid: false, error: 'The emergency contact phone number is required' };
-        if (!phoneRegex.test(contactPhone)) return { isValid: false, error: 'The emergency contact phone number must only contain numbers, parentheses, or hyphens' };
+        if (contactName.length > 40) return { isValid: false, error: 'The contact name cannot exceed 40 characters' };
+        if (!contactPhone?.trim()) return { isValid: false, error: 'The emergency contact phone number is required' };     
+        if (!phoneRegex.test(contactPhone)) return { isValid: false, error: 'The emergency contact phone number must only contain numbers, +, parentheses, or hyphens' };
+        if (contactPhone.length > 18) return { isValid: false, error: 'The emergency contact phone number cannot exceed 18 characters in total' };
+        
+        const contactNumericDigits = contactPhone.replace(/\D/g, '');
+        if (contactNumericDigits.length < 7 || contactNumericDigits.length > 15) {
+            return { isValid: false, error: 'The emergency contact phone number must contain between 7 and 15 digits' };
+        }
 
         //if all validations pass, generate a password and return it
         const generatedPassword = await this.passwordGenerator(name, email, birthday, phone);

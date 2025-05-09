@@ -10,9 +10,10 @@ import { UserLevel } from "@prisma/client";
 type UserFormProps = {
     title: string;
     userId?: number; //If this component will be use to modified an user
+    onSave?: () => void; // <-- AÑADIR ESTA LÍNEA
 }
 
-export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
+export const UserForm: React.FC<UserFormProps> = ({ title, userId, onSave }) => { // <-- AÑADIR onSave AQUÍ
     const { userSession } = useLogin();
 
     useEffect(() => {
@@ -133,7 +134,7 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
         try {
             const newUSER = await createUser();
 
-            if (newUSER.success) {
+            if (newUSER && newUSER.success) { // Asegurarse que newUSER no es null
 
                 //Display successful user registration dialog and generated password
 
@@ -152,12 +153,15 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
                 setGuardCard(false);
                 setIsActive(false);
                 setLevel("");
+
+                onSave?.(); // <-- AÑADIR ESTA LÍNEA: LLAMAR A onSave SI EXISTE
             } else {
-                alert('Error creating user: ' + (newUSER.error || 'Unknown error'));
+                alert('Error creating user: ' + (newUSER?.error || 'Unknown error'));
             }
 
         } catch (error) {
             console.error("ERROR", error);
+            alert('An unexpected error occurred while creating the user.'); // Mensaje de error genérico
         }
     }
 

@@ -33,6 +33,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                 <NavbarButton 
                     name={"Users"} 
                     icon={<FaUserFriends className="text-white h-3/4 w-3/4"/>}
+                    onClick={() => setCurrentPage("Users")}
                 />
                 <NavbarButton 
                     name={"Archives"} 

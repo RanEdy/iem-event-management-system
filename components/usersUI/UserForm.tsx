@@ -1,424 +1,558 @@
-"use client"
+"use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useLogin } from '../loginUI/LoginProvider';
+import { useLogin } from "../loginUI/LoginProvider";
 import { IUser } from "@/entities/IUser";
-import DatePicker from "react-datepicker"
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { UserLevel } from "@prisma/client";
 
 type UserFormProps = {
-    title: string;
-    userId?: number; //If this component will be use to modified an user
-}
+  title: string;
+  userId?: number; //If this component will be use to modified an user
+  initialData?: IUser;
+  onFormSubmitSuccess?: () => void;
+};
 
-export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => { 
-    const { userSession } = useLogin();
+export const UserForm: React.FC<UserFormProps> = ({
+  title,
+  userId,
+  initialData,
+  onFormSubmitSuccess,
+}) => {
+  const { userSession } = useLogin();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        console.log("CURRENT USER:", userSession?.name);
-        console.log("CURRENT USER LEVEL:", userSession?.level);
-    }, [userSession]);
-
-    const [name, setName] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [phone, setPhone] = useState<string>('');
-    const [birthday, setBirthday] = useState<Date>(new Date());
-    const [hireDate, setHireDate] = useState<Date>(new Date());
-    const [contactName, setContactName] = useState<string>('');
-    const [contactPhone, setContactPhone] = useState<string>('');
-    const [guardCard, setGuardCard] = useState<boolean>(false);
-    const [isActive, setIsActive] = useState<boolean>(false);
-
-    //if the person who is modifying has the MASTER role
-    const [level, setLevel] = useState<UserLevel | "">("");
-
-    // Dialog state for "ok" button in the dialog
-    const [succesDialogOpen, setSuccesDialogOpen] = useState(false);
-    // This const obtains the generated password, we can delete it later. But for now, we will leave it here to see how it works.
-    const [generatedPassword, setGeneratedPassword] = useState<string>('');
-    // This will be used to clean the form after the user has been created.
-
-    // Dialog state for "error" button in the dialog
-    const [ errorDialogOpen, setErrorDialogOpen ] = useState(false);
-    const [ errorMessage, setErrorMessage ] = useState<string>('');
-
-    useEffect(() => {
-        // Check if the user is not MASTER and set STAFF as the default value
-        if (userSession?.level !== UserLevel.MASTER) {
-            setLevel(UserLevel.STAFF);
-        }
-    }, [userSession]);
-
-    const createUser = async (): Promise<any | null> => {
-        try {
-            // We validate the data before sending it to the database.
-            // If the data is valid, we generate a password.
-            const validation = await fetch('/api/user/validate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name,
-                    email,
-                    phone,
-                    birthday,
-                    hireDate,
-                    contactName,
-                    contactPhone
-                }),
-            });
-
-            //validation response
-            const validationResult = await validation.json();
-
-            if (!validationResult.success) {
-                setErrorMessage(validationResult.error);
-                setErrorDialogOpen(true);
-                return null;
-            }
-
-            // We save the password in our local variable, to send it as a response from the method and thus be able to use it later.
-            let generatedPassword = validationResult.generatedPassword;
-
-            // Once everything has been validated, proceed to fill out the interface.
-            const userToSend = {
-                name,
-                password: generatedPassword,
-                level,
-                email,
-                phone,
-                birthday,
-                hireDate,
-                contactName,
-                contactPhone,
-                guardCard,
-                active: isActive,
-                supervisorCount: 0,
-                managerCount: 0,
-                logisticCount: 0,
-                driverCount: 0,
-                dispatchCount: 0,
-                assistantManagerCount: 0,
-            };
-
-            //Just to observe what is being stored in the database
-            //This should only be seen by developers, before releasing it to production, this console should be removed for security reasons.
-            console.log("User to send:", userToSend);
-
-            //Once we have the interface correctly filled out, we proceed to store it in the database
-            const responseCreateUser = await fetch('/api/user', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userToSend),
-            });
-
-            const response = await responseCreateUser.json();
-
-            // We return the result of the registration and the password generated before being encrypted.
-            return { success: response.success, generatedPassword };
-        } catch (error) {
-            console.error('Error creating user:', error);
-            setErrorMessage('An unexpected error occurred while creating the user.');
-            setErrorDialogOpen(true);
-            return null;
-        }
-    };
-
-    const cleanForm = () => {
-        setName('');
-        setEmail('');
-        setPhone('');
-        setBirthday(new Date());
-        setHireDate(new Date());
-        setContactName('');
-        setContactPhone('');
-        setGuardCard(false);
-        setIsActive(false);
-        setLevel("");
-
-        if (userSession?.level === UserLevel.MASTER) {
-            setLevel("");
-        } else {
-            setLevel(UserLevel.STAFF);
-        }
+  useEffect(() => {
+    if (userId && initialData) {
+      setName(initialData.name);
+      setEmail(initialData.email);
+      setPhone(initialData.phone);
+      setBirthday(
+        initialData.birthday ? new Date(initialData.birthday) : new Date()
+      );
+      setHireDate(
+        initialData.hireDate ? new Date(initialData.hireDate) : new Date()
+      );
+      setContactName(initialData.contactName || "");
+      setContactPhone(initialData.contactPhone || "");
+      setGuardCard(initialData.guardCard || false);
+      setIsActive(initialData.active);
+      setLevel(initialData.level);
     }
+  }, [userId, initialData]);
 
-    const handleUser = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const newUSER = await createUser();
+  useEffect(() => {
+    console.log("CURRENT USER:", userSession?.name);
+    console.log("CURRENT USER LEVEL:", userSession?.level);
+  }, [userSession]);
 
-            if (newUSER && newUSER.success) { // Ensure that newUSER is not null
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [birthday, setBirthday] = useState<Date>(new Date());
+  const [hireDate, setHireDate] = useState<Date>(new Date());
+  const [contactName, setContactName] = useState<string>("");
+  const [contactPhone, setContactPhone] = useState<string>("");
+  const [guardCard, setGuardCard] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState<boolean>(false);
 
-                //Display successful user registration dialog and generated password
+  //if the person who is modifying has the MASTER role
+  const [level, setLevel] = useState<UserLevel | "">("");
 
-                //This alert is necessary to see what the password is, because it is encrypted in the database,
-                //so even the developers themselves would not know what password was generated.
+  // Dialog state for "ok" button in the dialog
+  const [succesDialogOpen, setSuccesDialogOpen] = useState(false);
+  // This const obtains the generated password, we can delete it later. But for now, we will leave it here to see how it works.
+  const [generatedPassword, setGeneratedPassword] = useState<string>("");
+  // This will be used to clean the form after the user has been created.
 
-                // alert(`User created successfully!\nPassword for the user: ${newUSER.generatedPassword}`);
+  // Dialog state for "error" button in the dialog
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-                // We set the state of the dialog to true, so it will be displayed.
-                // We also set the state of the generated password, so it will be displayed in the dialog.
-                setGeneratedPassword(newUSER.generatedPassword);
-                setSuccesDialogOpen(true);
-
-            } 
-
-        } catch (error) {
-            console.error("ERROR", error);
-            alert('An unexpected error occurred while creating the user.'); 
-        }
+  useEffect(() => {
+    // Check if the user is not MASTER and set STAFF as the default value
+    if (userSession?.level !== UserLevel.MASTER) {
+      setLevel(UserLevel.STAFF);
     }
+  }, [userSession]);
 
-    return (
-        <div className="p-1 my-4 h-full w-full overflow-visible overflow-y-scroll">
-            {/* HEADER TITLE */}
-            <div className="mb-5 justify-self-center">
-                <div className="text-cyan-900 text-center text-3xl lg:text-5xl font-extrabold font-maven">
-                    {title}
-                </div>
-            </div>
-            <hr className="w-[100%] border-t-4 border-cyan-900 " />
+  const updateUser = async (): Promise<any | null> => {
+    if (!userId) return null;
+    setIsSubmitting(true);
+    try {
+      const validation = await fetch("/api/user/validate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email: "edit@test.com",
+          phone,
+          birthday,
+          hireDate,
+          contactName,
+          contactPhone,
+        }),
+      });
 
-            {/* FORM */}
-            <div className="justify-between">
-                <form onSubmit={handleUser}>
-                    <input
-                        type="text"
-                        id="name"
-                        value={name}
-                        required
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Name*"
-                        className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
-                        title="Name*"
-                    />
+      const validationResult = await validation.json();
 
-                    <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        required
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email*"
-                        className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
-                        title="Email*"
-                    />
+      if (!validationResult.success) {
+        setErrorMessage(validationResult.error);
+        setErrorDialogOpen(true);
+        return null;
+      }
 
-                    <input
-                        type="text"
-                        id="phone"
-                        value={phone}
-                        required
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Phone*"
-                        className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
-                        title="Phone*"
-                    />
+      const userToUpdate = {
+        name,
+        email,
+        phone,
+        birthday,
+        hireDate,
+        contactName,
+        contactPhone,
+        guardCard,
+        active: isActive,
+        level,
+      };
+      console.log("Usuario a actualizar:", userToUpdate);
 
-                    {/* DATE TABLE */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4  mt-4">
+      const responseUpdateUser = await fetch(`/api/user/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userToUpdate),
+      });
 
-                        {/* FIRST CELL: BIRTHDAY DATE */}
-                        <div className="grid grid-rows-2">
-                            <label className="text-lg font-bold text-center mb-5">
-                                Birthday
-                                <hr className="border-t-2 border-gray-300 mt-2" />
-                            </label>
-                            <DatePicker
-                                className="w-full p-2 border-2 border-gray-300 rounded-md"
-                                selected={birthday}
-                                onChange={(date) => {
-                                    if (date) {
-                                        setBirthday(date)
-                                    } else {
-                                        setBirthday(new Date())
-                                    }
-                                }}
-                                showTimeSelect
-                                dateFormat="MMMM, dd,  yyyy hh:mm aa"
-                                placeholderText="Birthday*"
-                            />
-                        </div>
+      const response = await responseUpdateUser.json();
 
-                        {/* SECOND CELL: HIRE DATE */}
-                        <div className="grid grid-rows-2">
-                            <label htmlFor="endDate" className="text-lg font-bold text-center mb-5">
-                                Hire Date
-                                <hr className="border-t-2 border-gray-300 mt-2" />
-                            </label>
-                            <DatePicker
-                                className="w-full p-2 border-2 border-gray-300 rounded-md"
-                                selected={hireDate}
-                                onChange={(date) => {
-                                    if (date) {
-                                        setHireDate(date)
-                                    }
-                                }}
-                                showTimeSelect
-                                dateFormat="MMMM, dd,  yyyy hh:mm aa"
-                                placeholderText="Hire Date*"
-                            />
-                        </div>
+      if (!response.success) {
+        setErrorMessage(
+          response.error ||
+            "An unexpected error occurred while updating the user."
+        );
+        setErrorDialogOpen(true);
+        return null;
+      }
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setErrorMessage("An unexpected error occurred while updating the user.");
+      setErrorDialogOpen(true);
+      return null;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-                    </div>
+  const createUser = async (): Promise<any | null> => {
+    try {
+      // We validate the data before sending it to the database.
+      // If the data is valid, we generate a password.
+      const validation = await fetch("/api/user/validate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          birthday,
+          hireDate,
+          contactName,
+          contactPhone,
+        }),
+      });
 
-                    <hr className="border-t-2 border-gray-300 sm:mt-2 mt-5" />
+      //validation response
+      const validationResult = await validation.json();
 
-                    {/* CONTACT INFO */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* FIRST CELL: CONTACT NAME */}
-                        <div className="grid grid-rows-1">
-                            <input
-                                type="text"
-                                id="EmergencyContactName"
-                                value={contactName}
-                                required
-                                onChange={(e) => setContactName(e.target.value)}
-                                placeholder="Emergency Contact Name*"
-                                className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
-                                title="Emergency Contact Name"
-                            />
-                        </div>
+      if (!validationResult.success) {
+        setErrorMessage(validationResult.error);
+        setErrorDialogOpen(true);
+        return null;
+      }
 
-                        {/* SECOND CELL: CONTACT PHONE */}
-                        <div className="grid grid-rows-1">
-                            <input
-                                type="text"
-                                id="EmergencyContactPhone"
-                                value={contactPhone}
-                                required
-                                onChange={(e) => setContactPhone(e.target.value)}
-                                placeholder="Emergency Contact Phone*"
-                                className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
-                                title="Emergency Contact Phone"
-                            />
-                        </div>
-                    </div>
+      // We save the password in our local variable, to send it as a response from the method and thus be able to use it later.
+      let generatedPassword = validationResult.generatedPassword;
 
-                    {/* USER LEVEL: ONLY AVAILABLE FOR MASTER */}
-                    {userSession?.level === UserLevel.MASTER && (
-                        <div className="justify-start xs:justify-center lg:justify-start mt-8 w-full sm:w-1/3">
-                            <label className="flex items-center">
-                                <select
-                                    id="userLevel"
-                                    value={level ?? ""}
-                                    required
-                                    onChange={(e) => setLevel(e.target.value as UserLevel)}
-                                    className="border-2 border-gray-300 w-full p-2 rounded-md"
-                                    title="User Level*"
-                                >
-                                    <option value="">User level</option>
-                                    {Object.values(UserLevel).map((userLevel) => (
-                                        <option key={userLevel} value={userLevel}>
-                                            {userLevel}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                        </div>
-                    )}
+      // Once everything has been validated, proceed to fill out the interface.
+      const userToSend = {
+        name,
+        password: generatedPassword,
+        level,
+        email,
+        phone,
+        birthday,
+        hireDate,
+        contactName,
+        contactPhone,
+        guardCard,
+        active: isActive,
+        supervisorCount: 0,
+        managerCount: 0,
+        logisticCount: 0,
+        driverCount: 0,
+        dispatchCount: 0,
+        assistantManagerCount: 0,
+      };
 
-                    {/* GUARD CARD */}
-                    <div className="grid grid-rows-1 justify-start xs:justify-center lg:justify-start mt-6">
-                        <label className="flex items-center cursor-pointer">
-                            {/* SWITCH TEXT */}
-                            <span className="ml-3 font-bold p-3">{guardCard ? "Guard Card" : "No guard card"}</span>
-                            {/* HIDDEN INPUT */}
-                            <input
-                                type="checkbox"
-                                checked={guardCard}
-                                onChange={() => setGuardCard(!guardCard)}
-                                className="hidden"
-                            />
-                            {/* SWITCH BUTTON STYLE */}
-                            <div className={`w-14 h-7 flex items-center p-1 rounded-full transition-all ${guardCard ? 'bg-green-500' : 'bg-red-500'}`}>
-                                {/* CIRCLE ANIMATION */}
-                                <div className={`w-6 h-6 bg-white rounded-full transform transition-transform ${guardCard ? 'translate-x-6' : 'translate-x-0'}`} />
-                            </div>
-                        </label>
-                    </div>
+      //Just to observe what is being stored in the database
+      //This should only be seen by developers, before releasing it to production, this console should be removed for security reasons.
+      console.log("User to send:", userToSend);
 
-                    <div className="grid grid-rows-1 justify-start xs:justify-center lg:justify-start">
-                        <label className="flex items-center cursor-pointer">
-                            {/* SWITCH TEXT */}
-                            <span className="ml-3 font-bold p-3">{isActive ? "Active" : "Inactive"}</span>
-                            {/* HIDDEN INPUT */}
-                            <input
-                                type="checkbox"
-                                checked={isActive}
-                                onChange={() => setIsActive(!isActive)}
-                                className="hidden"
-                            />
-                            {/* SWITCH BUTTON STYLE */}
-                            <div className={`w-14 h-7 flex items-center p-1 rounded-full transition-all ${isActive ? 'bg-green-500' : 'bg-red-500'}`}>
-                                {/* CIRCLE ANIMATION */}
-                                <div className={`w-6 h-6 bg-white rounded-full transform transition-transform ${isActive ? 'translate-x-6' : 'translate-x-0'}`} />
-                            </div>
-                        </label>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mt-4 w-full sm:w-1/2 sm:justify-start sm:ml-0">
-                        <button
-                            type="button"
-                            onClick={cleanForm}
-                            className="h-10 w-full p-2 rounded-md bg-red-600 text-white font-bold">
-                            Clean
-                        </button>
-                        <button
-                            type="submit"
-                            className="h-10 w-full p-2 rounded-md bg-blue-900 text-white font-bold">
-                            Save
-                        </button>
-                    </div>
+      //Once we have the interface correctly filled out, we proceed to store it in the database
+      const responseCreateUser = await fetch("/api/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userToSend),
+      });
 
-                </form>
-            </div>
+      const response = await responseCreateUser.json();
 
-            {/* DIALOG CONFIRMATION */}
-            {succesDialogOpen && (
-                <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-                    <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-                        <h2 className="text-2xl font-bold text-center text-gray-800 mb-3">User created successfully!</h2>
-                        <p className="text-gray-700 mb-5">Password for the user: <span className="font-bold">{generatedPassword}</span></p>
-                        <div className="grid grid-cols-1 justify-items-center">
-                            <button
-                                type="button"
-                                className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
-                                onClick={() => {
-                                    setSuccesDialogOpen(false);
-                                    setTimeout(() => {
-                                        cleanForm();
-                                    }, 100);
-                                }}
-                            >
-                                OK
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {/* DIALOG ERROR */}
-            {errorDialogOpen && (
-                <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-                    <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-                        <h2 className="text-2xl font-bold text-center text-red-600 mb-3">This user can't be created</h2>
-                        <p className="text-gray-700 mb-5 text-center">{errorMessage}</p>
-                        <div className="grid grid-cols-1 justify-items-center">
-                            <button
-                                type="button"
-                                className="bg-red-500 text-white font-bold px-20 py-2 rounded-md hover:bg-red-600"
-                                onClick={() => setErrorDialogOpen(false)}
-                            >
-                                OK
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+      // We return the result of the registration and the password generated before being encrypted.
+      return { success: response.success, generatedPassword };
+    } catch (error) {
+      console.error("Error creating user:", error);
+      setErrorMessage("An unexpected error occurred while creating the user.");
+      setErrorDialogOpen(true);
+      return null;
+    }
+  };
+
+  const cleanForm = () => {
+    setName("");
+    setEmail("");
+    setPhone("");
+    setBirthday(new Date());
+    setHireDate(new Date());
+    setContactName("");
+    setContactPhone("");
+    setGuardCard(false);
+    setIsActive(false);
+    setLevel("");
+
+    if (userSession?.level === UserLevel.MASTER) {
+      setLevel("");
+    } else {
+      setLevel(UserLevel.STAFF);
+    }
+  };
+
+  const handleUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      if (userId) {
+        const updatedUser = await updateUser();
+        if (updatedUser && updatedUser.success) {
+          if (onFormSubmitSuccess) {
+            onFormSubmitSuccess();
+          }
+        }
+      } else {
+        const newUser = await createUser();
+        if (newUser && newUser.success) {
+          setGeneratedPassword(newUser.generatedPassword);
+          setSuccesDialogOpen(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error creating user:", error);
+      setErrorMessage("An unexpected error occurred while creating the user.");
+      setErrorDialogOpen(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="p-1 my-4 h-full w-full overflow-visible overflow-y-scroll">
+      {/* HEADER TITLE */}
+      <div className="mb-5 justify-self-center">
+        <div className="text-cyan-900 text-center text-3xl lg:text-5xl font-extrabold font-maven">
+          {title}
         </div>
-    );
-}
+      </div>
+      <hr className="w-[100%] border-t-4 border-cyan-900 " />
+
+      {/* FORM */}
+      <div className="justify-between">
+        <form onSubmit={handleUser}>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            required
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Name*"
+            className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
+            title="Name*"
+          />
+
+          <input
+            type="email"
+            id="email"
+            value={email}
+            required
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email*"
+            className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
+            title="Email*"
+          />
+
+          <input
+            type="text"
+            id="phone"
+            value={phone}
+            required
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Phone*"
+            className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
+            title="Phone*"
+          />
+
+          {/* DATE TABLE */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4  mt-4">
+            {/* FIRST CELL: BIRTHDAY DATE */}
+            <div className="grid grid-rows-2">
+              <label className="text-lg font-bold text-center mb-5">
+                Birthday
+                <hr className="border-t-2 border-gray-300 mt-2" />
+              </label>
+              <DatePicker
+                className="w-full p-2 border-2 border-gray-300 rounded-md"
+                selected={birthday}
+                onChange={(date) => {
+                  if (date) {
+                    setBirthday(date);
+                  } else {
+                    setBirthday(new Date());
+                  }
+                }}
+                showTimeSelect
+                dateFormat="MMMM, dd,  yyyy hh:mm aa"
+                placeholderText="Birthday*"
+              />
+            </div>
+
+            {/* SECOND CELL: HIRE DATE */}
+            <div className="grid grid-rows-2">
+              <label
+                htmlFor="endDate"
+                className="text-lg font-bold text-center mb-5"
+              >
+                Hire Date
+                <hr className="border-t-2 border-gray-300 mt-2" />
+              </label>
+              <DatePicker
+                className="w-full p-2 border-2 border-gray-300 rounded-md"
+                selected={hireDate}
+                onChange={(date) => {
+                  if (date) {
+                    setHireDate(date);
+                  }
+                }}
+                showTimeSelect
+                dateFormat="MMMM, dd,  yyyy hh:mm aa"
+                placeholderText="Hire Date*"
+              />
+            </div>
+          </div>
+
+          <hr className="border-t-2 border-gray-300 sm:mt-2 mt-5" />
+
+          {/* CONTACT INFO */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* FIRST CELL: CONTACT NAME */}
+            <div className="grid grid-rows-1">
+              <input
+                type="text"
+                id="EmergencyContactName"
+                value={contactName}
+                required
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="Emergency Contact Name*"
+                className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
+                title="Emergency Contact Name"
+              />
+            </div>
+
+            {/* SECOND CELL: CONTACT PHONE */}
+            <div className="grid grid-rows-1">
+              <input
+                type="text"
+                id="EmergencyContactPhone"
+                value={contactPhone}
+                required
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="Emergency Contact Phone*"
+                className="border-2 border-gray-300 w-full p-2 mt-6 placeholder-gray-400 rounded-md"
+                title="Emergency Contact Phone"
+              />
+            </div>
+          </div>
+
+          {/* USER LEVEL: ONLY AVAILABLE FOR MASTER */}
+          {userSession?.level === UserLevel.MASTER && (
+            <div className="justify-start xs:justify-center lg:justify-start mt-8 w-full sm:w-1/3">
+              <label className="flex items-center">
+                <select
+                  id="userLevel"
+                  value={level ?? ""}
+                  required
+                  onChange={(e) => setLevel(e.target.value as UserLevel)}
+                  className="border-2 border-gray-300 w-full p-2 rounded-md"
+                  title="User Level*"
+                >
+                  <option value="">User level</option>
+                  {Object.values(UserLevel).map((userLevel) => (
+                    <option key={userLevel} value={userLevel}>
+                      {userLevel}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          )}
+
+          {/* GUARD CARD */}
+          <div className="grid grid-rows-1 justify-start xs:justify-center lg:justify-start mt-6">
+            <label className="flex items-center cursor-pointer">
+              {/* SWITCH TEXT */}
+              <span className="ml-3 font-bold p-3">
+                {guardCard ? "Guard Card" : "No guard card"}
+              </span>
+              {/* HIDDEN INPUT */}
+              <input
+                type="checkbox"
+                checked={guardCard}
+                onChange={() => setGuardCard(!guardCard)}
+                className="hidden"
+              />
+              {/* SWITCH BUTTON STYLE */}
+              <div
+                className={`w-14 h-7 flex items-center p-1 rounded-full transition-all ${
+                  guardCard ? "bg-green-500" : "bg-red-500"
+                }`}
+              >
+                {/* CIRCLE ANIMATION */}
+                <div
+                  className={`w-6 h-6 bg-white rounded-full transform transition-transform ${
+                    guardCard ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </div>
+            </label>
+          </div>
+
+          <div className="grid grid-rows-1 justify-start xs:justify-center lg:justify-start">
+            <label className="flex items-center cursor-pointer">
+              {/* SWITCH TEXT */}
+              <span className="ml-3 font-bold p-3">
+                {isActive ? "Active" : "Inactive"}
+              </span>
+              {/* HIDDEN INPUT */}
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={() => setIsActive(!isActive)}
+                className="hidden"
+              />
+              {/* SWITCH BUTTON STYLE */}
+              <div
+                className={`w-14 h-7 flex items-center p-1 rounded-full transition-all ${
+                  isActive ? "bg-green-500" : "bg-red-500"
+                }`}
+              >
+                {/* CIRCLE ANIMATION */}
+                <div
+                  className={`w-6 h-6 bg-white rounded-full transform transition-transform ${
+                    isActive ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </div>
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-4 w-full sm:w-1/2 sm:justify-start sm:ml-0">
+            <button
+              type="button"
+              onClick={cleanForm}
+              className="h-10 w-full p-2 rounded-md bg-red-600 text-white font-bold"
+            >
+              Clean
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="h-10 w-full p-2 rounded-md bg-blue-900 text-white font-bold"
+            >
+              {isSubmitting
+                ? userId
+                  ? "UPDATING..."
+                  : "CREATING..."
+                : userId
+                ? "UPDATE"
+                : "CREATE"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* DIALOG CONFIRMATION */}
+      {succesDialogOpen && (
+        <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-3">
+              User created successfully!
+            </h2>
+            <p className="text-gray-700 mb-5">
+              Password for the user:{" "}
+              <span className="font-bold">{generatedPassword}</span>
+            </p>
+            <div className="grid grid-cols-1 justify-items-center">
+              <button
+                type="button"
+                className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
+                onClick={() => {
+                  setSuccesDialogOpen(false);
+                  setTimeout(() => {
+                    cleanForm();
+                  }, 100);
+                }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* DIALOG ERROR */}
+      {errorDialogOpen && (
+        <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+            <h2 className="text-2xl font-bold text-center text-red-600 mb-3">
+              This user can't be created
+            </h2>
+            <p className="text-gray-700 mb-5 text-center">{errorMessage}</p>
+            <div className="grid grid-cols-1 justify-items-center">
+              <button
+                type="button"
+                className="bg-red-500 text-white font-bold px-20 py-2 rounded-md hover:bg-red-600"
+                onClick={() => setErrorDialogOpen(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

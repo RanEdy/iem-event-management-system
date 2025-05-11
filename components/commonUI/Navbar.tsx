@@ -3,11 +3,14 @@
 import React from 'react';
 import { UserLevel } from '@prisma/client';
 import { NavbarButton } from './NavbarButton';
-import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser } from "react-icons/fa";
+// Importa los iconos que necesites, por ejemplo:
+import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser, FaUserShield, FaUserCog } from "react-icons/fa";
 import { useNavigation } from '@/contexts/NavigationContext';
+import { useLogin } from '../loginUI/LoginProvider';
 
 type NavbarProps = {
-    level: UserLevel;
+    level: UserLevel; // Esta prop 'level' parece ser del componente Navbar en sí, no necesariamente del usuario en sesión.
+                     // Nos basaremos en userSession.level para el icono del usuario.
     options: string[];
 }
 
@@ -15,6 +18,24 @@ type NavbarProps = {
 const Navbar: React.FC<NavbarProps> = ({level, options}) => 
 {
     const { currentPage, setCurrentPage } = useNavigation();
+    const { userSession } = useLogin(); 
+    
+    const renderUserIcon = () => {
+        if (!userSession) {
+            return <FaUser className="w-3/5 h-3/5 text-white self-center"/>; // Icono por defecto si no hay sesión
+        }
+
+        switch (userSession.level) {
+            case UserLevel.MASTER:
+                return <FaUserCog className="w-3/5 h-3/5 text-white self-center"/>; // Ejemplo para MASTER
+            case UserLevel.ADMIN:
+                return <FaUserShield className="w-3/5 h-3/5 text-white self-center"/>; // Ejemplo para ADMIN
+            case UserLevel.STAFF:
+                return <FaUser className="w-3/5 h-3/5 text-white self-center"/>; // Ejemplo para STAFF
+            default:
+                return <FaUser className="w-3/5 h-3/5 text-white self-center"/>; // Icono por defecto
+        }
+    };
     
     return (
         <div className="flex h-32 w-full p-6 m-0 shadow-lg shadow-gray-700 items-center justify-between bg-bluedark-gradient-r">
@@ -60,9 +81,12 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
             </div>
 
             {/* User Info */}
-            <div className="flex flex-shrink-0">
+            <div className="flex flex-shrink-0 items-center"> 
+                {userSession && ( 
+                    <span className="text-white font-semibold mr-4">{userSession.name}</span> 
+                )}
                 <div className="flex w-16 h-16 bg-bluedark-gradient-r justify-center rounded-full">
-                    <FaUser className="w-3/5 h-3/5 text-white self-center"/>
+                    {renderUserIcon()} {/* Llama a la función para renderizar el icono */}
                 </div>
             </div>
         </div>

@@ -294,7 +294,7 @@ const ContextMenu = ({ row }: { row: any }) => {
                                     closeDialog();
                                 }}
                             >
-                                Continue
+                                OK
                             </button>
                         </div>
                     </div>

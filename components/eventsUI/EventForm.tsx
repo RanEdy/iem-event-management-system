@@ -29,6 +29,11 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
   const [publicEvent, setPublicEvent] = useState<boolean>(false);
   const [maxUsers, setMaxUsers] = useState<number>(1);
 
+  const [errorDialogOpen, setErrorDialogOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [succesDialogOpen, setSuccessDialogOpen] = useState<boolean>(false);
+  const [succesMessage, setSuccessMessage] = useState<string>("");
+
   // IMPORTANT: If you want to create a new Event with new Sections
   // First Create the event, then get the id >> then replace that id in the sections >> then create the sections
   // >> then get the id from every section >> then replace every id of the section in the files for each section 
@@ -51,47 +56,70 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
 
   //Returns the json response or null
   const createEvent = async (): Promise<any | null> => {
-    if (startDate && endDate && endDate < startDate) {
-      alert("The end date cannot be earlier than the start date.");
+    try {
+      // We valite the data before sending to the data base
+      const validation = await fetch('/api/event/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          city,
+          state,
+          zipCode,
+          address,
+          startDate,
+          endDate,
+          maxUsers
+        }),
+      });
+
+      // Validation response
+      const validationResult = await validation.json();
+
+      if (!validationResult.success) {
+        setErrorMessage(validationResult.error);
+        setErrorDialogOpen(true);
+        return null;
+      }
+
+      // Fill the event object
+      const eventToSend = {
+        name,
+        city,
+        state,
+        zipCode,
+        address,
+        startDate,
+        endDate,
+        public: publicEvent,
+        status: EventStatus.IN_PROCESS,
+        maxUsers,
+      };
+
+      console.log("Creating event: ", eventToSend);
+      // We almost have all the information to create the event, now we send it to the database
+      const responseCreateEvent = await fetch('/api/event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventToSend),
+      });
+
+      const response = await responseCreateEvent.json();
+
+      // Now return the event with the successfully status
+      return response;
+
+    } catch (error) {
+      console.error('An error ocurred:', error);
+      setErrorMessage('An unexpected error occurred while creating the event.');
+      setErrorDialogOpen(true);
       return null;
     }
-
-    if (parseInt(zipCode) < 0)
-    {
-      alert("The zip code cannot be less than 1.");
-      return null;
-    }
-
-    const eventToSend: Omit<IEvent, 'id'> = {
-      name,
-      state,
-      city,
-      zipCode,
-      address,
-      startDate,
-      endDate,
-      maxUsers,
-      public: publicEvent,
-      status: EventStatus.IN_PROCESS
-    };
-
-    console.log("Event\n:", eventToSend);
-
-
-    // Create a new Event
-    const responseCreateEvent = await fetch('/api/event', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(eventToSend),
-    });
-
-    // { success, event, message}
-    const dataCreateEvent = await responseCreateEvent.json();
-    console.log(dataCreateEvent);
-    return dataCreateEvent;
-  }
+  };
 
   //Returns the success array
   const createSections = async (eventId: number): Promise<any[]> => {
@@ -178,23 +206,48 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
       //Create Event
       const eventCreated = await createEvent();
       if (eventCreated !== null && eventCreated.success) {
+        // Send success message
+        setSuccessDialogOpen(true);
+        
         //Create sections
-        const sectionResponses = await createSections(eventCreated.event.id);
-        const isSectionCreationSuccess = sectionResponses.every((success) => success);
-        //Create Files
-        if (isSectionCreationSuccess) {
-          console.log("Files creation for each section...");
-          // Create files for each section
-          const isFileCreationSuccess = await createFiles()
-          if (isFileCreationSuccess) onSave?.()
+        if (eventCreated.event && eventCreated.event.id) {
+          const sectionResponses = await createSections(eventCreated.event.id);
+          const isSectionCreationSuccess = sectionResponses.every((success) => success);
+          //Create Files
+          if (isSectionCreationSuccess) {
+            console.log("Files creation for each section...");
+            // Create files for each section
+            const isFileCreationSuccess = await createFiles();
+          }
         }
       }
     } catch (error) {
       console.error("ERROR", error);
+      setErrorMessage("An unexpected error occurred while creating the event.");
+      setErrorDialogOpen(true);
     }
-
   };
 
+  const cleanForm = () => {
+    setName('');
+    setCity('');
+    setState(USAState.CALIFORNIA);
+    setZipCode('');
+    setAddress('');
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setPublicEvent(false);
+    setMaxUsers(1);
+    setSections([
+      {
+        id: 1,
+        eventId: 0,
+        sectionName: "Section 1",
+        description: "",
+        files: [],
+      }
+    ]);
+  };
 
   return (
     <div className="p-1 my-4 h-full w-full overflow-visible overflow-y-scroll">
@@ -372,7 +425,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
 
           {/* DESCRIPTION SECTION */}
           <EventDescription event={event} sections={sections} setSections={setSections} />
-          {/* Save BUTTON */}
+          {/* BUTTONS */}
           <button
             type="submit"
             className="h-10 w-full p-2 sm:w-1/3 mt-6 rounded-md bg-blue-900 text-white font-bold">
@@ -380,6 +433,50 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
           </button>
         </form>
       </div>
+      {/* ERROR DIALOG */}
+      {/* DIALOG CONFIRMATION */}
+      {succesDialogOpen && (
+        <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-3">Success</h2>
+            <p className="text-gray-700 mb-5"><span className="font-bold">Event successfully created</span></p>
+            <div className="grid grid-cols-1 justify-items-center">
+              <button
+                type="button"
+                className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
+                onClick={() => {
+                  setSuccessDialogOpen(false);
+                  cleanForm();
+                  // Call onSave before cleaning the form
+                  if (onSave) {
+                    onSave();
+                  }
+                }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* DIALOG ERROR */}
+      {errorDialogOpen && (
+        <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+            <h2 className="text-2xl font-bold text-center text-red-600 mb-3">This event can't be created</h2>
+            <p className="text-gray-700 mb-5 text-center">{errorMessage}</p>
+            <div className="grid grid-cols-1 justify-items-center">
+              <button
+                type="button"
+                className="bg-red-500 text-white font-bold px-20 py-2 rounded-md hover:bg-red-600"
+                onClick={() => setErrorDialogOpen(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

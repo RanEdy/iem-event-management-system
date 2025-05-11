@@ -133,15 +133,6 @@ export const EventsTable: React.FC = () =>
         console.log(row);
     }
 
-    const showToastMessage = (message: string) => {
-        setToastMessage(message);
-        setShowToast(true);
-        setTimeout(() => {
-            setShowToast(false);
-        }, 4000); // 4 seconds
-    };
-
-    
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
             {showToast && (
@@ -185,8 +176,6 @@ export const EventsTable: React.FC = () =>
                             { <EventForm title="Register Event" 
                                 onSave={() =>
                                 {
-                                    setIsDialogOpen(false);
-                                    showToastMessage("Event added succesfully");
                                     loadEvents();
                                 }}/>
                             }

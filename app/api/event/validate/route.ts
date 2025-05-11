@@ -1,0 +1,59 @@
+import { NextRequest, NextResponse } from "next/server";
+import { EventService } from "@/services/EventService";
+import { USAState } from "@prisma/client";
+
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        
+        // Extract the data from the request body
+        const {
+            name,
+            city,
+            state,
+            zipCode,
+            address,
+            startDate,
+            endDate,
+            maxUsers
+        } = body;
+
+        // Parse the dates
+        const parsedStartDate = new Date(startDate);
+        const parsedEndDate = new Date(endDate);
+
+        // Validate the data
+        const eventService = new EventService();
+        
+        // Results of the validation
+        const validationResult = await eventService.validateEventData({
+            name,
+            city,
+            state: state as USAState,
+            zipCode,
+            address,
+            startDate: parsedStartDate,
+            endDate: parsedEndDate,
+            maxUsers: Number(maxUsers)
+        });
+
+        if (!validationResult.isValid) {
+            return NextResponse.json({
+                success: false,
+                error: validationResult.error
+            }, { status: 400 });
+        }
+
+        // If the data is valid
+        return NextResponse.json({
+            success: true,
+            message: "Event data send correctly!"
+        });
+    } catch (error) {
+        console.error("Validation error:", error);
+        return NextResponse.json({
+            success: false,
+            error: "Internal server error during validation"
+        }, { status: 500 });
+    }
+}

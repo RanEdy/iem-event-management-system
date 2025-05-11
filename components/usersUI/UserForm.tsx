@@ -10,9 +10,10 @@ import { UserLevel } from "@prisma/client";
 type UserFormProps = {
     title: string;
     userId?: number; //If this component will be use to modified an user
+    onSave: () => void;
 }
 
-export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => { 
+export const UserForm: React.FC<UserFormProps> = ({ title, userId, onSave }) => { 
     const { userSession } = useLogin();
 
     useEffect(() => {
@@ -390,9 +391,10 @@ export const UserForm: React.FC<UserFormProps> = ({ title, userId }) => {
                                 className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
                                 onClick={() => {
                                     setSuccesDialogOpen(false);
-                                    setTimeout(() => {
-                                        cleanForm();
-                                    }, 100);
+                                    cleanForm();
+                                    if (onSave) {
+                                        onSave();
+                                    }
                                 }}
                             >
                                 OK

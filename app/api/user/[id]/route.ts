@@ -1,4 +1,3 @@
-// API path to manage a specific user (GET by id, PUT, DELETE)
 import { NextResponse } from "next/server";
 import { ServiceLocator } from "@/services/ServiceLocator"; // Changed from DAOLocator to ServiceLocator
 import { IUser } from "@/entities/IUser"; // Held in case it is necessary for types

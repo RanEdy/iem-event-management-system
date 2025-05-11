@@ -1,14 +1,14 @@
 "use client";
 
 import { UserLevel } from "@prisma/client";
-import { IUser } from "@/entities/IUser"; // Asegúrate que esta ruta es correcta y IUser está definido
+import { IUser } from "@/entities/IUser"; // Make sure that this path is correct and IUser is defined.
 import { FaPlus, FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
-import ContexMenuUsers from "../commonUI/ContexMenuUsers"; // Cambiado de ContextMenu a ContexMenuUsers
+import ContexMenuUsers from "../commonUI/ContexMenuUsers";
 import { UserForm } from "./UserForm";
 
-// Función para calcular la antigüedad
+// Function for calculating seniority
 const calculateSeniority = (hireDateString: string | Date): string => {
     const hireDate = new Date(hireDateString);
     if (isNaN(hireDate.getTime())) {
@@ -21,7 +21,7 @@ const calculateSeniority = (hireDateString: string | Date): string => {
 
     if (days < 0) {
         months--;
-        days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); // Días en el mes anterior
+        days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); // Days in the previous month
     }
     if (months < 0) {
         years--;
@@ -43,7 +43,7 @@ const columns: TableColumn<IUser>[] = [
         selector: row => row.name,
         cell: row => (
             <div className="flex items-center py-2">
-                {/* Placeholder para avatar, puedes reemplazarlo con un componente de Avatar si lo tienes */}
+                {/* Placeholder for avatar, you can replace it with an Avatar component if you have one. */}
                 <div className="w-8 h-8 rounded-full bg-gray-300 mr-3 flex items-center justify-center text-gray-600">
                     {row.name.charAt(0).toUpperCase()}
                 </div>
@@ -86,11 +86,11 @@ const columns: TableColumn<IUser>[] = [
         name: "SENIORITY",
         selector: row => row.hireDate ? calculateSeniority(row.hireDate) : 'N/A',
         sortable: true,
-        format: row => row.hireDate ? calculateSeniority(row.hireDate) : 'N/A', // Necesario para que el sort use el valor calculado
+        format: row => row.hireDate ? calculateSeniority(row.hireDate) : 'N/A', // Necessary for sort to use the calculated value
     },
     {
         name: "OPTIONS",
-        cell: row => <ContexMenuUsers row={row} />, // Usar ContexMenuUsers y quitar isUserContext
+        cell: row => <ContexMenuUsers row={row} />, // Using ContexMenuUsers and removing isUserContext
         ignoreRowClick: true,
         allowOverflow: true,
         button: true,
@@ -109,7 +109,7 @@ export const UsersTable: React.FC = () => {
 
 
     const loadUsers = async () => {
-        fetch("/api/user") // Asegúrate que esta es la API correcta para obtener usuarios
+        fetch("/api/user") // Make sure this is the correct API to obtain users.
             .then(res => res.json())
             .then((data: IUser[] | { success: boolean, users: IUser[], error?: string }) => {
                 let usersData: IUser[];
@@ -124,7 +124,7 @@ export const UsersTable: React.FC = () => {
 
                 const parsedUsers = usersData.map(user => ({
                     ...user,
-                    birthday: user.birthday ? new Date(user.birthday) : new Date(), // O maneja null/undefined como prefieras
+                    birthday: user.birthday ? new Date(user.birthday) : new Date(), // O handle null/undefined as preferred
                     hireDate: user.hireDate ? new Date(user.hireDate) : new Date(), // O maneja null/undefined
                 }));
                 setUsers(parsedUsers);
@@ -160,7 +160,7 @@ export const UsersTable: React.FC = () => {
 
     const handleRowClick = (row: IUser) => {
         console.log("Selected User: ", row);
-        // Aquí puedes implementar la lógica para editar o ver detalles del usuario si es necesario al hacer clic en la fila
+        // Here you can implement the logic to edit or view user details if needed by clicking on the row
     };
 
     const showToastMessage = (message: string) => {
@@ -168,7 +168,7 @@ export const UsersTable: React.FC = () => {
         setShowToast(true);
         setTimeout(() => {
             setShowToast(false);
-        }, 4000); // 4 segundos
+        }, 4000); // 4 seconds
     };
 
     return (
@@ -247,10 +247,10 @@ export const UsersTable: React.FC = () => {
                         {/* USER FORM */}
                         <UserForm 
                             title="Register User" 
-                            onSave={() => { // Asumiendo que UserForm tiene una prop onSave
+                            onSave={() => { // Assuming that UserForm has a prop onSave
                                 setIsDialogOpen(false);
                                 showToastMessage("User added successfully");
-                                loadUsers(); // Recargar la lista de usuarios
+                                loadUsers(); // Reload user list
                             }}
                         />
                     </div>
@@ -258,7 +258,7 @@ export const UsersTable: React.FC = () => {
             )}
 
             <DataTable
-                className="h-auto overflow-visible" // Ajustado para que la tabla crezca según el contenido
+                className="h-auto overflow-visible" // Adjusted so that the table grows according to content
                 columns={columns}
                 data={filteredUsers}
                 onRowClicked={handleRowClick}
@@ -266,10 +266,10 @@ export const UsersTable: React.FC = () => {
                 highlightOnHover
                 pagination
                 fixedHeader
-                fixedHeaderScrollHeight="calc(100vh - 350px)" // Ajusta este valor según la altura de tus otros elementos
+                fixedHeaderScrollHeight="calc(100vh - 350px)" // Adjust this value according to the height of your other elements.
                 customStyles={{
                     headCells: { style: { fontWeight: "bold", backgroundColor: "#F5F5F5", borderRadius: "0" } },
-                    table: { style: { minHeight: '300px' } } // Altura mínima para la tabla
+                    table: { style: { minHeight: '300px' } } // Minimum height for the table
                 }}
                 noDataComponent={<div>No users found.</div>}
             />

@@ -127,7 +127,7 @@ const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
               </svg>
             </button>
             <UserForm
-              title={`Editar Usuario: ${row.name}`}
+              title={`Edit User: ${row.name}`}
               userId={row.id}
               initialData={row}
               onFormSubmitSuccess={handleEditSaveSuccess}

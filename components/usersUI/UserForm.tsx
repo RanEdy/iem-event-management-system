@@ -88,7 +88,7 @@ export const UserForm: React.FC<UserFormProps> = ({
         },
         body: JSON.stringify({
           name,
-          email: "edit@test.com",
+          email: "edit@test.com", // TEMPORARY EMAIL
           phone,
           birthday,
           hireDate,

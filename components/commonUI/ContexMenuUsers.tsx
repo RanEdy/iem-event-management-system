@@ -1,26 +1,32 @@
 "use client";
-import { useState } from 'react';
-import { FaCog, FaTrash } from 'react-icons/fa'; // Iconos para editar y eliminar
-import { IUser } from '@/entities/IUser'; // Asegúrate que la ruta es correcta
+import { useState } from "react";
+import { FaCog, FaTrash } from "react-icons/fa"; // Iconos para editar y eliminar
+import { IUser } from "@/entities/IUser"; // Asegúrate que la ruta es correcta
 // Importa UserForm si vas a abrirlo en un modal para editar
-// import { UserForm } from '../usersUI/UserForm'; 
+import { UserForm } from "../usersUI/UserForm";
 
-const ContexMenuUsers = ({ row }: { row: IUser }) => {
+interface ContextMenuUsersProps {
+    row: IUser;
+    onUserModified?: (message: string) => void; // Callback para notificar cambios
+}
+
+const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
     const [open, setOpen] = useState(false);
     // Tipos de diálogo específicos para usuarios
-    const [dialogType, setDialogType] = useState<null | 'editUser' | 'deleteUser' | 'deleteUserSuccess'>(null);
+    const [dialogType, setDialogType] = useState<
+        null | "editUser" | "deleteUser" | "deleteUserSuccess"
+    >(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
-
+    //const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
 
     const toggleDropdown = () => {
         setOpen(!open);
     };
 
-    const handleAction = (type: 'editUser' | 'deleteUser') => {
+    const handleAction = (type: "editUser" | "deleteUser") => {
         setDialogType(type);
         setOpen(false); // Cierra el dropdown al seleccionar una acción
-        if (type === 'editUser') {
+        if (type === "editUser") {
             // Aquí podrías abrir un modal con UserForm para editar el usuario
             // Por ejemplo, setIsEditUserModalOpen(true);
             console.log("Edit user action triggered for user ID:", row.id);
@@ -31,30 +37,38 @@ const ContexMenuUsers = ({ row }: { row: IUser }) => {
 
     const closeDialog = () => {
         setDialogType(null);
-        setIsEditUserModalOpen(false);
+        //setIsEditUserModalOpen(false);
+    };
+
+    const handleEditSaveSuccess = () => {
+        closeDialog();
+        if (onUserModified) {
+            onUserModified("User modified successfully");
+        } else {
+            window.location.reload();
+        }
     };
 
     const deleteUser = async (userId: number) => {
         setIsLoading(true);
         try {
             const response = await fetch(`/api/user/${userId}`, {
-                method: 'DELETE',
+                method: "DELETE",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to delete user');
+                throw new Error(errorData.message || "Failed to delete user");
             }
-            
-            console.log('User deleted successfully');
-            setDialogType('deleteUserSuccess');
 
+            console.log("User deleted successfully");
+            setDialogType("deleteUserSuccess");
         } catch (error) {
-            console.error('Error deleting user:', error);
-            alert((error as Error).message || 'Failed to delete user');
+            console.error("Error deleting user:", error);
+            alert((error as Error).message || "Failed to delete user");
             // Podrías establecer un dialogType para errores si lo prefieres
         } finally {
             setIsLoading(false);
@@ -73,59 +87,68 @@ const ContexMenuUsers = ({ row }: { row: IUser }) => {
 
             {open && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                    <button onClick={() => handleAction('editUser')} className="flex items-center w-full px-4 py-2 hover:bg-gray-100">
+                    <button
+                        onClick={() => handleAction("editUser")}
+                        className="flex items-center w-full px-4 py-2 hover:bg-gray-100"
+                    >
                         <FaCog className="mr-2" /> Edit User
                     </button>
-                    <button onClick={() => handleAction('deleteUser')} className="flex items-center w-[95%] px-4 m-1 bg-red-200 py-2 hover:bg-red-300 rounded-md">
-                        <FaTrash className="mr-2 text-rose-700" /> <span className="text-rose-700 font-bold">Delete User</span>
+                    <button
+                        onClick={() => handleAction("deleteUser")}
+                        className="flex items-center w-[95%] px-4 m-1 bg-red-200 py-2 hover:bg-red-300 rounded-md"
+                    >
+                        <FaTrash className="mr-2 text-rose-700" />{" "}
+                        <span className="text-rose-700 font-bold">Delete User</span>
                     </button>
                 </div>
             )}
 
             {/* Modal para editar usuario (ejemplo básico) */}
-            {dialogType === 'editUser' && (
-                 // Aquí deberías implementar el modal que contenga UserForm
-                 // Por ejemplo:
-                /*
+            {dialogType === "editUser" && (
                 <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
                     <div className="relative bg-white rounded-3xl p-8 shadow-lg my-4 lg:w-1/2 w-11/12 max-h-[90vh] overflow-y-auto">
                         <button
                             className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
                             onClick={closeDialog}
                         >
-                            X
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
                         </button>
-                        <UserForm title={`Edit User ${row.name}`} userId={row.id} onSave={() => {
-                            closeDialog();
-                            window.location.reload(); // o una función para recargar datos
-                        }} />
+                        <UserForm
+                            title={`Edit User: ${row.name}`}
+                            userId={row.id}
+                            initialData={row}
+                            onFormSubmitSuccess={handleEditSaveSuccess}
+                        />
                     </div>
                 </div>
-                */
-               // Como UserForm no está completamente preparado para edición en este contexto, mostramos un placeholder
-               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white rounded-3xl p-8 shadow-xl w-full max-w-md">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Edit User</h2>
-                        <p className="text-gray-700 mb-3">
-                            Editing functionality for user <span className='font-bold'>{row.name}</span> (ID: {row.id}) would be here.
-                        </p>
-                        <button
-                            type="button"
-                            className="border-2 border-gray-700 text-gray-700 font-bold px-6 py-2 rounded-md hover:bg-gray-100 w-full"
-                            onClick={closeDialog}
-                        >
-                            Close
-                        </button>
-                    </div>
-               </div>
             )}
 
-            {dialogType === 'deleteUser' && (
+            {dialogType === "deleteUser" && (
                 <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
                     <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-3">CONFIRMATION</h2>
-                        <p className="text-gray-700 mb-3">Are you sure you want to delete the user <span className="font-bold">{row.name}</span>?</p>
-                        <p className="text-gray-500 italic mb-5">This user will be deleted permanently.</p>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                            CONFIRMATION
+                        </h2>
+                        <p className="text-gray-700 mb-3">
+                            Are you sure you want to delete the user{" "}
+                            <span className="font-bold">{row.name}</span>?
+                        </p>
+                        <p className="text-gray-500 italic mb-5">
+                            This user will be deleted permanently.
+                        </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <button
                                 type="button"
@@ -133,7 +156,7 @@ const ContexMenuUsers = ({ row }: { row: IUser }) => {
                                 onClick={() => deleteUser(row.id)}
                                 disabled={isLoading}
                             >
-                                {isLoading ? 'DELETING...' : 'DELETE'}
+                                {isLoading ? "DELETING..." : "DELETE"}
                             </button>
                             <button
                                 type="button"
@@ -148,17 +171,23 @@ const ContexMenuUsers = ({ row }: { row: IUser }) => {
                 </div>
             )}
 
-            {dialogType === 'deleteUserSuccess' && (
+            {dialogType === "deleteUserSuccess" && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white rounded-3xl p-10 shadow-xl">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-10">User successfully deleted</h2>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-10">
+                            User successfully deleted
+                        </h2>
                         <div className="grid grid-cols-1 justify-items-center">
                             <button
                                 type="button"
                                 className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
                                 onClick={() => {
                                     closeDialog();
-                                    window.location.reload(); // Recarga la página para reflejar los cambios
+                                    if (onUserModified) {
+                                        onUserModified("User deleted successfully");
+                                    } else {
+                                        window.location.reload();
+                                    }
                                 }}
                             >
                                 Continue

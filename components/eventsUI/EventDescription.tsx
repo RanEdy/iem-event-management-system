@@ -183,6 +183,14 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
     }
   };
 
+  // Function for deleting a file in the section
+  const handleDeleteFile = (e: MouseEvent, fileIdx: number) => {
+    e.stopPropagation();
+    const upd = [...sections];
+    upd[activeIdx].files = upd[activeIdx].files.filter((_, idx) => idx !== fileIdx);
+    setSections(upd);
+  };
+
   return (
     <div className="mt-6 w-full">
       {/* Tabs */}
@@ -291,27 +299,37 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
           {activeSection.files.map((fileObj, i) => {
             const url = createFileUrl(fileObj);
 
-            return fileObj.name.endsWith('.pdf') ? (
-              <a
-                key={i}
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                className="border p-2 text-sm rounded-md"
-              >
-                📄 {fileObj.name}
-              </a>
-            ) : (
-              <img
-                key={i}
-                src={url}
-                alt={fileObj.name}
-                className="h-24 object-cover rounded-md border"
-                onError={(e) => {
-                  console.error('Error loading image:', fileObj.name);
-                  (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+RXJyb3I8L3RleHQ+PC9zdmc+';
-                }}
-              />
+            return (
+              <div key={i} className="relative border p-2 rounded-md">
+                {fileObj.name.endsWith('.pdf') ? (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-sm"
+                  >
+                    📄 {fileObj.name}
+                  </a>
+                ) : (
+                  <img
+                    src={url}
+                    alt={fileObj.name}
+                    className="h-24 object-cover rounded-md border"
+                    onError={(e) => {
+                      console.error('Error loading image:', fileObj.name);
+                      (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,...';
+                    }}
+                  />
+                )}
+
+                {/* Delete File button */}
+                <button
+                  onClick={(e) => handleDeleteFile(e,i)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                >
+                  <FaTimes size={12} />
+                </button>
+              </div>
             );
           })}
         </div>

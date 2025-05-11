@@ -12,6 +12,7 @@ type UserFormProps = {
   userId?: number; //If this component will be use to modified an user
   initialData?: IUser;
   onFormSubmitSuccess?: () => void;
+  onSave?: () => void;
 };
 
 export const UserForm: React.FC<UserFormProps> = ({
@@ -19,6 +20,7 @@ export const UserForm: React.FC<UserFormProps> = ({
   userId,
   initialData,
   onFormSubmitSuccess,
+  onSave,
 }) => {
   const { userSession } = useLogin();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,6 +68,10 @@ export const UserForm: React.FC<UserFormProps> = ({
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
   // This will be used to clean the form after the user has been created.
 
+
+  // This dialog state for the success update
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  
   // Dialog state for "error" button in the dialog
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -117,7 +123,7 @@ export const UserForm: React.FC<UserFormProps> = ({
         active: isActive,
         level,
       };
-      console.log("Usuario a actualizar:", userToUpdate);
+      console.log("User to uptade:", userToUpdate);
 
       const responseUpdateUser = await fetch(`/api/user/${userId}`, {
         method: "PUT",
@@ -137,7 +143,9 @@ export const UserForm: React.FC<UserFormProps> = ({
         setErrorDialogOpen(true);
         return null;
       }
-      return { success: true };
+      setSuccessMessage(`The user ${name} has been updated successfully.`);
+      setSuccesDialogOpen(true);
+
     } catch (error) {
       console.error("Error updating user:", error);
       setErrorMessage("An unexpected error occurred while updating the user.");
@@ -252,14 +260,15 @@ export const UserForm: React.FC<UserFormProps> = ({
       if (userId) {
         const updatedUser = await updateUser();
         if (updatedUser && updatedUser.success) {
-          if (onFormSubmitSuccess) {
-            onFormSubmitSuccess();
-          }
+        //   if (onFormSubmitSuccess) {
+        //     onFormSubmitSuccess();
+        //   }
         }
       } else {
         const newUser = await createUser();
         if (newUser && newUser.success) {
           setGeneratedPassword(newUser.generatedPassword);
+          setSuccessMessage("User created successfully.");
           setSuccesDialogOpen(true);
         }
       }
@@ -505,40 +514,49 @@ export const UserForm: React.FC<UserFormProps> = ({
         </form>
       </div>
 
-      {/* DIALOG CONFIRMATION */}
       {succesDialogOpen && (
-        <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-          <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-3">
-              User created successfully!
-            </h2>
+      <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+        <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-3">
+            {userId ? "User updated" : "User created successfully"}
+          </h2>
+          {!userId ? (
             <p className="text-gray-700 mb-5">
               Password for the user:{" "}
               <span className="font-bold">{generatedPassword}</span>
             </p>
-            <div className="grid grid-cols-1 justify-items-center">
-              <button
-                type="button"
-                className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
-                onClick={() => {
-                  setSuccesDialogOpen(false);
-                  setTimeout(() => {
-                    cleanForm();
-                  }, 100);
-                }}
-              >
-                OK
-              </button>
-            </div>
+          ) : (
+            <p className="text-gray-700 mb-5 text-center">{successMessage}</p>
+          )}
+          <div className="grid grid-cols-1 justify-items-center">
+            <button
+              type="button"
+              className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
+              onClick={() => {
+                setSuccesDialogOpen(false);
+                if (!userId) {
+                  cleanForm();
+                }
+                if (onSave) {
+                  onSave();
+                }
+                if (userId && onFormSubmitSuccess) {
+                  onFormSubmitSuccess();
+                }
+              }}
+            >
+              OK
+            </button>
           </div>
         </div>
-      )}
+      </div>
+    )}
       {/* DIALOG ERROR */}
       {errorDialogOpen && (
         <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
           <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
             <h2 className="text-2xl font-bold text-center text-red-600 mb-3">
-              This user can't be created
+              This user can't be created or updated
             </h2>
             <p className="text-gray-700 mb-5 text-center">{errorMessage}</p>
             <div className="grid grid-cols-1 justify-items-center">

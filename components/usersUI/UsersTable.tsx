@@ -303,11 +303,9 @@ export const UsersTable: React.FC = () => {
             {/* USER FORM */}
             <UserForm
               title="Register User"
-              // onSave={() => { // Asumiendo que UserForm tiene una prop onSave
-              //    //setIsDialogOpen(false);
-              //     showToastMessage("User added successfully");
-              //     loadUsers(); // Recargar la lista de usuarios
-              // }}
+              onSave={() => { // Asumiendo que UserForm tiene una prop onSave
+                  loadUsers();
+              }}
             />
           </div>
         </div>

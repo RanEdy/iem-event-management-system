@@ -34,6 +34,10 @@ const ContextMenu = ({ row }: { row: any }) => {
   ) => {
     setDialogType(type);
     setOpen(false);
+
+    if (type === "edit") {
+      fetchEventDetails(row.id);
+    }
   };
 
   const closeDialog = () => {

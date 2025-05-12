@@ -264,7 +264,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
       <div className="border-2 border-zinc-200 border-t-0 bg-white rounded-b-md p-4">
         <textarea
           className="w-full h-40 p-2 border-2 border-gray-300 rounded-md mb-4 resize-none overflow-y-auto"
-          value={activeSection.description ?? ""}
+          value={activeSection?.description ?? ""}
           onChange={handleDescChange}
           placeholder="Event description..."
         />

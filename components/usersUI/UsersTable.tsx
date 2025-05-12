@@ -201,8 +201,6 @@ export const UsersTable: React.FC = () => {
         <ContexMenuUsers row={row} onUserModified={handleUserModified} />
       ), // Usar ContexMenuUsers y quitar isUserContext
       ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
     },
   ];
 
@@ -222,12 +220,12 @@ export const UsersTable: React.FC = () => {
 
       <div className="flex flex-wrap items-center justify-between m-2 p-2 gap-4">
         {/* SEARCH BAR */}
-        <div className="flex items-center min-w-56 lg:w-1/3 h-12 border-2 p-2 bg-white border-gray-300 rounded-lg">
+        <div className="flex flex-column min-w-56 lg:w-1/3 h-12 border-2 m-2 p-2 bg-bluedark-gradient-r border-zinc-100 rounded-2xl items-center">
           <FaSearch className="text-gray-400 m-2 mr-3" />
           <input
             type="text"
-            className="flex self-center w-full h-full p-1 bg-transparent focus:outline-none"
-            placeholder="Search by name or email..."
+            className="flex self-center w-full h-full p-1 bg-white focus:outline-none rounded-xl"
+            placeholder=" Search by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

@@ -51,16 +51,24 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                     icon={<FaClipboardList className="text-white h-3/4 w-3/4"/>}
                     onClick={() => setCurrentPage("Events")}
                 />
-                <NavbarButton 
-                    name={"Users"} 
-                    icon={<FaUserFriends className="text-white h-3/4 w-3/4"/>}
-                    onClick={() => setCurrentPage("Users")}
-                />
-                <NavbarButton 
-                    name={"Archives"} 
-                    icon={<FaFolderOpen className="text-white h-3/4 w-3/4"/>}
-                    onClick={() => setCurrentPage("Archives")}
-                />
+                {(userSession?.level === UserLevel.MASTER || userSession?.level === UserLevel.ADMIN) && (
+                    <>
+                        <NavbarButton 
+                            name={"Users"} 
+                            icon={<FaUserFriends className="text-white h-3/4 w-3/4"/>}
+                            onClick={() => setCurrentPage("Users")}
+                        />
+                        <NavbarButton 
+                            name={"Archives"} 
+                            icon={<FaFolderOpen className="text-white h-3/4 w-3/4"/>}
+                            onClick={() => setCurrentPage("Archives")}
+                        />
+                    </>
+                )}
+                {/* 
+                    We no longer need these checks here as they are handled above.
+                */}
+                {/*
                 {
                     level == UserLevel.MASTER ? <>
 
@@ -78,6 +86,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
 
                     </> : null
                 }
+                */}
             </div>
 
             {/* User Info */}

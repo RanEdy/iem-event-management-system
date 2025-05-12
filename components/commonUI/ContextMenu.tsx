@@ -207,7 +207,6 @@ const ContextMenu = ({ row }: { row: any }) => {
       }
 
       alert("Event updated successfully");
-      window.location.reload();
     } catch (error) {
       console.error("Error updating event details:", error);
       alert(
@@ -311,7 +310,6 @@ const ContextMenu = ({ row }: { row: any }) => {
         // Successful update
         alert("The event has been successfully archived");
         // Here you could reload the event list or update the UI.
-        window.location.reload();
       } else {
         // Log the specific error message from the API if available
         console.error("API returned success:false", result.error);
@@ -553,7 +551,7 @@ const ContextMenu = ({ row }: { row: any }) => {
                     /* Close dialog */
                   }
                   console.log("Event successfully deleted, reloading page");
-                  window.location.reload();
+
                   closeDialog();
                 }}
               >

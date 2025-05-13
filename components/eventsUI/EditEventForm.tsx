@@ -89,7 +89,7 @@ export const EditEventForm: React.FC<EditEventFormProps> = ({
   };
 
   return (
-    <div className="p-1 my-4 h-full w-full overflow-visible overflow-y-scroll">
+    <div className="p-1 my-4 h-full w-full overflow-visible overflow-y-scroll ">
       <form onSubmit={handleSubmit}>
         <input
           type="text"

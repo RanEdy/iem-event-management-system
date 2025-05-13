@@ -438,7 +438,7 @@ const ContextMenu = ({ row }: { row: any }) => {
 
       {dialogType === "edit" && (
         <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-          <div className="relative bg-white rounded-3xl p-8 shadow-lg my-4 lg:w-1/2 w-full h-full lg:h-full overflow-y-auto">
+          <div className="relative bg-white rounded-3xl p-8 shadow-lg my-4 lg:w-1/2 w-full max-h-[90vh] overflow-y-auto">
             {/* CLOSE BUTTON */}
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -465,7 +465,7 @@ const ContextMenu = ({ row }: { row: any }) => {
                 <div className="text-xl font-bold">Loading event data...</div>
               </div>
             ) : (
-              <div className="p-1 my-4 h-full w-full overflow-visible overflow-y-scroll">
+              <div className="p-1 my-4 h-full w-full">
                 {/* HEADER TITLE */}
                 <div className="mb-5 justify-self-center">
                   <div className="text-cyan-900 text-center text-3xl lg:text-5xl font-extrabold font-maven">

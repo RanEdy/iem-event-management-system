@@ -1,20 +1,30 @@
 "use client";
 
-import React, { useState, MouseEvent, ChangeEvent, useRef } from 'react';
-import { FaCloudUploadAlt, FaPlus, FaTimes, FaEdit, FaCheck } from 'react-icons/fa';
-import { IEvent } from '@/entities/IEvent';
-import { IEventSection } from '@/entities/IEventSection';
-import { ISectionFile } from '@/entities/ISectionFile';
+import React, { useState, MouseEvent, ChangeEvent, useRef } from "react";
+import {
+  FaCloudUploadAlt,
+  FaPlus,
+  FaTimes,
+  FaEdit,
+  FaCheck,
+} from "react-icons/fa";
+import { IEvent } from "@/entities/IEvent";
+import { IEventSection } from "@/entities/IEventSection";
+import { ISectionFile } from "@/entities/ISectionFile";
 
 type EventDescriptionProps = {
-    event: IEvent;
-    sections: (IEventSection & { files: ISectionFile[] })[];
-    setSections: React.Dispatch<React.SetStateAction<(IEventSection & { files: ISectionFile[] })[]>>;
+  event: IEvent;
+  sections: (IEventSection & { files: ISectionFile[] })[];
+  setSections: React.Dispatch<
+    React.SetStateAction<(IEventSection & { files: ISectionFile[] })[]>
+  >;
 };
-  
-export const EventDescription: React.FC<EventDescriptionProps> = ({event, sections, setSections}) =>
-{
 
+export const EventDescription: React.FC<EventDescriptionProps> = ({
+  event,
+  sections,
+  setSections,
+}) => {
   const [activeIdx, setActiveIdx] = useState(0);
   const activeSection = sections[activeIdx];
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,8 +38,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
   // Add new section
   const handleAddSection = (e: MouseEvent) => {
     e.preventDefault();
-    if (sections.length < 5)
-    {
+    if (sections.length < 5) {
       const nextId = Math.max(...sections.map((s) => s.id)) + 1;
       const newSec: IEventSection & { files: ISectionFile[] } = {
         id: nextId,
@@ -45,8 +54,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
   };
 
   // Select tab
-  const handleSelect = (e: MouseEvent, idx: number) =>
-  {
+  const handleSelect = (e: MouseEvent, idx: number) => {
     e.preventDefault();
     setActiveIdx(idx);
   };
@@ -70,12 +78,15 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
       setActiveIdx(Math.max(0, activeIdx - 1));
     }
 
-    console.log(sections)
+    console.log(sections);
   };
 
   // Start editing section name
-  const handleStartEditName = (e: MouseEvent, section: IEventSection & { files: ISectionFile[] }) => {
-    e.preventDefault()
+  const handleStartEditName = (
+    e: MouseEvent,
+    section: IEventSection & { files: ISectionFile[] }
+  ) => {
+    e.preventDefault();
     e.stopPropagation(); // Prevent tab selection when editing
     setEditingSectionId(section.id);
     setEditingName(section.sectionName);
@@ -85,7 +96,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
   const handleSaveSectionName = (e: MouseEvent, sectionId: number) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent tab selection when saving
-    const updatedSections = sections.map(section =>
+    const updatedSections = sections.map((section) =>
       section.id === sectionId
         ? { ...section, sectionName: editingName || `Section ${section.id}` }
         : section
@@ -100,17 +111,19 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
   };
 
   // Handle name input keypress (save on Enter)
-  const handleNameInputKeyPress = (e: React.KeyboardEvent, sectionId: number) => {
+  const handleNameInputKeyPress = (
+    e: React.KeyboardEvent,
+    sectionId: number
+  ) => {
     e.preventDefault();
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSaveSectionName(e as unknown as MouseEvent, sectionId);
     }
   };
 
   // Change description
   const handleDescChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    if (e.target.value.length <= 3000)
-    {
+    if (e.target.value.length <= 3000) {
       const upd = [...sections];
       upd[activeIdx].description = e.target.value;
       setSections(upd);
@@ -124,7 +137,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
 
     //5 MB (5 * 1024 * 1024 bytes)
     const maxSize = 5 * 1024 * 1024;
-    const oversizedFiles = filesArr.filter(file => file.size > maxSize);
+    const oversizedFiles = filesArr.filter((file) => file.size > maxSize);
 
     //Oversize valdiation
     if (oversizedFiles.length > 0) {
@@ -160,7 +173,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
       } else if (fileObj.dataBytes instanceof Uint8Array) {
         // If was an Uint8Array use directly
         blobData = fileObj.dataBytes;
-      } else if (typeof fileObj.dataBytes === 'object') {
+      } else if (typeof fileObj.dataBytes === "object") {
         // For serializable data
         // Cast Uint8Array
         if (Array.isArray(fileObj.dataBytes)) {
@@ -170,16 +183,26 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
           blobData = new Uint8Array(Object.values(fileObj.dataBytes as any));
         }
       } else {
-        console.error('DataBytes Format not supported:', typeof fileObj.dataBytes);
-        return ''; // Return empty string for not supported formats
+        console.error(
+          "DataBytes Format not supported:",
+          typeof fileObj.dataBytes
+        );
+        return ""; // Return empty string for not supported formats
       }
 
-      const type = fileObj.name.endsWith('.pdf') ? 'application/pdf' : 'image/*';
+      const type = fileObj.name.endsWith(".pdf")
+        ? "application/pdf"
+        : "image/*";
       const blob = new Blob([blobData], { type });
       return URL.createObjectURL(blob);
     } catch (e) {
-      console.error('Error creating blob:', e, 'Data Types:', typeof fileObj.dataBytes);
-      return ''; // Return empty URL if blob creation fails
+      console.error(
+        "Error creating blob:",
+        e,
+        "Data Types:",
+        typeof fileObj.dataBytes
+      );
+      return ""; // Return empty URL if blob creation fails
     }
   };
 
@@ -187,7 +210,9 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
   const handleDeleteFile = (e: MouseEvent, fileIdx: number) => {
     e.stopPropagation();
     const upd = [...sections];
-    upd[activeIdx].files = upd[activeIdx].files.filter((_, idx) => idx !== fileIdx);
+    upd[activeIdx].files = upd[activeIdx].files.filter(
+      (_, idx) => idx !== fileIdx
+    );
     setSections(upd);
   };
 
@@ -208,7 +233,10 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
           >
             {editingSectionId === sec.id ? (
               // Editing state
-              <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="flex items-center"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <input
                   type="text"
                   value={editingName}
@@ -227,10 +255,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
             ) : (
               // Normal state
               <div className="flex items-center">
-                <button
-                  onClick={(e) => handleSelect(e, idx)}
-                  className="mr-2"
-                >
+                <button onClick={(e) => handleSelect(e, idx)} className="mr-2">
                   {sec.sectionName}
                 </button>
                 <button
@@ -249,15 +274,17 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
             )}
           </div>
         ))}
-        {/** Add section button */
-          sections.length < 5 &&
-          <button
-          onClick={handleAddSection}
-          className="p-2 border-2 border-zinc-200 bg-gray-100 rounded-md hover:border-zinc-400">
-          <FaPlus />
-        </button>
+        {
+          /** Add section button */
+          sections.length < 5 && (
+            <button
+              onClick={handleAddSection}
+              className="p-2 border-2 border-zinc-200 bg-gray-100 rounded-md hover:border-zinc-400"
+            >
+              <FaPlus />
+            </button>
+          )
         }
-        
       </div>
 
       {/* Content Active Section */}
@@ -277,7 +304,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
             multiple
             accept="image/*,application/pdf"
             onChange={handleFilesChange}
-            className='hidden'
+            className="hidden"
           />
           {/* BUTTON */}
           <button
@@ -301,7 +328,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
 
             return (
               <div key={i} className="relative border p-2 rounded-md">
-                {fileObj.name.endsWith('.pdf') ? (
+                {fileObj.name.endsWith(".pdf") ? (
                   <a
                     href={url}
                     target="_blank"
@@ -316,15 +343,16 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({event, sectio
                     alt={fileObj.name}
                     className="h-24 object-cover rounded-md border"
                     onError={(e) => {
-                      console.error('Error loading image:', fileObj.name);
-                      (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,...';
+                      console.error("Error loading image:", fileObj.name);
+                      (e.target as HTMLImageElement).src =
+                        "data:image/svg+xml;base64,...";
                     }}
                   />
                 )}
 
                 {/* Delete File button */}
                 <button
-                  onClick={(e) => handleDeleteFile(e,i)}
+                  onClick={(e) => handleDeleteFile(e, i)}
                   className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                 >
                   <FaTimes size={12} />

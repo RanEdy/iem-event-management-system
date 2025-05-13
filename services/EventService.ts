@@ -47,17 +47,16 @@ export class EventService
     * @param eventData The object containing the event's information, excluding the ID.
     * @returns the event if the creation was successful, otherwise null.
     */
-    async create(eventData: Omit<IEvent, 'id'>): Promise<boolean>
+    async create(eventData: Omit<IEvent, 'id'>): Promise<IEvent | null>
     {
         try
         {
-            await DAOLocator.eventDao.create(eventData);
-            return true;
+            return await DAOLocator.eventDao.create(eventData);
         }
         catch(error)
         {
             console.error("Event could not be created");
-            return false;
+            return null;
             
         }
     }

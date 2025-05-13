@@ -166,59 +166,69 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
   }
 
   const createFiles = async (): Promise<boolean> => {
-    await Promise.all(
-      sections.map(async (currentSection, i) => {
-        console.log("Section #" + i + ":\n", currentSection);
+    try {
+      await Promise.all(
+        sections.map(async (currentSection, i) => {
+          console.log("Section #" + i + ":\n", currentSection);
 
-        await Promise.all(
-          currentSection.files.map(async (file, j) => {
-            const newFile: Omit<ISectionFile, 'id'> = {
-              sectionId: currentSection.id,
-              name: file.name,
-              dataBytes: file.dataBytes
-            }
+          await Promise.all(
+            currentSection.files.map(async (file, j) => {
+              const newFile: Omit<ISectionFile, 'id'> = {
+                sectionId: currentSection.id,
+                name: file.name,
+                dataBytes: file.dataBytes
+              }
 
-            const responseFile = await fetch('/api/sectionFile', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(newFile),
-            });
+              const responseFile = await fetch('/api/sectionFile', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newFile),
+              });
 
-            const resp = await responseFile.json();
-            console.log("File #" + j + ":\n", resp.file);
-            if (!resp.success) {
-              console.log("Error: trying to create a file");
-              console.log(resp);
-              return false
-            }
-          })
-        );
-      })
-    );
-    return true;
+              const resp = await responseFile.json();
+              console.log("File #" + j + ":\n", resp.file);
+              if (!resp.success) {
+                console.log("Error: trying to create a file");
+                console.log(resp);
+                throw new Error("Failed to create file");
+              }
+            })
+          );
+        })
+      );
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   }
 
   const handleEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      //Create Event
       const eventCreated = await createEvent();
       if (eventCreated !== null && eventCreated.success) {
-        // Send success message
-        setSuccessDialogOpen(true);
-        
-        //Create sections
+        console.log("Event Created:", eventCreated)
         if (eventCreated.event && eventCreated.event.id) {
           const sectionResponses = await createSections(eventCreated.event.id);
           const isSectionCreationSuccess = sectionResponses.every((success) => success);
-          //Create Files
+
           if (isSectionCreationSuccess) {
             console.log("Files creation for each section...");
-            // Create files for each section
             const isFileCreationSuccess = await createFiles();
+
+            if (isFileCreationSuccess) {
+              setSuccessDialogOpen(true);
+            } else {
+              throw new Error("Error creating files.");
+            }
+          } else {
+            throw new Error("Error creating sections.");
           }
+        } else {
+          throw new Error("Invalid event ID.");
         }
       }
     } catch (error) {

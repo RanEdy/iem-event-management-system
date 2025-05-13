@@ -1,20 +1,21 @@
 "use client";
 import { useState } from "react";
-import { FaCog, FaTrash } from "react-icons/fa"; // Iconos para editar y eliminar
-import { IUser } from "@/entities/IUser"; // Asegúrate que la ruta es correcta
-// Importa UserForm si vas a abrirlo en un modal para editar
+import { FaCog, FaTrash, FaInfoCircle } from "react-icons/fa"; // Icons for editing, deleting and viewing info
+import { IUser } from "@/entities/IUser"; // Make sure the route is correct
+// Import UserForm if you are going to open it in a modal to edit it.
 import { UserForm } from "../usersUI/UserForm";
+import { UsersInformation } from "../usersUI/UsersInformation"; // Import the new component
 
 interface ContextMenuUsersProps {
     row: IUser;
-    onUserModified?: (message: string) => void; // Callback para notificar cambios
+    onUserModified?: (message: string) => void; // Callback to notify changes
 }
 
 const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
     const [open, setOpen] = useState(false);
-    // Tipos de diálogo específicos para usuarios
+    // User-specific dialog types
     const [dialogType, setDialogType] = useState<
-        null | "editUser" | "deleteUser" | "deleteUserSuccess"
+        null | "editUser" | "deleteUser" | "deleteUserSuccess" | "viewUser"
     >(null);
     const [isLoading, setIsLoading] = useState(false);
     //const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
@@ -23,15 +24,16 @@ const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
         setOpen(!open);
     };
 
-    const handleAction = (type: "editUser" | "deleteUser") => {
+    const handleAction = (type: "editUser" | "deleteUser" | "viewUser") => {
         setDialogType(type);
-        setOpen(false); // Cierra el dropdown al seleccionar una acción
+        setOpen(false); // Closes the dropdown when selecting an action
         if (type === "editUser") {
-            // Aquí podrías abrir un modal con UserForm para editar el usuario
-            // Por ejemplo, setIsEditUserModalOpen(true);
+            // Here you could open a modal with UserForm to edit the user
             console.log("Edit user action triggered for user ID:", row.id);
-            // De momento, solo cerramos el dropdown y mostramos un log.
-            // La implementación del modal de edición se puede añadir aquí.
+            // For the moment, we just close the dropdown and show a log.
+            // The implementation of the editing modal can be added here.
+        } else if (type === "viewUser") { // Handling the new stock
+            console.log("View user info action triggered for user ID:", row.id);
         }
     };
 
@@ -69,10 +71,8 @@ const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
         } catch (error) {
             console.error("Error deleting user:", error);
             alert((error as Error).message || "Failed to delete user");
-            // Podrías establecer un dialogType para errores si lo prefieres
         } finally {
             setIsLoading(false);
-            // No cerramos el diálogo de confirmación aquí para que el usuario vea el de éxito/error
         }
     };
 
@@ -86,7 +86,13 @@ const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"> {/* Adjust width if necessary */}
+                    <button
+                        onClick={() => handleAction("viewUser")}
+                        className="flex items-center w-full px-4 py-2 hover:bg-gray-100"
+                    >
+                        <FaInfoCircle className="mr-2" /> Ver Información
+                    </button>
                     <button
                         onClick={() => handleAction("editUser")}
                         className="flex items-center w-full px-4 py-2 hover:bg-gray-100"
@@ -103,7 +109,12 @@ const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
                 </div>
             )}
 
-            {/* Modal para editar usuario (ejemplo básico) */}
+            {/* Modal to view user information */}
+            {dialogType === "viewUser" && (
+                <UsersInformation userId={row.id} onClose={closeDialog} />
+            )}
+
+            {/* Modal to edit user (basic example)*/}
             {dialogType === "editUser" && (
                 <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
                     <div className="relative bg-white rounded-3xl p-8 shadow-lg my-4 lg:w-1/2 w-11/12 max-h-[90vh] overflow-y-auto">

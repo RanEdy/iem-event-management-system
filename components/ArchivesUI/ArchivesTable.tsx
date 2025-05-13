@@ -75,6 +75,7 @@ export const ArchivesTable: React.FC = () =>
 {
     const [events, setEvents] = useState<IEvent[]>([])
     const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
+    const [selectedDate, setSelectedDate] = useState<string>(""); // Estado para la fecha seleccionada
 
     useEffect(() => {
         fetch("api/event")
@@ -104,10 +105,25 @@ export const ArchivesTable: React.FC = () =>
         setSearchTerm(event.target.value);
     };
 
-    // Filtrar eventos basados en el término de búsqueda (nombre del evento)
-    const filteredEvents = events.filter(event =>
-        event.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Manejador para actualizar la fecha seleccionada
+    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedDate(event.target.value);
+    };
+
+    // Filtrar eventos basados en el término de búsqueda y la fecha seleccionada
+    const filteredEvents = events.filter(event => {
+        const matchesSearchTerm = event.name.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        let matchesDate = true;
+        if (selectedDate) {
+            // Normalizar la fecha del evento a YYYY-MM-DD para la comparación
+            const eventDate = new Date(event.startDate);
+            const eventDateString = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
+            matchesDate = eventDateString === selectedDate;
+        }
+        
+        return matchesSearchTerm && matchesDate;
+    });
 
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
@@ -119,20 +135,29 @@ export const ArchivesTable: React.FC = () =>
             </div>
             <hr/>
 
-            <div className="flex flex-colum justify-between m-2">
+            <div className="flex flex-wrap items-center justify-between m-2 p-2 gap-4"> {/* Ajustado para flex-wrap y gap */}
                 {/* SEARCH BAR */}
-                <div className="flex flex-column min-w-56 lg:w-1/3 h-12 border-2 m-2 p-2 bg-bluedark-gradient-r border-zinc-100 rounded-2xl items-center">
-                    <FaSearch className="text-white m-2 mr-3"/>
+                <div className="flex items-center min-w-56 lg:w-1/3 h-12 border-2 p-2 bg-white border-gray-300 rounded-lg"> {/* Estilo similar a UsersTable */}
+                    <FaSearch className="text-gray-400 m-2 mr-3"/>
                     <input
                         type="text"
-                        className="flex self-center w-full h-full p-1 bg-white rounded-xl"
+                        className="flex self-center w-full h-full p-1 bg-transparent focus:outline-none"
                         placeholder="Search archived events by name..."
                         value={searchTerm}
-                        onChange={handleSearchChange} // Conectar el manejador
+                        onChange={handleSearchChange}
+                    />
+                </div>
+
+                {/* DATE FILTER */}
+                <div className="flex items-center min-w-56 h-12 border-2 p-2 bg-white border-gray-300 rounded-lg"> {/* Estilo similar */}
+                    <input
+                        type="date"
+                        className="flex self-center w-full h-full p-1 bg-transparent focus:outline-none text-gray-700"
+                        value={selectedDate}
+                        onChange={handleDateChange}
                     />
                 </div>
             </div>
-
             <DataTable
             className="h-[65%] overflow-visible"
             columns={columns}

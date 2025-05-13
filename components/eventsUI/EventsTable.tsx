@@ -12,6 +12,10 @@ import { UserForm } from "../usersUI/UserForm"; //Only for testing purposes, rem
 
 const columns: TableColumn<IEvent>[] = [
     {
+        name: "ID",
+        selector: row => row.id
+    },
+    {
         name: "EVENT",
         selector: row => row.name,
     },
@@ -35,11 +39,11 @@ const columns: TableColumn<IEvent>[] = [
         cell: row => <div className="flex flex-row items-center h-1/3 p-4 py-6 rounded-lg bg-zinc-200">
             <div className="block items-center">
                 <div className="font-extrabold">
-                    {/* Asegúrate que row.startDate es un objeto Date */}
+                    {/* Make sure row.startDate is a Date object*/}
                     {row.startDate instanceof Date ? row.startDate.toDateString() : 'Invalid Date'}
                 </div>
                 <div className="font-extrabold text-zinc-600">
-                    {/* Asegúrate que row.startDate es un objeto Date */}
+                    {/* Make sure row.startDate is a Date object*/}
                     {row.startDate instanceof Date ? `${row.startDate.getHours()}:${row.startDate.getMinutes() === 0 ? "00" : row.startDate.getMinutes()}` : ''}
                 </div>
             </div>
@@ -92,8 +96,6 @@ const columns: TableColumn<IEvent>[] = [
         name: "OPTIONS",
         cell: row => <ContextMenu row={row}/>,
         ignoreRowClick: true,
-        // button: true, // <-- Eliminamos esta línea para corregir el error de atributo booleano
-        //allowOverflow: true
     }
 ]
 
@@ -102,9 +104,9 @@ export const EventsTable: React.FC = () =>
 {
     const [events, setEvents] = useState<IEvent[]>([])
     const [ isDialogOpen, setIsDialogOpen ] = useState(false);
-    //Para el mensaje de registro exitoso
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const loadEvents = async () =>
     {
@@ -124,8 +126,18 @@ export const EventsTable: React.FC = () =>
         .catch(error => console.error("Error fetching or parsing events:", error));
     }
     useEffect(() => {
-        loadEvents();
-    }, []);
+        if (searchTerm)
+        {
+            const filteredEvents = events.filter((event) =>
+                event.name.toLowerCase().includes(searchTerm.toLowerCase())
+            || event.id.toString().includes(searchTerm.toLowerCase()));
+            setEvents(filteredEvents)
+        }
+        else
+        {
+            loadEvents();
+        }
+    }, [searchTerm]);
       
     const handleRowClick = (row: any) =>
     {
@@ -151,7 +163,12 @@ export const EventsTable: React.FC = () =>
                 {/* SEARCH BAR */}
                 <div className="flex flex-column min-w-56 lg:w-1/3 h-12 border-2 m-2 p-2 bg-bluedark-gradient-r border-zinc-100 rounded-2xl items-center">
                     <FaSearch className="text-white m-2 mr-3"/>
-                    <input type="text" className="flex self-center w-full h-full p-1 bg-white rounded-xl"></input>
+                    <input
+                    type="text"
+                    className="flex self-center w-full h-full p-1 bg-white rounded-xl"
+                    value={searchTerm}
+                    placeholder=" Search by name or id..."
+                    onChange={(e) => setSearchTerm(e.target.value)}/>
                 </div>
 
 
@@ -179,13 +196,6 @@ export const EventsTable: React.FC = () =>
                                     loadEvents();
                                 }}/>
                             }
-
-                            {/* Register user form */}
-
-                                {/* { <UserForm title="Register User" />} */} 
-                                
-                            {/* Only for testing purposes, remove later */}
-
                         </div>
                     </div>
                 )}

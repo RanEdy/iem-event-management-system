@@ -180,6 +180,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
           blobData = new Uint8Array(fileObj.dataBytes);
         } else {
           // If is an object same as array (as prisma returns)
+          const dataValues = Object.values(fileObj.dataBytes as any); //ESTE ES el cambio
           blobData = new Uint8Array(Object.values(fileObj.dataBytes as any));
         }
       } else {
@@ -200,7 +201,9 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
         "Error creating blob:",
         e,
         "Data Types:",
-        typeof fileObj.dataBytes
+        typeof fileObj.dataBytes,
+        "Data:", //THIS LINe
+        fileObj.dataBytes //ThisONE
       );
       return ""; // Return empty URL if blob creation fails
     }
@@ -322,44 +325,50 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          {activeSection.files.map((fileObj, i) => {
-            const url = createFileUrl(fileObj);
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {activeSection?.files && activeSection.files.length > 0 ? (
+            activeSection.files.map((fileObj, i) => {
+              const url = createFileUrl(fileObj);
 
-            return (
-              <div key={i} className="relative border p-2 rounded-md">
-                {fileObj.name.endsWith(".pdf") ? (
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block text-sm"
+              return (
+                <div key={i} className="relative border p-2 rounded-md">
+                  {fileObj.name.endsWith(".pdf") ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block text-sm"
+                    >
+                      📄 {fileObj.name}
+                    </a>
+                  ) : (
+                    <img
+                      src={url}
+                      alt={fileObj.name}
+                      className="h-24 object-cover rounded-md border"
+                      onError={(e) => {
+                        console.error("Error loading image:", fileObj.name);
+                        (e.target as HTMLImageElement).src =
+                          "data:image/svg+xml;base64,...";
+                      }}
+                    />
+                  )}
+
+                  {/* Delete File button */}
+                  <button
+                    onClick={(e) => handleDeleteFile(e, i)}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                   >
-                    📄 {fileObj.name}
-                  </a>
-                ) : (
-                  <img
-                    src={url}
-                    alt={fileObj.name}
-                    className="h-24 object-cover rounded-md border"
-                    onError={(e) => {
-                      console.error("Error loading image:", fileObj.name);
-                      (e.target as HTMLImageElement).src =
-                        "data:image/svg+xml;base64,...";
-                    }}
-                  />
-                )}
-
-                {/* Delete File button */}
-                <button
-                  onClick={(e) => handleDeleteFile(e, i)}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                >
-                  <FaTimes size={12} />
-                </button>
-              </div>
-            );
-          })}
+                    <FaTimes size={12} />
+                  </button>
+                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-3 text-center text-gray-500 py-4">
+              No files uploaded yet.
+            </div>
+          )}
         </div>
       </div>
     </div>

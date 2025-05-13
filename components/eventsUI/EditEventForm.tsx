@@ -54,6 +54,19 @@ export const EditEventForm: React.FC<EditEventFormProps> = ({
           },
         ]
   );
+  useEffect(() => {
+    console.log("Loaded sections with files:", sections);
+    sections.forEach((section) => {
+      console.log(`Section ${section.id} has ${section.files.length} files`);
+      section.files.forEach((file) => {
+        console.log(
+          `File: ${
+            file.name
+          }, Data Type ${typeof file.dataBytes}, Has Data: ${!!file.dataBytes}`
+        );
+      });
+    });
+  }, [sections]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

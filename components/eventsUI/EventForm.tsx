@@ -9,6 +9,7 @@ import { eventListTest } from "@/entities/tests/EventTests";
 import { IEventSection } from "@/entities/IEventSection";
 import { EventDescription } from "./EventDescription";
 import { ISectionFile } from "@/entities/ISectionFile";
+import statesAndCities from "@/services/US-states-and-cities-json-master/data.json";
 
 type EventFormProps = {
   title: string;
@@ -23,6 +24,10 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
   const [state, setState] = useState<USAState>(USAState.CALIFORNIA);
   const [zipCode, setZipCode] = useState<string>("");
   const [address, setAddress] = useState<string>("");
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+  const [citySearchTerm, setCitySearchTerm] = useState<string>("");
+  const [filteredCities, setFilteredCities] = useState<string[]>([]);
+  const [showCityDropdown, setShowCityDropdown] = useState<boolean>(false);
 
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
@@ -53,6 +58,41 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
         },
       ]
     );
+
+  // Actualizar ciudades disponibles cuando cambia el estado
+  useEffect(() => {
+    if (state && statesAndCities[state as keyof typeof statesAndCities]) {
+      const cities = statesAndCities[state as keyof typeof statesAndCities] as string[];
+      setAvailableCities(cities);
+      setFilteredCities(cities);
+      // Limpiar la ciudad seleccionada si no está en la lista de ciudades del nuevo estado
+      if (city && !cities.includes(city)) {
+        setCity("");
+      }
+    } else {
+      setAvailableCities([]);
+      setFilteredCities([]);
+    }
+  }, [state]);
+
+  // Filtrar ciudades basado en el término de búsqueda
+  useEffect(() => {
+    if (citySearchTerm) {
+      const filtered = availableCities.filter(city => 
+        city.toLowerCase().includes(citySearchTerm.toLowerCase())
+      );
+      setFilteredCities(filtered);
+    } else {
+      setFilteredCities(availableCities);
+    }
+  }, [citySearchTerm, availableCities]);
+
+  // Manejar la selección de ciudad
+  const handleCitySelect = (selectedCity: string) => {
+    setCity(selectedCity);
+    setCitySearchTerm(selectedCity);
+    setShowCityDropdown(false);
+  };
 
   //Returns the json response or null
   const createEvent = async (): Promise<any | null> => {
@@ -238,6 +278,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
     setEndDate(new Date());
     setPublicEvent(false);
     setMaxUsers(1);
+    setCitySearchTerm('');
     setSections([
       {
         id: 1,
@@ -298,23 +339,42 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
               title="State*"
             >
               <option value="">State</option>
-              {Object.values(USAState).map((state) => (
-                <option key={state} value={state}>
-                  {state}
+              {Object.keys(statesAndCities).map((stateName) => (
+                <option key={stateName} value={stateName}>
+                  {stateName}
                 </option>
               ))}
             </select>
 
-            <input
-              type="text"
-              id="city"
-              value={city}
-              required
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="City*"
-              className="border-2 border-gray-300 w-full p-2 rounded-md"
-              title="City*"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="city"
+                value={citySearchTerm}
+                required
+                onChange={(e) => {
+                  setCitySearchTerm(e.target.value);
+                  setShowCityDropdown(true);
+                }}
+                onFocus={() => setShowCityDropdown(true)}
+                placeholder="City*"
+                className="border-2 border-gray-300 w-full p-2 rounded-md"
+                title="City*"
+              />
+              {showCityDropdown && filteredCities.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg">
+                  {filteredCities.map((cityName, index) => (
+                    <div
+                      key={index}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleCitySelect(cityName)}
+                    >
+                      {cityName}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <input
               type="text"

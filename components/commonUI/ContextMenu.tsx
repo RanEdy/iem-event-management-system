@@ -34,191 +34,12 @@ const ContextMenu = ({ row }: { row: any }) => {
   ) => {
     setDialogType(type);
     setOpen(false);
-
-    if (type === "edit") {
-      fetchEventDetails(row.id);
-    }
   };
 
   const closeDialog = () => {
     setDialogType(null);
   };
 
-  const fetchEventDetails = async (eventId: number) => {
-    setIsEditLoading(true);
-    try {
-      const eventResponse = await fetch(`/api/event/${eventId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!eventResponse.ok) {
-        throw new Error("Error getting event details");
-      }
-
-      const eventData = await eventResponse.json();
-      setEvent(eventData);
-
-      const sectionsResponse = await fetch(
-        `/api/eventSection?eventId=${eventId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!sectionsResponse.ok) {
-        throw new Error("Error getting sections details");
-      }
-
-      const sectionsData = await sectionsResponse.json();
-
-      const filteredSections = Array.isArray(sectionsData)
-        ? sectionsData.filter((section) => section.eventId === eventId)
-        : [];
-
-      console.log(
-        "Filtered sections for event",
-        eventId,
-        ":",
-        filteredSections
-      );
-      const sectionsWithFiles = await Promise.all(
-        filteredSections.map(async (section) => {
-          const filesResponse = await fetch(
-            `/api/sectionFile?sectionId=${section.id}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          if (!filesResponse.ok) {
-            return { ...section, files: [] };
-          }
-
-          const filesData = await filesResponse.json();
-
-          return { ...section, files: filesData };
-        })
-      );
-
-      setSections(sectionsWithFiles);
-    } catch (error) {
-      console.error("Error fetching event details:", error);
-      alert("Failed to load event details for editing");
-    } finally {
-      setIsEditLoading(false);
-    }
-  };
-
-  const updateEvent = async (
-    updatedEvent: IEvent,
-    updatedSections: (IEventSection & { files: ISectionFile[] })[]
-  ) => {
-    setIsLoading(true);
-    try {
-      const eventResponse = await fetch(`/api/event/${updatedEvent.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedEvent),
-      });
-
-      if (!eventResponse.ok) {
-        throw new Error("Error updating event details");
-      }
-
-      for (const section of updatedSections) {
-        const { files, ...sectionData } = section;
-
-        if (section.id > 0) {
-          const sectionResponse = await fetch(
-            `/api/eventSection/${section.id}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(sectionData),
-            }
-          );
-
-          if (!sectionResponse.ok) {
-            throw new Error(`Failed to update section ${section.id}`);
-          }
-        } else {
-          const sectionResponse = await fetch(`/api/eventSection`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(sectionData),
-          });
-
-          if (!sectionResponse.ok) {
-            throw new Error("Failed to create new section");
-          }
-
-          const newSectionData = await sectionResponse.json();
-          section.id = newSectionData.section.id;
-        }
-
-        for (const file of files) {
-          //This whole thing can stay empty for now if any issues
-          if (file.id > 0) {
-            const fileResponse = await fetch(`/api/sectionFile/${file.id}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(file),
-            });
-
-            if (!fileResponse.ok) {
-              throw new Error(`Failed to update file ${file.id}`);
-            }
-          } else {
-            const newFile: Omit<ISectionFile, "id"> = {
-              sectionId: section.id,
-              name: file.name,
-              dataBytes: file.dataBytes,
-            };
-
-            const fileResponse = await fetch(`/api/sectionFile`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(newFile),
-            });
-
-            if (!fileResponse.ok) {
-              throw new Error("Failed to upload file");
-            }
-          }
-        }
-      }
-
-      alert("Event updated successfully");
-    } catch (error) {
-      console.error("Error updating event details:", error);
-      alert(
-        `Failed to update event: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    } finally {
-      setIsLoading(false);
-      closeDialog();
-    }
-  };
 
   {
     /* DELETE AN EVENT */
@@ -475,13 +296,10 @@ const ContextMenu = ({ row }: { row: any }) => {
                 <hr className="w-[100%] border-t-4 border-cyan-900 " />
 
                 {/* FORM */}
-                {event && (
+                {(
                   <EditEventForm
-                    event={event}
-                    sections={sections}
-                    onSave={(updatedEvent, updatedSections) => {
-                      updateEvent(updatedEvent, updatedSections);
-                    }}
+                    title="Update Event"
+                    eventId={row.id}
                   />
                 )}
               </div>

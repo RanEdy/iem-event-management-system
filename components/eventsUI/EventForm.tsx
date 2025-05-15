@@ -2,10 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { IEvent } from "@/entities/IEvent";
-import { EventStatus, USAState } from "@prisma/client";
+import { EventStatus } from "@prisma/client";
 import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
-import { eventListTest } from "@/entities/tests/EventTests";
 import { IEventSection } from "@/entities/IEventSection";
 import { EventDescription } from "./EventDescription";
 import { ISectionFile } from "@/entities/ISectionFile";
@@ -21,7 +20,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
 
   const [name, setName] = useState<string>("");
   const [city, setCity] = useState<string>("");
-  const [state, setState] = useState<USAState>(USAState.CALIFORNIA);
+  const [state, setState] = useState<string>("California");
   const [zipCode, setZipCode] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [availableCities, setAvailableCities] = useState<string[]>([]);
@@ -37,13 +36,24 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
   const [errorDialogOpen, setErrorDialogOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [succesDialogOpen, setSuccessDialogOpen] = useState<boolean>(false);
-  const [succesMessage, setSuccessMessage] = useState<string>("");
 
   // IMPORTANT: If you want to create a new Event with new Sections
   // First Create the event, then get the id >> then replace that id in the sections >> then create the sections
   // >> then get the id from every section >> then replace every id of the section in the files for each section 
   // >> then create each file
-  const [event, setEvent] = useState<IEvent>(eventListTest[0]) //default value for event (this will get replaced with the new info)
+  const [event, setEvent] = useState<IEvent>({
+    id: 0,
+    name: "Event",
+    state: "California",
+    city: "Indio",
+    zipCode: "31222",
+    address: "Address",
+    startDate: new Date(),
+    endDate: new Date(),
+    public: false,
+    maxUsers: 1,
+    status: EventStatus.IN_PROCESS
+  }) //default value for event (this will get replaced with the new info)
   // State for grouping Sections + Files
   const [sections, setSections] = useState<(IEventSection & { files: ISectionFile[] })[]>
     (
@@ -281,7 +291,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
   const cleanForm = () => {
     setName('');
     setCity('');
-    setState(USAState.CALIFORNIA);
+    setState("California");
     setZipCode('');
     setAddress('');
     setStartDate(new Date());
@@ -344,7 +354,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
               id="state"
               value={state ?? ""}
               required
-              onChange={(e) => setState(e.target.value as USAState)}
+              onChange={(e) => setState(e.target.value)}
               className="border-2 border-gray-300 w-full p-2 rounded-md"
               title="State*"
             >
@@ -356,6 +366,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
               ))}
             </select>
 
+              {/* CITY */}
             <div className="relative">
               <input
                 type="text"

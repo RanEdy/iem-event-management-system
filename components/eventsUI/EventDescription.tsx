@@ -21,6 +21,7 @@ type EventDescriptionProps = {
   onAddSection?: () => void;
   onRemoveSection?: (sectionIndex: number) => Promise<void>;
   onRemoveFile?: (sectionIndex: number, fileIndex: number) => void;
+  onAddFile?: (sectionIndex: number, file: File) => Promise<ISectionFile>;
 };
 
 export const EventDescription: React.FC<EventDescriptionProps> = ({
@@ -30,6 +31,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
   onAddSection,
   onRemoveSection,
   onRemoveFile,
+  onAddFile
 }) => {
   const [activeIdx, setActiveIdx] = useState(0);
   const activeSection = sections[activeIdx];
@@ -124,22 +126,38 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
 
   // File upload
   const handleFilesChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
+    if (!e.target.files || activeSection === undefined) return;
     const filesArr = Array.from(e.target.files);
     const maxSize = 5 * 1024 * 1024;
     if (filesArr.some(f => f.size > maxSize)) {
       alert("Some files exceed 5MB and won't be added.");
       return;
     }
-    const newFiles: ISectionFile[] = await Promise.all(
-      filesArr.map(async file => {
-        const buffer = await file.arrayBuffer();
-        return { id: 0, sectionId: activeSection.id, name: file.name, dataBytes: Buffer.from(buffer) };
-      })
-    );
-    const upd = [...sections];
-    upd[activeIdx].files = [...upd[activeIdx].files, ...newFiles];
-    setSections(upd);
+
+    let newFiles: ISectionFile[] = [];
+
+    for (const file of filesArr) {
+      try {
+        if (onAddFile) {
+          const uploaded = await onAddFile(activeIdx, file);
+          newFiles.push(uploaded);
+        } else {
+          const buffer = await file.arrayBuffer();
+          newFiles.push({
+            id: 0,
+            sectionId: activeSection.id,
+            name: file.name,
+            dataBytes: Buffer.from(buffer),
+          });
+        }
+      } catch (err) {
+        console.error("Failed to process file:", file.name, err);
+      }
+    }
+
+    const updated = [...sections];
+    updated[activeIdx].files = [...updated[activeIdx].files, ...newFiles];
+    setSections(updated);
   };
 
   // Create URL for blob
@@ -212,16 +230,29 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
           onChange={handleDescChange}
         />
 
-        <div className="mb-4">
-          <input ref={fileInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleFilesChange} className="hidden" />
-          <button type="button" onClick={handleFileButton} className="flex items-center border-2 px-4 py-2 rounded-md">
-            <FaCloudUploadAlt className="mr-2" /> UPLOAD FILES
-          </button>
-          <p className="text-sm text-gray-500 mt-1">Only (.png, .jpg and .pdf)</p>
-        </div>
+        {/* UPLOAD FILES */}
+          <div className="mb-4">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,application/pdf"
+              onChange={handleFilesChange}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={handleFileButton}
+              className="flex items-center border-2 px-4 py-2 rounded-md"
+            >
+              <FaCloudUploadAlt className="mr-2" /> UPLOAD FILES
+            </button>
+            <p className="text-sm text-gray-500 mt-1">Only (.png, .jpg and .pdf)</p>
+          </div>
 
+        {/* FILES */}
         <div className="grid grid-cols-3 gap-4">
-          {activeSection.files.map((fileObj, i) => (
+          {activeSection?.files?.map((fileObj, i) => (
             <div key={i} className="relative border p-2 rounded-md">
               {fileObj.name.endsWith(".pdf") ? (
                 <a href={createFileUrl(fileObj)} target="_blank" rel="noreferrer" className="block text-sm">

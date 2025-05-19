@@ -98,7 +98,7 @@ export const UsersInformation: React.FC<UsersInformationProps> = ({ userId, onCl
         
         {user && !isLoading && !error && (
           <div className="space-y-1">
-            <InfoItem label="Name" value={user.name} />
+            <InfoItem label="Number" value={user.name} />
             <InfoItem label="Email" value={user.email} />
             <InfoItem label="Phone" value={user.phone} />
             <InfoItem label="User ID" value={user.id?.toString()} />

@@ -1,6 +1,5 @@
 import { IEvent } from "@/entities/IEvent";
 import { DAOLocator } from "@/persistence/DAOLocator";
-import { EventStatus, USAState } from "@prisma/client";
 
 /**
  * Class with methods for everything related to the event.
@@ -121,7 +120,7 @@ export class EventService
     async validateEventData(eventData: {
         name: string;
         city: string;
-        state: USAState;
+        state: string;
         zipCode: string;
         address: string;
         startDate: Date;
@@ -137,10 +136,10 @@ export class EventService
 
         if (!name?.trim()) return { isValid: false, error: "Event name cannot be empty" };
         if (!nameRegex.test(name)) return { isValid: false, error: "Event name contains invalid characters" };
-        if (name.length > 60) return { isValid: false, error: "Event name cannot exceed 60 characters" };
+        if (name.length > 100) return { isValid: false, error: "Event name cannot exceed 100 characters" };
         if (!city?.trim()) return { isValid: false, error: "City cannot be empty" };
         if (!cityRegex.test(city)) return { isValid: false, error: "City contains invalid characters" };
-        if (city.length > 50) return { isValid: false, error: "City cannot exceed 40 characters" };
+        if (city.length > 50) return { isValid: false, error: "City cannot exceed 50 characters" };
         if (!state) return { isValid: false, error: "State cannot be empty" };
         if (!zipCode?.trim()) return { isValid: false, error: "Zip code cannot be empty" };
         if (!zipCodeRegex.test(zipCode)) return { isValid: false, error: "Zip code is invalid" };
@@ -151,7 +150,7 @@ export class EventService
         if (!endDate) return { isValid: false, error: "End date cannot be empty" };
         if (endDate <= startDate) return { isValid: false, error: "End date must be after start date" };
         if (maxUsers <= 0) return { isValid: false, error: "Max users must be greater than 0" };
-        if (maxUsers > 1000) return { isValid: false, error: "Max users cannot exceed 1000" };
+        if (maxUsers > 100000) return { isValid: false, error: "Max users cannot exceed 100000" };
 
         return { isValid: true, error: "" };
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { EventStatus, USAState } from "@prisma/client";
+import { EventStatus } from "@prisma/client";
 import { IEvent } from "@/entities/IEvent";
 import { FaPlus, FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
@@ -24,8 +24,7 @@ const columns: TableColumn<IEvent>[] = [
         cell: row => <div className="flex flex-row items-center h-1/3">
             <div className="block items-center">
                 <div className="font-extrabold">
-                    {row.state.charAt(0) + row.state.substring(1).toLowerCase()
-                    + ", " + row.city + " " + row.zipCode + ". "}
+                    {row.state + ", " + row.city + " " + row.zipCode + ". "}
                 </div>
                 <div className="font-extrabold text-zinc-600">
                     {row.address}

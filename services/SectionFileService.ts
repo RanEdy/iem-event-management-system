@@ -31,30 +31,12 @@ export class SectionFileService {
 * @returns the file, if the creation was successful, otherwise null.
 */
     async create(sectionFileData: Omit<ISectionFile, 'id'>): Promise<ISectionFile | null> {
-        console.log("Data received for creation: ");
-        console.log({
-            sectionId: sectionFileData.sectionId,
-            name: sectionFileData.name,
-            dataBytesType: typeof sectionFileData.dataBytes,
-            dataBytesLength: sectionFileData.dataBytes ? sectionFileData.dataBytes.length : 0
-        });
 
         let file: ISectionFile | null = null;
         try {
             // Validar datos antes de crear
-            if (!sectionFileData.sectionId || !sectionFileData.name || !sectionFileData.dataBytes) {
+            if (!sectionFileData.sectionId || !sectionFileData.name || !sectionFileData.url) {
                 throw new Error("Missing required fields");
-            }
-
-            // Asegurar que dataBytes es un Buffer
-            if (!(sectionFileData.dataBytes instanceof Buffer)) {
-                if (Array.isArray(sectionFileData.dataBytes)) {
-                    sectionFileData.dataBytes = Buffer.from(sectionFileData.dataBytes);
-                } else if (typeof sectionFileData.dataBytes === 'string') {
-                    sectionFileData.dataBytes = Buffer.from(sectionFileData.dataBytes, 'base64');
-                } else {
-                    throw new Error("Invalid dataBytes format");
-                }
             }
 
             file = await DAOLocator.sectionFileDao.create(sectionFileData);

@@ -138,40 +138,17 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
 
     for (const file of filesArr) {
       try {
-        if (onAddFile) {
-          const uploaded = await onAddFile(activeIdx, file);
-          newFiles.push(uploaded);
-        } else {
-          const buffer = await file.arrayBuffer();
-          newFiles.push({
-            id: 0,
-            sectionId: activeSection.id,
-            name: file.name,
-            dataBytes: Buffer.from(buffer),
-          });
-        }
+        const uploaded = await onAddFile!(activeIdx, file); // `onAddFile` is required
+        console.log(uploaded)
+        newFiles.push(uploaded);
       } catch (err) {
-        console.error("Failed to process file:", file.name, err);
+        console.error("Failed to upload file:", file.name, err);
       }
     }
 
     const updated = [...sections];
     updated[activeIdx].files = [...updated[activeIdx].files, ...newFiles];
     setSections(updated);
-  };
-
-  // Create URL for blob
-  const createFileUrl = (fileObj: ISectionFile) => {
-    try {
-      let blobData: Uint8Array;
-      if (fileObj.dataBytes instanceof Buffer) blobData = new Uint8Array(fileObj.dataBytes);
-      else if (fileObj.dataBytes instanceof Uint8Array) blobData = fileObj.dataBytes;
-      else blobData = new Uint8Array(Array.isArray(fileObj.dataBytes) ? fileObj.dataBytes : Object.values(fileObj.dataBytes as any));
-      const type = fileObj.name.endsWith(".pdf") ? "application/pdf" : "image/*";
-      return URL.createObjectURL(new Blob([blobData], { type }));
-    } catch {
-      return "";
-    }
   };
 
   return (
@@ -255,11 +232,11 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
           {activeSection?.files?.map((fileObj, i) => (
             <div key={i} className="relative border p-2 rounded-md">
               {fileObj.name.endsWith(".pdf") ? (
-                <a href={createFileUrl(fileObj)} target="_blank" rel="noreferrer" className="block text-sm">
+                <a href={fileObj.url} target="_blank" rel="noreferrer" className="block text-sm">
                   📄 {fileObj.name}
                 </a>
               ) : (
-                <img src={createFileUrl(fileObj)} alt={fileObj.name} className="h-24 object-cover rounded-md border" />
+                <img src={fileObj.url} alt={fileObj.name} className="h-24 object-cover rounded-md border" />
               )}
               <button
                 onClick={e => onRemoveFile ? (e.stopPropagation(), onRemoveFile(activeIdx, i)) : defaultRemoveFile(e, i)}

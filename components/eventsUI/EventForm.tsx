@@ -88,7 +88,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
   // Filtrar ciudades basado en el término de búsqueda
   useEffect(() => {
     if (citySearchTerm) {
-      const filtered = availableCities.filter(city => 
+      const filtered = availableCities.filter(city =>
         city.toLowerCase().includes(citySearchTerm.toLowerCase())
       );
       setFilteredCities(filtered);
@@ -226,7 +226,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
               const newFile: Omit<ISectionFile, 'id'> = {
                 sectionId: currentSection.id,
                 name: file.name,
-                dataBytes: file.dataBytes
+                url: file.url
               }
 
               const responseFile = await fetch('/api/sectionFile', {
@@ -286,6 +286,26 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
       setErrorMessage("An unexpected error occurred while creating the event.");
       setErrorDialogOpen(true);
     }
+  };
+
+  const handleAddFile = async (sectionIndex: number, file: File): Promise<ISectionFile> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/sectionFile/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error("Upload failed");
+
+    return {
+      id: 0, // temporal
+      sectionId: sections[sectionIndex].id,
+      name: data.name,
+      url: data.url
+    };
   };
 
   const cleanForm = () => {
@@ -366,7 +386,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
               ))}
             </select>
 
-              {/* CITY */}
+            {/* CITY */}
             <div className="relative">
               <input
                 type="text"
@@ -505,7 +525,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
           </div>
 
           {/* DESCRIPTION SECTION */}
-          <EventDescription event={event} sections={sections} setSections={setSections} />
+          <EventDescription event={event} sections={sections} setSections={setSections} onAddFile={handleAddFile} />
           {/* BUTTONS */}
           <button
             type="submit"

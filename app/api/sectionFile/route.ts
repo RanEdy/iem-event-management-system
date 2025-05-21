@@ -20,11 +20,7 @@ export async function POST(req: Request) {
         }
 
         // Make file
-        const file = await ServiceLocator.sectionFileService.create({
-            sectionId: body.sectionId,
-            name: body.name,
-            dataBytes: body.dataBytes
-        });
+        const file = await ServiceLocator.sectionFileService.create(body);
 
         if (!file) {
             return NextResponse.json({

@@ -4,5 +4,5 @@ export interface ISectionFile {
     id: number;
     sectionId: number;
     name: string;
-    dataBytes: Buffer;
+    url: string;
 }

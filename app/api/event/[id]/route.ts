@@ -8,13 +8,15 @@ export async function GET(request: Request, context: { params: { id: string } })
   return NextResponse.json(event);
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request,  context : { params: { id: string } }) {
+  const { id } = await context.params;
   const body = await req.json();
-  const event = await ServiceLocator.eventService.update({ ...body, id: Number(params.id) });
+  const event = await ServiceLocator.eventService.update({ ...body, id: Number(id) });
   return NextResponse.json({ event });
 }
 
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
-  const success = await ServiceLocator.eventService.deleteById(Number(params.id));
+  const { id } = await params;
+  const success = await ServiceLocator.eventService.deleteById(Number(id));
   return NextResponse.json({ success });
 }

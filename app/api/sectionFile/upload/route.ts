@@ -9,7 +9,7 @@ export const config = {
   },
 };
 
-export default async function POST(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end("Only POST allowed");
 
   const uploadDir = path.join(process.cwd(), 'public', 'img', 'iemdb');

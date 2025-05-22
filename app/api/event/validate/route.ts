@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EventService } from "@/services/EventService";
-import { USAState } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
     try {
@@ -29,7 +28,7 @@ export async function POST(request: NextRequest) {
         const validationResult = await eventService.validateEventData({
             name,
             city,
-            state: state as USAState,
+            state,
             zipCode,
             address,
             startDate: parsedStartDate,

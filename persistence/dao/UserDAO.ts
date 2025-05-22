@@ -22,4 +22,20 @@ export class UserDAO extends GenericDAO<"user", IUser>
     {
         return this.getModel().findUnique({ where: { email } });
     }
+
+    public async update(userData: IUser): Promise<IUser> {
+        // Extrae el 'id' y el resto de los datos para la actualización.
+        const { id, ...dataToUpdate } = userData;
+        try {
+            await this.getModel().update({
+                where: { id: id }, // 'id' se usa solo en la cláusula 'where'
+                data: dataToUpdate, // 'dataToUpdate' no contiene 'id'
+            });
+            return userData;
+        } catch (error) {
+            console.error(`UserDAO: Error updating user with id ${id}:`, error);
+            // Consider relanzar el error o manejarlo específicamente
+            throw error;
+        }
+    }
 }

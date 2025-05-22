@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "level" SET DEFAULT 'STAFF',
+ALTER COLUMN "active" SET DEFAULT false;

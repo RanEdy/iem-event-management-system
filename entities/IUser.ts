@@ -23,5 +23,7 @@ export interface IUser
 
     contactName: string | null;
     contactPhone: string | null;
+    resetpasswordtoken?: string | null;
+    resetpasswordexpires?: Date | null;
 
 }

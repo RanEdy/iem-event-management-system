@@ -147,6 +147,17 @@ const LoginForm = () => {
                     {/* Avoid displaying the space used to clear the email error */}
                     {passwordError && passwordError !== " " && <p id="password-error" className="text-red-500 text-xs mt-1">{passwordError}</p>}
 
+                    {/* Forgot password link */}
+                    <div className="text-sm text-right mt-4">
+                        <button
+                            type="button" // Important: type="button" to prevent form submission
+                            onClick={() => router.push('/forgot-password')} // Assuming '/forgot-password' is the route for TrancitionForm
+                            className="font-medium text-cyan-600 hover:text-cyan-500"
+                        >
+                            Forgot your password?
+                        </button>
+                    </div>
+
                     {/* Submit button */}
                     <button
                         type="submit"

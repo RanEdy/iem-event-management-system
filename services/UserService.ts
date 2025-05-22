@@ -4,6 +4,8 @@ import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
 // Import bcrypt if you are going to use password hashing in the future.
 import bcrypt from 'bcrypt'; // <-- Uncomment or add this line
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 
 /**
@@ -34,26 +36,28 @@ export class UserService {
      */
     async verifyCredentials(email: string, password: string): Promise<IUser | null> {
         try {
+            console.log(`Intentando verificar credenciales para email: ${email}`);
             const user = await DAOLocator.userDao.findByEmail(email);
-
+    
             if (!user) {
-                console.log(`User not found with email: ${email}`);
+                console.log(`Usuario no encontrado con email: ${email}`);
                 return null;
             }
-
+    
+            console.log(`Usuario encontrado: ${user.email}, verificando contraseña...`);
             // Compare the password provided with the stored hash
             const isPasswordValid = await bcrypt.compare(password, user.password);
-
+    
             if (!isPasswordValid) {
-                console.log(`Invalid password for email: ${email}`);
+                console.log(`Contraseña inválida para email: ${email}`);
                 return null; // Incorrect password
             }
-
-            console.log(`Credentials verified for email: ${email}`);
+    
+            console.log(`Credenciales verificadas para email: ${email}`);
             return user; // Valid credentials
         }
         catch (error) {
-            console.error("Error verifying credentials:", error);
+            console.error("Error verificando credenciales:", error);
             // Consider whether to return null or throw a specific error
             return null; // Error during verification
         }
@@ -277,5 +281,104 @@ export class UserService {
         const generatedPassword = `${firstName}${age}${emailPrefix}${lastFourDigits}`;
 
         return generatedPassword;
+    }
+
+    /**
+    * Handles the request to reset a user's password.
+    * Generates a reset token, stores it, and sends an email to the user.
+    * @param email The email of the user requesting a password reset.
+    * @returns A boolean indicating if the request was processed successfully.
+    */
+    async requestPasswordReset(email: string): Promise<boolean> {
+        try {
+            const user = await DAOLocator.userDao.findByEmail(email);
+            if (!user) {
+                console.log(`Password reset request for non-existent email: ${email}`);
+                return true;
+            }
+
+            const token = crypto.randomBytes(32).toString('hex');
+            const expires = new Date(Date.now() + 30 * 60 * 1000); // Token valid for 30 minutes
+
+            // En lugar de userWithToken que incluye todos los campos de 'user':
+            // const userWithToken = {
+            //     ...user,
+            //     resetPasswordToken: token,
+            //     resetPasswordExpires: expires,
+            // };
+
+            // Crear un payload específico para la actualización del token.
+            // Esto clarifica la intención de actualizar solo estos campos para el usuario identificado por user.id.
+            // UserDAO.update debe usar 'id' para la cláusula 'where' y el resto para 'data',
+            // asegurándose de que 'id' no se incluya en el payload 'data' de Prisma.
+            const updatePayload = {
+                id: user.id, // Necesario para que el DAO identifique al usuario
+                resetpasswordtoken: token,
+                resetpasswordexpires: expires,
+            };
+            
+            // Se realiza un cast a IUser. Esto asume que los demás campos de IUser son opcionales
+            // o que UserDAO.update maneja correctamente actualizaciones parciales.
+            // NOTA: Si UserDAO.update sigue pasando el campo 'id' de este objeto al 'data' de Prisma,
+            // el error persistirá. La solución fundamental está en cómo UserDAO.update construye la llamada a Prisma.
+            await DAOLocator.userDao.update(updatePayload as IUser);
+
+
+            const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`;
+            
+            // Email content based on the provided image
+            const emailHtml = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="font-size: 24px; color: #333;">Hello ${user.name || 'User'},</h2>
+                    <p style="font-size: 16px; color: #555;">
+                        We received a request to reset your password. If it was you who requested it, click on the link below:
+                    </p>
+                    <p style="margin: 20px 0;">
+                        <a href="${resetUrl}" style="font-size: 16px; color: #007bff; text-decoration: none;">
+                            &#128279; Reset password
+                        </a>
+                    </p>
+                    <p style="font-size: 14px; color: #777;">
+                        This link is valid for 30 minutes. If you do not reset your password within that time, you will have to request a new link again.
+                    </p>
+                    <p style="font-size: 14px; color: #777; margin-top: 20px;">
+                        If you did not request a password reset, you can ignore this message. No change will be made.
+                    </p>
+                    <p style="font-size: 16px; color: #555; margin-top: 30px;">
+                        Thank you,
+                    </p>
+                    <p style="font-size: 16px; color: #555;">
+                        - The IEM Team
+                    </p>
+                </div>
+            `;
+
+            // Configure Nodemailer transporter
+            // IMPORTANT: Set up these environment variables:
+            // EMAIL_HOST, EMAIL_PORT, EMAIL_SECURE (true/false), EMAIL_USER, EMAIL_PASS, EMAIL_FROM
+            const transporter = nodemailer.createTransport({
+                host: process.env.EMAIL_HOST,
+                port: parseInt(process.env.EMAIL_PORT || "587"),
+                secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+                auth: {
+                    user: process.env.EMAIL_USER, // your email user
+                    pass: process.env.EMAIL_PASS, // your email password
+                },
+            });
+
+            await transporter.sendMail({
+                from: `"The IEM Team" <${process.env.EMAIL_FROM}>`, // sender address
+                to: user.email, // list of receivers
+                subject: "Password Reset Request", // Subject line
+                html: emailHtml, // html body
+            });
+
+            console.log(`Password reset email sent to: ${user.email}`);
+            return true;
+
+        } catch (error) {
+            console.error("Error during password reset request:", error);
+            return false;
+        }
     }
 }

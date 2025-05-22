@@ -116,6 +116,9 @@ model User {
   contactName String?
   contactPhone String?
 
+  resetpasswordtoken   String?
+  resetpasswordexpires DateTime? 
+
   eventUserList EventUserList[]
 }
 

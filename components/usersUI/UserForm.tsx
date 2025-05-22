@@ -332,7 +332,7 @@ export const UserForm: React.FC<UserFormProps> = ({
             {/* FIRST CELL: BIRTHDAY DATE */}
             <div className="grid grid-rows-2">
               <label className="text-lg font-bold text-center mb-5">
-                Birthday
+                DOB
                 <hr className="border-t-2 border-gray-300 mt-2" />
               </label>
               <DatePicker

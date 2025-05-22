@@ -1,36 +1,52 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import formidable, {File} from 'formidable'
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+//sectionFile/upload
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end("Only POST allowed");
-
-  const uploadDir = path.join(process.cwd(), 'public', 'img', 'iemdb');
-  fs.mkdirSync(uploadDir, { recursive: true });
-
-  const form = formidable({ uploadDir, keepExtensions: true });
-
-  form.parse(req, async (err, fields, files) => {
-    if (err || !files.file) {
-      console.error(err);
-      return res.status(500).json({ success: false, error: "File parsing failed" });
+    if (!file) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'No file uploaded' 
+      }, { status: 400 });
     }
 
-    const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
-    const fileName = path.basename(uploadedFile.filepath);
-    const relativePath = `/img/iemdb/${fileName}`;
+    // Crear directorio si no existe
+    const uploadDir = path.join(process.cwd(), 'public', 'img', 'iemdb');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
 
-    res.status(200).json({
+    // Generar nombre único
+    const timestamp = Date.now();
+    const randomSuffix = Math.round(Math.random() * 1E9);
+    const extension = path.extname(file.name);
+    const fileName = `${timestamp}-${randomSuffix}${extension}`;
+    
+    // Guardar archivo
+    const filePath = path.join(uploadDir, fileName);
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    fs.writeFileSync(filePath, buffer);
+
+    // Construir URL
+    const fileUrl = `/img/iemdb/${fileName}`;
+
+    return NextResponse.json({
       success: true,
-      name: uploadedFile.originalFilename || fileName,
-      url: relativePath
+      name: file.name,
+      url: fileUrl
     });
-  });
+
+  } catch (error) {
+    console.error('Upload error:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to upload file' 
+    }, { status: 500 });
+  }
 }

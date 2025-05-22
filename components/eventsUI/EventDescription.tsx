@@ -11,12 +11,13 @@ import {
 import { IEvent } from "@/entities/IEvent";
 import { IEventSection } from "@/entities/IEventSection";
 import { ISectionFile } from "@/entities/ISectionFile";
+import { TempFile } from "./EventForm";
 
 type EventDescriptionProps = {
   event: IEvent;
-  sections: (IEventSection & { files: ISectionFile[] })[];
+  sections: (IEventSection & { files: TempFile[] })[];
   setSections: React.Dispatch<
-    React.SetStateAction<(IEventSection & { files: ISectionFile[] })[]>
+    React.SetStateAction<(IEventSection & { files: TempFile[] })[]>
   >;
   onAddSection?: () => void;
   onRemoveSection?: (sectionIndex: number) => Promise<void>;
@@ -48,7 +49,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
     e.preventDefault();
     if (sections.length < 5) {
       const nextId = sections.length ? Math.max(...sections.map(s => s.id)) + 1 : 1;
-      const newSec: IEventSection & { files: ISectionFile[] } = {
+      const newSec: IEventSection & { files: TempFile[] } = {
         id: nextId,
         eventId: event.id,
         sectionName: `Section ${nextId}`,
@@ -126,30 +127,36 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
 
   // File upload
   const handleFilesChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || activeSection === undefined) return;
-    const filesArr = Array.from(e.target.files);
-    const maxSize = 5 * 1024 * 1024;
-    if (filesArr.some(f => f.size > maxSize)) {
-      alert("Some files exceed 5MB and won't be added.");
-      return;
+  if (!e.target.files || activeSection === undefined) return;
+  const filesArr = Array.from(e.target.files);
+  const maxSize = 5 * 1024 * 1024;
+
+  const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+  const validated: TempFile[] = [];
+
+  for (const file of filesArr) {
+    if (!allowedTypes.includes(file.type)) {
+      alert("Only PDF, JPG, PNG allowed: " + file.name);
+      continue;
+    }
+    if (file.size > maxSize) {
+      alert("File too large: " + file.name);
+      continue;
     }
 
-    let newFiles: ISectionFile[] = [];
+    validated.push({
+      id: Date.now() + Math.random(), // temporal id
+      sectionId: activeSection.id,
+      name: file.name,
+      url: URL.createObjectURL(file),
+      file: file,
+    });
+  }
 
-    for (const file of filesArr) {
-      try {
-        const uploaded = await onAddFile!(activeIdx, file); // `onAddFile` is required
-        console.log(uploaded)
-        newFiles.push(uploaded);
-      } catch (err) {
-        console.error("Failed to upload file:", file.name, err);
-      }
-    }
-
-    const updated = [...sections];
-    updated[activeIdx].files = [...updated[activeIdx].files, ...newFiles];
-    setSections(updated);
-  };
+  const updated = [...sections];
+  updated[activeIdx].files = [...updated[activeIdx].files, ...validated];
+  setSections(updated);
+};
 
   return (
     <div className="mt-6 w-full">

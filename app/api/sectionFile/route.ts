@@ -1,6 +1,7 @@
 import { ServiceLocator } from "@/services/ServiceLocator";
 import { NextResponse } from "next/server";
 
+//sectionFile/
 export async function GET()
 {
     const files = await ServiceLocator.sectionFileService.findAll();
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
         const body = await req.json();
         
         // Validate fields
-        if (!body.sectionId || !body.name || !body.dataBytes) {
+        if (!body.sectionId || !body.name || !body.url) {
             return NextResponse.json({
                 success: false, 
                 error: "Missing required fields: sectionId, name, or dataBytes"

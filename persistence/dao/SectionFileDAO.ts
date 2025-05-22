@@ -14,21 +14,35 @@ export class SectionFileDAO extends GenericDAO<'sectionFile', ISectionFile>
             },
         });
 
-        return files.map(file => ({
-            ...file,
-            dataBytes: Buffer.from(file.dataBytes),
-        }));
+        return files;
     }
 
-    async create(fileData: Omit<ISectionFile, 'id'>): Promise<ISectionFile>
+        async create(fileData: Omit<ISectionFile, 'id'>): Promise<ISectionFile>
     {
-        fileData.dataBytes = Buffer.from(fileData.dataBytes);
-        return super.create(fileData);
+        try {
+
+            const result = await super.create(fileData);
+            return result;
+        } catch (error) {
+            console.error("Error creating section file:", error);
+            throw error;
+        }
     }
 
     async update(fileData: ISectionFile): Promise<ISectionFile>
     {
-        fileData.dataBytes = Buffer.from(fileData.dataBytes);
         return super.update(fileData);
+    }
+
+    async upsert(fileData: ISectionFile): Promise<ISectionFile>
+    {
+        try {
+            
+            const result = await super.upsert(fileData);
+            return result;
+        } catch (error) {
+            console.error("Error upserting section file:", error);
+            throw error;
+        }
     }
 }

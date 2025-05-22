@@ -10,93 +10,6 @@ import { EventForm } from "./EventForm";
 
 import { UserForm } from "../usersUI/UserForm"; //Only for testing purposes, remove later
 
-const columns: TableColumn<IEvent>[] = [
-    {
-        name: "ID",
-        selector: row => row.id
-    },
-    {
-        name: "EVENT",
-        selector: row => row.name,
-    },
-    {
-        name: "ADDRESS",
-        cell: row => <div className="flex flex-row items-center h-1/3">
-            <div className="block items-center">
-                <div className="font-extrabold">
-                    {row.state + ", " + row.city + " " + row.zipCode + ". "}
-                </div>
-                <div className="font-extrabold text-zinc-600">
-                    {row.address}
-                </div>
-            </div>
-        </div>,
-        //minWidth: "350px",
-    },
-    {
-        name: "DATE",
-        cell: row => <div className="flex flex-row items-center h-1/3 p-4 py-6 rounded-lg bg-zinc-200">
-            <div className="block items-center">
-                <div className="font-extrabold">
-                    {/* Make sure row.startDate is a Date object*/}
-                    {row.startDate instanceof Date ? row.startDate.toDateString() : 'Invalid Date'}
-                </div>
-                <div className="font-extrabold text-zinc-600">
-                    {/* Make sure row.startDate is a Date object*/}
-                    {row.startDate instanceof Date ? `${row.startDate.getHours()}:${row.startDate.getMinutes() === 0 ? "00" : row.startDate.getMinutes()}` : ''}
-                </div>
-            </div>
-        </div>,
-        //minWidth: "150px"
-    },
-    {
-        name: "DURATION",
-        selector: row => {
-            const durationMs = row.endDate.getTime() - row.startDate.getTime();
-
-            const msInHour = 1000 * 60 * 60;
-            const msInDay = msInHour * 24;
-
-            const days = Math.floor(durationMs / msInDay);
-            const hours = Math.floor((durationMs % msInDay) / msInHour);
-
-            let durationText = "";
-            if (days > 0) durationText += `${days} day${days > 1 ? "s" : ""} `;
-            if (hours > 0) durationText += `${hours} hour${hours > 1 ? "s" : ""} `;
-
-            return durationText.trim();
-        },
-    },
-    {
-        name: "VISIBILITY",
-        cell: row => <>
-            {
-                row.public ? <div className="flex flex-column items-center">
-                    <div className="w-3 h-3 rounded-full bg-lime-600 self-center mr-3"></div>
-                    <div className="font-bold">Public</div>
-                </div>
-                :
-                <div className="flex flex-column items-center">
-                    <div className="w-3 h-3 rounded-full bg-red-700 self-center mr-3"></div>
-                    <div className="font-bold">Private</div>
-                </div>
-            }
-        </>
-    },
-    {
-        name: "USERS",
-        selector: row => "0/" + row.maxUsers
-    },
-    {
-        name: "REQUESTS",
-        selector: row => 0,
-    },
-    {
-        name: "OPTIONS",
-        cell: row => <ContextMenu row={row}/>,
-        ignoreRowClick: true,
-    }
-]
 
 
 export const EventsTable: React.FC = () =>
@@ -106,6 +19,97 @@ export const EventsTable: React.FC = () =>
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    
+    const columns: TableColumn<IEvent>[] = [
+        {
+            name: "ID",
+            selector: row => row.id
+        },
+        {
+            name: "EVENT",
+            selector: row => row.name,
+        },
+        {
+            name: "ADDRESS",
+            cell: row => <div className="flex flex-row items-center h-1/3">
+                <div className="block items-center">
+                    <div className="font-extrabold">
+                        {row.state + ", " + row.city + " " + row.zipCode + ". "}
+                    </div>
+                    <div className="font-extrabold text-zinc-600">
+                        {row.address}
+                    </div>
+                </div>
+            </div>,
+            //minWidth: "350px",
+        },
+        {
+            name: "DATE",
+            cell: row => <div className="flex flex-row items-center h-1/3 p-4 py-6 rounded-lg bg-zinc-200">
+                <div className="block items-center">
+                    <div className="font-extrabold">
+                        {/* Make sure row.startDate is a Date object*/}
+                        {row.startDate instanceof Date ? row.startDate.toDateString() : 'Invalid Date'}
+                    </div>
+                    <div className="font-extrabold text-zinc-600">
+                        {/* Make sure row.startDate is a Date object*/}
+                        {row.startDate instanceof Date ? `${row.startDate.getHours()}:${row.startDate.getMinutes() === 0 ? "00" : row.startDate.getMinutes()}` : ''}
+                    </div>
+                </div>
+            </div>,
+            //minWidth: "150px"
+        },
+        {
+            name: "DURATION",
+            selector: row => {
+                const durationMs = row.endDate.getTime() - row.startDate.getTime();
+
+                const msInHour = 1000 * 60 * 60;
+                const msInDay = msInHour * 24;
+
+                const days = Math.floor(durationMs / msInDay);
+                const hours = Math.floor((durationMs % msInDay) / msInHour);
+
+                let durationText = "";
+                if (days > 0) durationText += `${days} day${days > 1 ? "s" : ""} `;
+                if (hours > 0) durationText += `${hours} hour${hours > 1 ? "s" : ""} `;
+
+                return durationText.trim();
+            },
+        },
+        {
+            name: "VISIBILITY",
+            cell: row => <>
+                {
+                    row.public ? <div className="flex flex-column items-center">
+                        <div className="w-3 h-3 rounded-full bg-lime-600 self-center mr-3"></div>
+                        <div className="font-bold">Public</div>
+                    </div>
+                        :
+                        <div className="flex flex-column items-center">
+                            <div className="w-3 h-3 rounded-full bg-red-700 self-center mr-3"></div>
+                            <div className="font-bold">Private</div>
+                        </div>
+                }
+            </>
+        },
+        {
+            name: "USERS",
+            selector: row => "0/" + row.maxUsers
+        },
+        {
+            name: "REQUESTS",
+            selector: row => 0,
+        },
+        {
+            name: "OPTIONS",
+            cell: row => <ContextMenu row={row} OnCompleted={() => {
+                loadEvents();
+            }
+            } />,
+            ignoreRowClick: true,
+        }
+    ]
 
     const loadEvents = async () =>
     {
@@ -143,6 +147,8 @@ export const EventsTable: React.FC = () =>
         console.log("Selected: ");
         console.log(row);
     }
+
+
 
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">

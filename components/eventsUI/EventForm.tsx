@@ -16,6 +16,8 @@ type EventFormProps = {
   onSave: () => void
 }
 
+export type TempFile = ISectionFile & { file: File }
+
 export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) => {
 
   const [name, setName] = useState<string>("");
@@ -55,7 +57,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
     status: EventStatus.IN_PROCESS
   }) //default value for event (this will get replaced with the new info)
   // State for grouping Sections + Files
-  const [sections, setSections] = useState<(IEventSection & { files: ISectionFile[] })[]>
+  const [sections, setSections] = useState<(IEventSection & { files: TempFile[] })[]>
     (
       [
         //Default value for the first section when creating a new event
@@ -69,7 +71,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
       ]
     );
 
-  // Actualizar ciudades disponibles cuando cambia el estado
+  // Update available cities
   useEffect(() => {
     if (state && statesAndCities[state as keyof typeof statesAndCities]) {
       const cities = statesAndCities[state as keyof typeof statesAndCities] as string[];
@@ -85,10 +87,10 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
     }
   }, [state]);
 
-  // Filtrar ciudades basado en el término de búsqueda
+  // Filter cities
   useEffect(() => {
     if (citySearchTerm) {
-      const filtered = availableCities.filter(city => 
+      const filtered = availableCities.filter(city =>
         city.toLowerCase().includes(citySearchTerm.toLowerCase())
       );
       setFilteredCities(filtered);
@@ -97,7 +99,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
     }
   }, [citySearchTerm, availableCities]);
 
-  // Manejar la selección de ciudad
+  // Manage city selection
   const handleCitySelect = (selectedCity: string) => {
     setCity(selectedCity);
     setCitySearchTerm(selectedCity);
@@ -221,12 +223,33 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
         sections.map(async (currentSection, i) => {
           console.log("Section #" + i + ":\n", currentSection);
 
+
+
           await Promise.all(
             currentSection.files.map(async (file, j) => {
+              // Upload the file and save it locally
+              // then get the url for the file
+
+              const formData = new FormData();
+              formData.append('file', file.file);
+
+              // Upload the file and save it locally
+              const uploadRes = await fetch('/api/sectionFile/upload', {
+                method: 'POST',
+                body: formData,
+              });
+
+              const uploadJson = await uploadRes.json();
+              if (!uploadJson.success) {
+                console.error('Upload failed:', uploadJson.error);
+                throw new Error("Failed to upload");
+              }
+
+              // Save the file in the database
               const newFile: Omit<ISectionFile, 'id'> = {
                 sectionId: currentSection.id,
-                name: file.name,
-                dataBytes: file.dataBytes
+                name: uploadJson.name,
+                url: uploadJson.url
               }
 
               const responseFile = await fetch('/api/sectionFile', {
@@ -286,6 +309,26 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
       setErrorMessage("An unexpected error occurred while creating the event.");
       setErrorDialogOpen(true);
     }
+  };
+
+  const handleAddFile = async (sectionIndex: number, file: File): Promise<ISectionFile> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/sectionFile/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error("Upload failed");
+
+    return {
+      id: 0, // temporal
+      sectionId: sections[sectionIndex].id,
+      name: data.name,
+      url: data.url
+    };
   };
 
   const cleanForm = () => {
@@ -366,7 +409,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
               ))}
             </select>
 
-              {/* CITY */}
+            {/* CITY */}
             <div className="relative">
               <input
                 type="text"
@@ -505,7 +548,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
           </div>
 
           {/* DESCRIPTION SECTION */}
-          <EventDescription event={event} sections={sections} setSections={setSections} />
+          <EventDescription event={event} sections={sections} setSections={setSections} onAddFile={handleAddFile} />
           {/* BUTTONS */}
           <button
             type="submit"

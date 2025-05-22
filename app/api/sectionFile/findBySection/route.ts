@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { ServiceLocator } from '@/services/ServiceLocator';
 
+//sectionFile/findBySection
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
@@ -10,9 +11,9 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ success: false, error: "Missing 'id' query parameter" }, { status: 400 });
         }
 
-        const sections = await ServiceLocator.eventSectionService.findByEvent(Number(id));
-        return NextResponse.json(sections);
+        const files = await ServiceLocator.sectionFileService.findBySection(Number(id));
+        return NextResponse.json(files);
     } catch (error) {
-        return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
+        return NextResponse.json({ success: false, error: "Trying [api/sectionFile/findBySection/] >> Internal server error" }, { status: 500 });
     }
 }

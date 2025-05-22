@@ -6,7 +6,7 @@ import { ISectionFile } from "@/entities/ISectionFile";
 import { IEventSection } from "@/entities/IEventSection";
 import { EditEventForm } from "../eventsUI/EditEventForm";
 
-const ContextMenu = ({ row }: { row: any }) => {
+const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void }) => {
   const [open, setOpen] = useState(false);
   const [dialogType, setDialogType] = useState<
     | null
@@ -298,8 +298,13 @@ const ContextMenu = ({ row }: { row: any }) => {
                 {/* FORM */}
                 {(
                   <EditEventForm
-                    title="Update Event"
                     eventId={row.id}
+                    onSave={ () =>
+                    {
+                      OnCompleted?.();
+                      closeDialog();
+                    }
+                    }
                   />
                 )}
               </div>

@@ -99,7 +99,7 @@ model SectionFile {
   id Int @id @default(autoincrement())
   sectionId Int
   name String
-  dataBytes Bytes
+  url String
   section EventSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 }
 

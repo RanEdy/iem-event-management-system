@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import ContexMenuUsers from "../commonUI/ContexMenuUsers"; // Cambiado de ContextMenu a ContexMenuUsers
 import { UserForm } from "./UserForm";
+import { useLogin } from '../loginUI/LoginProvider'; // <-- AÑADIR ESTA LÍNEA
 
 // Función para calcular la antigüedad
 const calculateSeniority = (hireDateString: string | Date): string => {
@@ -38,6 +39,7 @@ const calculateSeniority = (hireDateString: string | Date): string => {
 };
 
 export const UsersTable: React.FC = () => {
+  const { userSession, isLoading: isLoginLoading } = useLogin(); // <-- AÑADIR ESTA LÍNEA
   const [users, setUsers] = useState<IUser[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<IUser[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -83,6 +85,16 @@ export const UsersTable: React.FC = () => {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  // Efecto para establecer el filtro por defecto según el rol del usuario
+  useEffect(() => {
+    if (!isLoginLoading && userSession) {
+      if (userSession.level !== UserLevel.MASTER) {
+        setFilterUserType(UserLevel.STAFF);
+      }
+      // Si es MASTER, el filtro es controlado por su selección en el dropdown (inicialmente "")
+    }
+  }, [userSession, isLoginLoading]);
 
   useEffect(() => {
     let currentUsers = users;
@@ -233,20 +245,22 @@ export const UsersTable: React.FC = () => {
 
         {/* FILTERS */}
         <div className="flex items-center gap-4">
-          <select
-            className="h-12 border-2 p-2 border-gray-300 rounded-lg focus:outline-none"
-            value={filterUserType}
-            onChange={(e) =>
-              setFilterUserType(e.target.value as UserLevel | "")
-            }
-          >
-            <option value="">All User Types</option>
-            {Object.values(UserLevel).map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </select>
+          {userSession?.level === UserLevel.MASTER && ( // <-- ENVOLVER EL SELECT EN ESTA CONDICIÓN
+            <select
+              className="h-12 border-2 p-2 border-gray-300 rounded-lg focus:outline-none"
+              value={filterUserType}
+              onChange={(e) =>
+                setFilterUserType(e.target.value as UserLevel | "")
+              }
+            >
+              <option value="">All User Types</option>
+              {Object.values(UserLevel).map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+          )}
           <select
             className="h-12 border-2 p-2 border-gray-300 rounded-lg focus:outline-none"
             value={filterStatus === "" ? "" : String(filterStatus)}

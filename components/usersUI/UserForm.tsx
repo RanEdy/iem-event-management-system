@@ -504,11 +504,11 @@ export const UserForm: React.FC<UserFormProps> = ({
             >
               {isSubmitting
                 ? userId
-                  ? "UPDATING..."
-                  : "CREATING..."
+                  ? "Updating..."
+                  : "Creating..."
                 : userId
-                ? "UPDATE"
-                : "CREATE"}
+                ? "Update"
+                : "Create"}
             </button>
           </div>
         </form>

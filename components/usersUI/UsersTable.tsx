@@ -291,7 +291,7 @@ export const UsersTable: React.FC = () => {
       {/* USER DIALOG (MODAL) */}
       {isDialogOpen && (
         <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-          <div className="relative bg-white rounded-3xl p-8 shadow-lg my-4 lg:w-1/2 w-11/12 max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white rounded-3xl p-8 shadow-lg realtive my-4 lg:w-1/2 w-full h-full lg:h-5/6 ">
             {/* CLOSE BUTTON */}
             <button
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"

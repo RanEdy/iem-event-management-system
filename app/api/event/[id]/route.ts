@@ -1,6 +1,7 @@
 import { ServiceLocator } from "@/services/ServiceLocator";
 import { NextResponse } from "next/server";
 
+//api/event/[id]
 export async function GET(request: Request, context: { params: { id: string } }) {
   
   const { id } = await context.params;

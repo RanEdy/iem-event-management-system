@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-//sectionFile/upload
+//api/sectionFile/upload
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();

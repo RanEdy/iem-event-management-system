@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { ServiceLocator } from '@/services/ServiceLocator';
 
+//api/eventSection/findByEvent
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);

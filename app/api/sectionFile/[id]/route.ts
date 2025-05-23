@@ -1,7 +1,7 @@
 import { ServiceLocator } from "@/services/ServiceLocator";
 import { NextResponse } from "next/server";
 
-//sectionFile/[id]
+//api/sectionFile/[id]
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const file = await ServiceLocator.sectionFileService.findById(Number(params.id));
   return NextResponse.json(file);

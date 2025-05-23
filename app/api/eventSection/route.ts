@@ -1,7 +1,7 @@
 import { ServiceLocator } from "@/services/ServiceLocator";
 import { NextResponse } from "next/server";
 
-
+//api/eventSection/
 export async function GET()
 {
     const sections = await ServiceLocator.eventSectionService.findAll();

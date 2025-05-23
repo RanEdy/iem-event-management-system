@@ -4,7 +4,7 @@ import { FaCog, FaTrash, FaClipboardList, FaCheck } from "react-icons/fa"; // Ic
 import { IEvent } from "@/entities/IEvent";
 import { ISectionFile } from "@/entities/ISectionFile";
 import { IEventSection } from "@/entities/IEventSection";
-import { EditEventForm } from "../eventsUI/EditEventForm";
+import { EventEditForm } from "../eventsUI/editUI/EventEditForm";
 
 const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void }) => {
   const [open, setOpen] = useState(false);
@@ -87,6 +87,7 @@ const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void 
       console.error("Error deleting event:", error);
       alert("Failed to delete event");
     }
+    OnCompleted?.();
   };
 
   // Function to mark an event as completed
@@ -297,7 +298,8 @@ const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void 
 
                 {/* FORM */}
                 {(
-                  <EditEventForm
+                  <EventEditForm
+                    title="Edit Event"
                     eventId={row.id}
                     onSave={ () =>
                     {

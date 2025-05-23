@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EventService } from "@/services/EventService";
 
+//api/event/validate
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();

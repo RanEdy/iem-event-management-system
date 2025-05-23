@@ -2,6 +2,7 @@ import { IEvent } from "@/entities/IEvent";
 import { ServiceLocator } from "@/services/ServiceLocator";
 import { NextResponse } from "next/server";
 
+//api/event/
 export async function GET()
 {
     const events = await ServiceLocator.eventService.findAll();

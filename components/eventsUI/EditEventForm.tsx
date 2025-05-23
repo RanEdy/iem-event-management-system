@@ -6,7 +6,6 @@ import { EventStatus } from "@prisma/client";
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import statesAndCities from "@/services/US-states-and-cities-json-master/data.json";
-import { EventDescription } from "./EventDescription";
 
 type EditEventFormProps = {
   eventId: number;

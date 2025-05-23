@@ -6,7 +6,7 @@ import { FaPlus, FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import ContextMenu from "../commonUI/ContextMenu";
-import { EventForm } from "./EventForm";
+import { EventForm } from "./registerUI/EventForm";
 
 import { UserForm } from "../usersUI/UserForm"; //Only for testing purposes, remove later
 

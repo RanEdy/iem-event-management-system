@@ -6,7 +6,7 @@ import { EventStatus } from "@prisma/client";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IEventSection } from "@/entities/IEventSection";
-import { EventDescription } from "./EventDescription";
+import { EventDescription } from "./registerUI/EventDescription";
 import { ISectionFile } from "@/entities/ISectionFile";
 
 type EditEventFormProps = {

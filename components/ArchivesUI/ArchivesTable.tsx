@@ -61,7 +61,7 @@ const columns: TableColumn<IEvent>[] = [
     },
     {
         name: "USERS",
-        selector: row => "34/50"
+        selector: row => "0/" + row.maxUsers
     },
     {
         name: "OPTIONS",

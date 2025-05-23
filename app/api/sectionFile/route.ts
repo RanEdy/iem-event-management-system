@@ -1,7 +1,7 @@
 import { ServiceLocator } from "@/services/ServiceLocator";
 import { NextResponse } from "next/server";
 
-//sectionFile/
+//api/sectionFile/
 export async function GET()
 {
     const files = await ServiceLocator.sectionFileService.findAll();

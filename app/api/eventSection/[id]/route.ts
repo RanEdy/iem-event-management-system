@@ -1,6 +1,7 @@
 import { ServiceLocator } from "@/services/ServiceLocator";
 import { NextResponse } from "next/server";
 
+//api/eventSection/[id]
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const section = await ServiceLocator.eventSectionService.findById(Number(params.id));
   return NextResponse.json(section);

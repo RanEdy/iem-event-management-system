@@ -39,6 +39,8 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [succesDialogOpen, setSuccessDialogOpen] = useState<boolean>(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // IMPORTANT: If you want to create a new Event with new Sections
   // First Create the event, then get the id >> then replace that id in the sections >> then create the sections
   // >> then get the id from every section >> then replace every id of the section in the files for each section 
@@ -280,6 +282,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
 
   const handleEvent = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const eventCreated = await createEvent();
       if (eventCreated !== null && eventCreated.success) {
@@ -308,6 +311,8 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
       console.error("ERROR", error);
       setErrorMessage("An unexpected error occurred while creating the event.");
       setErrorDialogOpen(true);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -458,7 +463,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
             {/* FIRST CELL: START DATE */}
             <div className="grid grid-rows-2">
               <label className="text-lg font-bold text-center">
-                Start date*
+                Start date
                 <hr className="border-t-2 border-gray-300 mt-2" />
               </label>
               <DatePicker
@@ -480,7 +485,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
             {/* SECOND CELL: END DATE */}
             <div className="grid grid-rows-2">
               <label className="text-lg font-bold text-center">
-                End date*
+                End date
                 <hr className="border-t-2 border-gray-300 mt-2" />
               </label>
               <DatePicker
@@ -508,7 +513,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
             {/* FIRST CELL: MAX USERS */}
             <div className="grid grid-rows-2">
               <label className="text-lg font-bold text-center">
-                Max Users*
+                Max Users
                 <hr className="border-t-2 border-gray-300 mt-2" />
               </label>
               <input
@@ -550,11 +555,22 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
           {/* DESCRIPTION SECTION */}
           <EventDescription event={event} sections={sections} setSections={setSections} onAddFile={handleAddFile} />
           {/* BUTTONS */}
-          <button
-            type="submit"
-            className="h-10 w-full p-2 sm:w-1/3 mt-6 rounded-md bg-blue-900 text-white font-bold">
-            Save
-          </button>
+          <div className="grid grid-cols-2 gap-2 mt-4 w-full sm:w-1/2 sm:justify-start sm:ml-0">
+            <button
+              type="button"
+              onClick={cleanForm}
+              className="h-10 w-full p-2 rounded-md bg-red-600 text-white font-bold"
+            >
+              Clean
+            </button>
+
+            <button
+              type="submit"
+              className="h-10 w-full p-2 rounded-md bg-blue-900 text-white font-bold"
+            >
+              {isSubmitting ? "Saving..." : "Save"}
+            </button>
+          </div>
         </form>
       </div>
       {/* ERROR DIALOG */}

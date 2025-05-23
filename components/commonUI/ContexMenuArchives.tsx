@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { FaTrash } from 'react-icons/fa'; // Iconos bonitos
 
-// Añadimos la interfaz para las props
+// Añadimos la interfaz para las props Final
 interface ContextMenuArchivesProps {
     row: any;
     onEventDeleted?: (message: string) => void; // Callback para notificar cambios

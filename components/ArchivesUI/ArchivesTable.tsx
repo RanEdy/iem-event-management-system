@@ -74,10 +74,12 @@ const columns: TableColumn<IEvent>[] = [
 export const ArchivesTable: React.FC = () =>
 {
     const [events, setEvents] = useState<IEvent[]>([])
-    const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-    const [selectedDate, setSelectedDate] = useState<string>(""); // Estado para la fecha seleccionada
+    const [searchTerm, setSearchTerm] = useState(""); // State for search term
+    const [selectedDate, setSelectedDate] = useState<string>(""); // State for dates
+    const [toastMessage, setToastMessage] = useState(""); // State for message
+    const [showToast, setShowToast] = useState(false); // State
 
-    useEffect(() => {
+    const loadEvents = () => {
         fetch("api/event")
         .then(res => res.json())
         .then((data: IEvent[]) => {
@@ -92,7 +94,17 @@ export const ArchivesTable: React.FC = () =>
             setEvents(parsedEvents);
         })
         .catch(error => console.error("Error fetching or processing archived events:", error));
+    };
+
+    useEffect(() => {
+        loadEvents();
     }, []);
+
+
+    // Manejador para cuando un evento es eliminado
+    const handleEventDeleted = (message: string) => {
+        loadEvents(); // Recargar la lista de eventos
+    };
       
     const handleRowClick = (row: any) =>
     {
@@ -125,8 +137,77 @@ export const ArchivesTable: React.FC = () =>
         return matchesSearchTerm && matchesDate;
     });
 
+    // Actualizar la definición de columnas para pasar el callback
+    const columns: TableColumn<IEvent>[] = [
+        {
+            name: "EVENT",
+            selector: row => row.name,
+        },
+        {
+            name: "ADDRESS",
+            cell: row => <div className="flex flex-row items-center h-1/3">
+                <div className="block items-center">
+                    <div className="font-extrabold">
+                        {row.state.charAt(0) + row.state.substring(1).toLowerCase()
+                        + ", " + row.city + " " + row.zipCode + ". "}
+                    </div>
+                    <div className="font-extrabold text-zinc-600">
+                        {row.address}
+                    </div>
+                </div>
+            </div>,
+        },
+        {
+            name: "DATE",
+            cell: row => <div className="flex flex-row items-center h-1/3 p-4 py-6 rounded-lg bg-zinc-200">
+                <div className="block items-center">
+                    <div className="font-extrabold">
+                        {row.startDate instanceof Date ? row.startDate.toDateString() : 'Invalid Date'}
+                    </div>
+                    <div className="font-extrabold text-zinc-600">
+                        {row.startDate instanceof Date ? `${row.startDate.getHours()}:${row.startDate.getMinutes() === 0 ? "00" : row.startDate.getMinutes()}` : ''}
+                    </div>
+                </div>
+            </div>,
+        },
+        {
+            name: "DURATION",
+            selector: row => (row.endDate.getTime() - row.startDate.getTime()),
+        },
+        {
+            name: "VISIBILITY",
+            cell: row => <>
+                {
+                    row.public ? <div className="flex flex-column items-center">
+                        <div className="w-3 h-3 rounded-full bg-lime-600 self-center mr-3"></div>
+                        <div className="font-bold">Public</div>
+                    </div>
+                    :
+                    <div className="flex flex-column items-center">
+                        <div className="w-3 h-3 rounded-full bg-red-700 self-center mr-3"></div>
+                        <div className="font-bold">Private</div>
+                    </div>
+                }
+            </>
+        },
+        {
+            name: "USERS",
+            selector: row => "0/" + row.maxUsers
+        },
+        {
+            name: "OPTIONS",
+            cell: row => <ContextMenuArchives row={row} onEventDeleted={handleEventDeleted}/>,
+            ignoreRowClick: true,
+        }
+    ];
+
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
+            {showToast && (
+                <div className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
+                    {toastMessage}
+                </div>
+            )}
             <div className="p-4 flex flex-colum justify-between lg:w-1/2">
                 {/* Se usa filteredEvents.length para los contadores si quieres que reflejen la búsqueda */}
                 <div>Total Archived Events: <span className="font-bold">{" " + filteredEvents.length}</span></div>

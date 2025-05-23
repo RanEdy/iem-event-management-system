@@ -2,8 +2,14 @@
 import { useState } from 'react';
 import { FaTrash } from 'react-icons/fa'; // Iconos bonitos
 
-// Renombrado el componente a ContextMenuArchives
-const ContextMenuArchives = ({ row }: { row: any }) => {
+// Añadimos la interfaz para las props
+interface ContextMenuArchivesProps {
+    row: any;
+    onEventDeleted?: (message: string) => void; // Callback para notificar cambios
+}
+
+// Renombrado el componente a ContextMenuArchives y añadido el callback
+const ContextMenuArchives = ({ row, onEventDeleted }: ContextMenuArchivesProps) => {
     const [open, setOpen] = useState(false);
     // Eliminadas las opciones 'edit', 'requests', 'done', 'doneError' del tipo de diálogo
     const [dialogType, setDialogType] = useState<null | 'delete' | 'deleteSuccess' | 'deletePeriodE'>(null);
@@ -137,10 +143,14 @@ const ContextMenuArchives = ({ row }: { row: any }) => {
                             <button
                                 type="button"
                                 className="bg-green-400 text-white font-bold px-20 py-2 rounded-md hover:bg-green-500"
+                                disabled={isLoading}
                                 onClick={() => {
-                                    console.log("Event successfully deleted, reloading page");
-                                    window.location.reload(); // Recarga la página
-                                    // closeDialog(); // No es necesario si la página se recarga
+                                    closeDialog();
+                                    if (onEventDeleted) {
+                                        onEventDeleted("Event deleted successfully");
+                                    } else {
+                                        window.location.reload(); // Solo recarga si no hay callback
+                                    }
                                 }}
                             >
                                 Continue

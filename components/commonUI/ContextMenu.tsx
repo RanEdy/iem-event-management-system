@@ -128,13 +128,12 @@ const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void 
 
       const result = await updateResponse.json();
 
-      if (result.success) {
+      if (result.event) {
         // Successful update
         alert("The event has been successfully archived");
-        // Here you could reload the event list or update the UI.
       } else {
         // Log the specific error message from the API if available
-        console.error("API returned success:false", result.error);
+        console.error("API returned event:false", result.error);
         throw new Error(result.error || "Event could not be updated");
       }
     } catch (error) {
@@ -208,7 +207,7 @@ const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void 
                   onClick={() => markEventAsDone(row.id)}
                   disabled={isLoading}
                 >
-                  {isLoading ? "PROCESANDO..." : "DONE"}
+                  {isLoading ? "PROCESSING..." : "DONE"}
                 </button>
               </div>
               <div className="grid grid-rows-1">

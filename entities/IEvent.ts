@@ -1,11 +1,11 @@
-import { EventStatus, USAState } from "@prisma/client";
+import { EventStatus } from "@prisma/client";
 
 export interface IEvent 
 {
     id: number;
     name: string;
     city: string;
-    state: USAState;
+    state: string;
     zipCode: string;
     address: string;
 

@@ -1,114 +1,101 @@
-import { UserLevel } from "@prisma/client";
-
-export const plainUsers = [
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.plainUsers = void 0;
+var client_1 = require("@prisma/client");
+exports.plainUsers = [
     {
-        level: UserLevel.MASTER,
+        level: client_1.UserLevel.MASTER,
         name: "Erandi Moreno",
         email: "erandisacbe@gmail.com",
         password: "erandi12345",
-
         birthday: new Date("2004-07-23"),
         hireDate: new Date("2025-03-25"),
         phone: "6861184628",
         active: true,
         guardCard: true,
-
         supervisorCount: 0,
         managerCount: 0,
         logisticCount: 0,
         driverCount: 0,
         dispatchCount: 0,
         assistantManagerCount: 0,
-
         contactName: "Pepe",
         contactPhone: "6869236521",
     },
     {
-        level: UserLevel.ADMIN,
+        level: client_1.UserLevel.ADMIN,
         name: "Jose Angel Villagomez",
         email: "joseangel@gmail.com",
         password: "jose12345",
-
         birthday: new Date("2004-12-10"),
         hireDate: new Date("2022-10-08"),
         phone: "6865789012",
         active: true,
         guardCard: true,
-
         supervisorCount: 0,
         managerCount: 0,
         logisticCount: 0,
         driverCount: 0,
         dispatchCount: 0,
         assistantManagerCount: 0,
-
         contactName: "Jose",
         contactPhone: "686745433",
     },
     {
-        level: UserLevel.STAFF,
+        level: client_1.UserLevel.STAFF,
         name: "Xavier Ortiz",
         email: "xavierortiz@gmail.com",
         password: "xavier12345",
-
         birthday: new Date("1995-02-12"),
         hireDate: new Date("2025-03-25"),
         phone: "6867656412",
         active: true,
         guardCard: true,
-
         supervisorCount: 0,
         managerCount: 0,
         logisticCount: 0,
         driverCount: 0,
         dispatchCount: 0,
         assistantManagerCount: 0,
-
         contactName: "Alberto",
         contactPhone: "6869236521",
     },
     {
-        level: UserLevel.MASTER,
+        level: client_1.UserLevel.MASTER,
         name: "Luis Eduardo",
         email: "luis@gmail.com",
         password: "luis4123",
-
         birthday: new Date("2004-08-04"),
         hireDate: new Date("2025-05-01"),
         phone: "6867241234",
         active: true,
         guardCard: true,
-
         supervisorCount: 0,
         managerCount: 0,
         logisticCount: 0,
         driverCount: 0,
         dispatchCount: 0,
         assistantManagerCount: 0,
-
         contactName: "Juan",
         contactPhone: "6869236521",
     },
     {
-        level: UserLevel.ADMIN,
+        level: client_1.UserLevel.ADMIN,
         name: "Daniel Espinoza",
         email: "daniel@gmail.com",
         password: "daniel54321",
-
         birthday: new Date("1990-04-08"),
         hireDate: new Date("2025-03-25"),
         phone: "6861341234",
         active: true,
         guardCard: true,
-
         supervisorCount: 0,
         managerCount: 0,
         logisticCount: 0,
         driverCount: 0,
         dispatchCount: 0,
         assistantManagerCount: 0,
-
         contactName: "Enrique",
         contactPhone: "6869236521",
     }
-]
+];

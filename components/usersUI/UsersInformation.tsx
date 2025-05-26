@@ -102,7 +102,7 @@ export const UsersInformation: React.FC<UsersInformationProps> = ({ userId, onCl
             <InfoItem label="Email" value={user.email} />
             <InfoItem label="Phone" value={user.phone} />
             <InfoItem label="User ID" value={user.id?.toString()} />
-            <InfoItem label="Nivel" value={user.level} />
+            <InfoItem label="User Level" value={user.level} />
             <InfoItem label="State" value={user.active ? "Active" : "Inactive"} highlight={user.active ? "green" : "red"} />
             <InfoItem label="Birthday" value={formatDate(user.birthday)} />
             <InfoItem label="Date of hire" value={formatDate(user.hireDate)} />
@@ -126,7 +126,7 @@ export const UsersInformation: React.FC<UsersInformationProps> = ({ userId, onCl
             className="bg-gray-500 text-white font-bold px-6 py-2 rounded-md hover:bg-gray-600"
             onClick={onClose}
           >
-            Closet
+            Close
           </button>
         </div>
       </div>

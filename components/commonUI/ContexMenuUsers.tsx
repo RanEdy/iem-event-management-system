@@ -91,7 +91,7 @@ const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
                         onClick={() => handleAction("viewUser")}
                         className="flex items-center w-full px-4 py-2 hover:bg-gray-100"
                     >
-                        <FaInfoCircle className="mr-2" /> Ver Información
+                        <FaInfoCircle className="mr-2" /> Information
                     </button>
                     <button
                         onClick={() => handleAction("editUser")}

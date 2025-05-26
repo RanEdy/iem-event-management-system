@@ -5,7 +5,7 @@ import { IUser } from "@/entities/IUser"; // Held in case it is necessary for ty
 // GET: Get a user by ID
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   try {
-    const id = Number(params.id);
+    const id = await Number(params.id);
     if (isNaN(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -34,7 +34,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = Number(params.id);
+    const id = await Number(params.id);
     if (isNaN(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -89,7 +89,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = Number(params.id);
+    const id = await Number(params.id);
     if (isNaN(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }

@@ -99,6 +99,10 @@ export const UsersTable: React.FC = () => {
   useEffect(() => {
     let currentUsers = users;
 
+    if (userSession) {
+      currentUsers = currentUsers.filter(user => user.id !== userSession.id);
+    }
+
     if (searchTerm) {
       currentUsers = currentUsers.filter(
         (user) =>
@@ -120,7 +124,7 @@ export const UsersTable: React.FC = () => {
     }
 
     setFilteredUsers(currentUsers);
-  }, [searchTerm, filterUserType, filterStatus, users]);
+  }, [searchTerm, filterUserType, filterStatus, users, userSession]);
 
   const handleRowClick = (row: IUser) => {
     console.log("Selected User: ", row);

@@ -5,6 +5,7 @@ import { IUser } from "@/entities/IUser"; // Make sure the route is correct
 // Import UserForm if you are going to open it in a modal to edit it.
 import { UserForm } from "../usersUI/UserForm";
 import { UsersInformation } from "../usersUI/UsersInformation"; // Import the new component
+import { useLogin } from '../loginUI/LoginProvider'; // Import useLogin
 
 interface ContextMenuUsersProps {
     row: IUser;
@@ -19,6 +20,7 @@ const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
     >(null);
     const [isLoading, setIsLoading] = useState(false);
     //const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+    const { userSession } = useLogin(); // Get the user session
 
     const toggleDropdown = () => {
         setOpen(!open);
@@ -99,13 +101,15 @@ const ContexMenuUsers = ({ row, onUserModified }: ContextMenuUsersProps) => {
                     >
                         <FaCog className="mr-2" /> Edit User
                     </button>
-                    <button
-                        onClick={() => handleAction("deleteUser")}
-                        className="flex items-center w-[95%] px-4 m-1 bg-red-200 py-2 hover:bg-red-300 rounded-md"
-                    >
-                        <FaTrash className="mr-2 text-rose-700" />{" "}
-                        <span className="text-rose-700 font-bold">Delete User</span>
-                    </button>
+                    {userSession?.level === "MASTER" && (
+                        <button
+                            onClick={() => handleAction("deleteUser")}
+                            className="flex items-center w-[95%] px-4 m-1 bg-red-200 py-2 hover:bg-red-300 rounded-md"
+                        >
+                            <FaTrash className="mr-2 text-rose-700" />{" "}
+                            <span className="text-rose-700 font-bold">Delete User</span>
+                        </button>
+                    )}
                 </div>
             )}
 

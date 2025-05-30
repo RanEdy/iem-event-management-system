@@ -168,13 +168,16 @@ const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void 
           >
             <FaCog className="mr-2" /> Edit Event
           </button>
-          <button
-            onClick={() => handleAction("done")}
-            className="flex items-center w-[95%] px-4 m-1 bg-lime-100 py-2 hover:bg-lime-200 rounded-md"
-          >
-            <FaCheck className="mr-2 text-lime-600" />{" "}
-            <span className="text-lime-600 font-bold">Done</span>
-          </button>
+          {/* Condition for displaying the "Done" button" */}
+          {(new Date(row.startDate) < new Date() || new Date(row.endDate) < new Date() || row.status === 'CANCELLED') && (
+            <button
+              onClick={() => handleAction("done")}
+              className="flex items-center w-[95%] px-4 m-1 bg-lime-100 py-2 hover:bg-lime-200 rounded-md"
+            >
+              <FaCheck className="mr-2 text-lime-600" />{" "}
+              <span className="text-lime-600 font-bold">Done</span>
+            </button>
+          )}
           <button
             onClick={() => handleAction("delete")}
             className="flex items-center w-[95%] px-4 m-1 bg-red-200 py-2 hover:bg-red-300 rounded-md"

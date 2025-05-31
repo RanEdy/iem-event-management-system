@@ -1,15 +1,16 @@
 "use client";
 
 import { UserLevel } from "@prisma/client";
-import { IUser } from "@/entities/IUser"; // Asegúrate que esta ruta es correcta y IUser está definido
+import { IUser } from "@/entities/IUser"; // Make sure that this path is correct and IUser is defined.
 import { FaPlus, FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
-import ContexMenuUsers from "../commonUI/ContexMenuUsers"; // Cambiado de ContextMenu a ContexMenuUsers
+import ContexMenuUsers from "../commonUI/ContexMenuUsers"; // Changed from ContextMenu to ContexMenuUsers
 import { UserForm } from "./UserForm";
-import { useLogin } from '../loginUI/LoginProvider'; // <-- AÑADIR ESTA LÍNEA
+import { useLogin } from '../loginUI/LoginProvider';
+import { UsersInformation } from "./UsersInformation"; // Import UsersInformation
 
-// Función para calcular la antigüedad
+// Function for calculating seniority
 const calculateSeniority = (hireDateString: string | Date): string => {
   const hireDate = new Date(hireDateString);
   if (isNaN(hireDate.getTime())) {
@@ -22,7 +23,7 @@ const calculateSeniority = (hireDateString: string | Date): string => {
 
   if (days < 0) {
     months--;
-    days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); // Días en el mes anterior
+    days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); // Days in the previous month
   }
   if (months < 0) {
     years--;
@@ -39,7 +40,7 @@ const calculateSeniority = (hireDateString: string | Date): string => {
 };
 
 export const UsersTable: React.FC = () => {
-  const { userSession, isLoading: isLoginLoading } = useLogin(); // <-- AÑADIR ESTA LÍNEA
+  const { userSession, isLoading: isLoginLoading } = useLogin();
   const [users, setUsers] = useState<IUser[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<IUser[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -48,9 +49,10 @@ export const UsersTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterUserType, setFilterUserType] = useState<UserLevel | "">("");
   const [filterStatus, setFilterStatus] = useState<boolean | "">("");
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null); // new state
 
   const loadUsers = async () => {
-    fetch("/api/user") // Asegúrate que esta es la API correcta para obtener usuarios
+    fetch("/api/user") // Make sure this is the correct API to obtain users.
       .then((res) => res.json())
       .then(
         (
@@ -71,8 +73,8 @@ export const UsersTable: React.FC = () => {
 
           const parsedUsers = usersData.map((user) => ({
             ...user,
-            birthday: user.birthday ? new Date(user.birthday) : new Date(), // O maneja null/undefined como prefieras
-            hireDate: user.hireDate ? new Date(user.hireDate) : new Date(), // O maneja null/undefined
+            birthday: user.birthday ? new Date(user.birthday) : new Date(), // Or handle null/undefined as you prefer.
+            hireDate: user.hireDate ? new Date(user.hireDate) : new Date(), // Handles null/undefined
           }));
           setUsers(parsedUsers);
         }
@@ -86,13 +88,13 @@ export const UsersTable: React.FC = () => {
     loadUsers();
   }, []);
 
-  // Efecto para establecer el filtro por defecto según el rol del usuario
+  // Effect to set the default filter according to user role
   useEffect(() => {
     if (!isLoginLoading && userSession) {
       if (userSession.level !== UserLevel.MASTER) {
         setFilterUserType(UserLevel.STAFF);
       }
-      // Si es MASTER, el filtro es controlado por su selección en el dropdown (inicialmente "")
+      // If MASTER, the filter is controlled by your selection in the dropdown (initially "").
     }
   }, [userSession, isLoginLoading]);
 
@@ -128,7 +130,7 @@ export const UsersTable: React.FC = () => {
 
   const handleRowClick = (row: IUser) => {
     console.log("Selected User: ", row);
-    // Aquí puedes implementar la lógica para editar o ver detalles del usuario si es necesario al hacer clic en la fila
+    // Here you can implement the logic to edit or view user details if needed by clicking on the row
   };
 
   const showToastMessage = (message: string) => {
@@ -136,13 +138,13 @@ export const UsersTable: React.FC = () => {
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
-    }, 4000); // 4 segundos
+    }, 4000); // 4 seconds
   };
 
   const handleUserModified = (message: string) => {
     console.log("handleUserModified llamado con mensaje: ", message);
     showToastMessage(message);
-    loadUsers(); // Recargar la lista de usuarios
+    loadUsers(); // Reload user list
   };
 
   const columns: TableColumn<IUser>[] = [
@@ -209,7 +211,7 @@ export const UsersTable: React.FC = () => {
         row.hireDate ? calculateSeniority(row.hireDate) : "N/A",
       sortable: true,
       format: (row) =>
-        row.hireDate ? calculateSeniority(row.hireDate) : "N/A", // Necesario para que el sort use el valor calculado
+        row.hireDate ? calculateSeniority(row.hireDate) : "N/A", // Necessary for sort to use calculated value
     },
     {
       name: "OPTIONS",
@@ -249,7 +251,7 @@ export const UsersTable: React.FC = () => {
 
         {/* FILTERS */}
         <div className="flex items-center gap-4">
-          {userSession?.level === UserLevel.MASTER && ( // <-- ENVOLVER EL SELECT EN ESTA CONDICIÓN
+          {userSession?.level === UserLevel.MASTER && ( // <-- WRAP THE SELECT IN THIS CONDITION
             <select
               className="h-12 border-2 p-2 border-gray-300 rounded-lg focus:outline-none"
               value={filterUserType}
@@ -319,7 +321,7 @@ export const UsersTable: React.FC = () => {
             {/* USER FORM */}
             <UserForm
               title="Register User"
-              onSave={() => { // Asumiendo que UserForm tiene una prop onSave
+              onSave={() => { // Assuming that UserForm has a prop onSave
                   loadUsers();
               }}
             />
@@ -328,15 +330,15 @@ export const UsersTable: React.FC = () => {
       )}
 
       <DataTable
-        className="h-auto overflow-visible" // Ajustado para que la tabla crezca según el contenido
+        className="h-auto overflow-visible" // Adjusted so that the table grows according to content
         columns={columns}
         data={filteredUsers}
-        onRowClicked={handleRowClick}
+        onRowClicked={(row) => setSelectedUser(row)} // Open modal on row click
         pointerOnHover
         highlightOnHover
         pagination
         fixedHeader
-        fixedHeaderScrollHeight="calc(100vh - 350px)" // Ajusta este valor según la altura de tus otros elementos
+        fixedHeaderScrollHeight="calc(100vh - 350px)" // Adjust this value according to the height of your other elements.
         customStyles={{
           headCells: {
             style: {
@@ -345,10 +347,18 @@ export const UsersTable: React.FC = () => {
               borderRadius: "0",
             },
           },
-          table: { style: { minHeight: "300px" } }, // Altura mínima para la tabla
+          table: { style: { minHeight: "300px" } }, // Minimum height for the table
         }}
         noDataComponent={<div>No users found.</div>}
       />
+
+      {/* User Information Modal */}
+      {selectedUser && (
+        <UsersInformation
+          userId={selectedUser.id}
+          onClose={() => setSelectedUser(null)}
+        />
+      )}
     </div>
   );
 };

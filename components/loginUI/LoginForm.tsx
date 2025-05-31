@@ -67,6 +67,14 @@ const LoginForm = () => {
             if (response.ok) {
                 // Success: User authenticated
                 const authenticatedUser: IUser = data; // Assuming that the API returns the object IUser
+
+                // Check if the user is active
+                if (!authenticatedUser.active) {
+                    setEmailError("Access denied: Your account is inactive. Please contact support.");
+                    setIsLoading(false);
+                    return;
+                }
+
                 console.log("Successful login for:", authenticatedUser.email);
                 setUserSession(authenticatedUser); // Save session in context
                 router.push('/main'); // Redirect to homepage

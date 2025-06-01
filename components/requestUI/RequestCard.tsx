@@ -1,7 +1,12 @@
 import { IEvent } from "@/entities/IEvent";
 import React, { useEffect, useState } from "react";
 
-const RequestCard: React.FC<{ event: IEvent }> = ({ event }) => {
+interface RequestCardProps {
+    event: IEvent;
+    onRequestCancel?: (message: string) => void;
+}
+
+const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel }) => {
     const { name, startDate, status } = event;
     const [cancelRequestDialogOpen, setCancelRequestDialogOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,6 +51,11 @@ const RequestCard: React.FC<{ event: IEvent }> = ({ event }) => {
                 throw new Error('Failed to delete event');
             } else {
                 console.log('Event deleted successfully');
+                if (onRequestCancel) {
+                    onRequestCancel("Request cancelled successfully!");
+                } else {
+                    window.location.reload();
+                }
             }
         } catch (error) {
             console.error('Error deleting event:', error);

@@ -8,6 +8,9 @@ import { EventStatus } from '@prisma/client';
 export const RequestStatus: React.FC = () => {
 
     const [events, setEvents] = useState<IEvent[]>([])
+    // Toast message that pair with RequestCard
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [showToast, setShowToast] = useState(false);
 
     const loadEvents = async () => {
         fetch("api/event")
@@ -24,6 +27,13 @@ export const RequestStatus: React.FC = () => {
             })
             .catch(error => console.error("Error fetching or parsing events:", error));
     }
+
+    const handleRequestCancelled = (message: string) => {
+        setToastMessage(message);
+        setShowToast(true);
+        loadEvents(); // Reload events to update the table
+        setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+    };
 
     useEffect(() => {
         loadEvents();
@@ -62,7 +72,7 @@ export const RequestStatus: React.FC = () => {
                             .filter(event => event.status === EventStatus.CANCELLED)
                             .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
                             .map(event => (
-                                <RequestCard key={event.id} event={event} />
+                                <RequestCard key={event.id} event={event} onRequestCancel={handleRequestCancelled} />
                             ))}
                     </div>
                 </div>
@@ -77,7 +87,7 @@ export const RequestStatus: React.FC = () => {
                             .filter(event => event.status === EventStatus.IN_PROCESS)
                             .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
                             .map(event => (
-                                <RequestCard key={event.id} event={event} />
+                                <RequestCard key={event.id} event={event} onRequestCancel={handleRequestCancelled} />
                             ))}
                     </div>
                 </div>
@@ -92,11 +102,18 @@ export const RequestStatus: React.FC = () => {
                             .filter(event => event.status === EventStatus.DONE)
                             .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
                             .map(event => (
-                                <RequestCard key={event.id} event={event} />
+                                <RequestCard key={event.id} event={event} onRequestCancel={handleRequestCancelled} />
                             ))}
                     </div>
                 </div>
             </div>
+            
+            {/* A toast message, we can use a dialog insted */}
+            {showToast && toastMessage && (
+                <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+                    {toastMessage}
+                </div>
+            )}
         </div>
     )
 

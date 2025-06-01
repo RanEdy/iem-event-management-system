@@ -29,6 +29,24 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
       contactPhone: userSession?.contactPhone || '',
     });
 
+    const handleLogout = async () => {
+      try {
+        const response = await fetch('/api/user/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.ok) {
+          setUserSession(null); 
+          setIsProfileOpen(false);
+          window.location.href = '/login' // Actualiza el estado de sesión en el contexto
+        }
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
+    };
+
     const[initialInfo] = useState({
       name: userSession?.name || '',
       email: userSession?.email || '',
@@ -301,6 +319,10 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                   `}
                   >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}</button>
+                    <button 
+                      onClick={handleLogout}
+                      className='w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white 
+                      rounded-md transition-colors'>Log Out</button>
                 </div>
             </div>
         )}

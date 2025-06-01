@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { IUser } from "@/entities/IUser";
-// import { UserLevel } from "@prisma/client"; // Uncomment if UserLevel is shown directly
+import { UserLevel } from "@prisma/client"; // Uncomment if UserLevel is shown directly
 
 interface UsersInformationProps {
   userId: number;
@@ -30,7 +30,7 @@ export const UsersInformation: React.FC<UsersInformationProps> = ({ userId, onCl
         if (data.success && data.user) {
           setUser(data.user);
         } else if (data && typeof data.id !== 'undefined') {
-            setUser(data);
+          setUser(data);
         }
         else {
           throw new Error(data.error || "User not found or invalid response structure.");
@@ -49,17 +49,15 @@ export const UsersInformation: React.FC<UsersInformationProps> = ({ userId, onCl
   const formatDate = (dateString: string | Date | undefined) => {
     if (!dateString) return "N/A";
     try {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return "Invalid Date";
-        return date.toLocaleDateString("en-EN", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-EN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     } catch (e) {
-        return "Invalid Date";
+      return "Invalid Date";
     }
   };
 
@@ -88,45 +86,50 @@ export const UsersInformation: React.FC<UsersInformationProps> = ({ userId, onCl
 
         <div className="mb-5 justify-self-center">
           <div className="text-cyan-900 text-center text-3xl lg:text-4xl font-extrabold font-maven">
-          User Information
+            User Information
           </div>
         </div>
         <hr className="w-[100%] border-t-4 border-cyan-900 mb-6" />
 
         {isLoading && <p className="text-center text-gray-600">Loading user data...</p>}
         {error && <p className="text-center text-red-500">Error: {error}</p>}
-        
+
         {user && !isLoading && !error && (
           <div className="space-y-1">
             <InfoItem label="Number" value={user.name} />
             <InfoItem label="Email" value={user.email} />
             <InfoItem label="Phone" value={user.phone} />
             <InfoItem label="User ID" value={user.id?.toString()} />
-            <InfoItem label="Nivel" value={user.level} />
-            <InfoItem label="State" value={user.active ? "Active" : "Inactive"} highlight={user.active ? "green" : "red"} />
-            <InfoItem label="Birthday" value={formatDate(user.birthday)} />
+            <InfoItem label="Level" value={user.level} />
+            <InfoItem label="Status" value={user.active ? "Active" : "Inactive"} highlight={user.active ? "green" : "red"} />
+            <InfoItem label="Date of birth" value={formatDate(user.birthday)} />
             <InfoItem label="Date of hire" value={formatDate(user.hireDate)} />
             <InfoItem label="Guard Card" value={user.guardCard ? "Yes" : "No"} />
             {user.contactName && <InfoItem label="Emergency Contact" value={user.contactName} />}
             {user.contactPhone && <InfoItem label="Emergency Phone" value={user.contactPhone} />}
-            
-            <h3 className="text-xl font-semibold text-cyan-800 pt-4 border-t border-gray-300 mt-4">Activity Counts</h3>
-            <InfoItem label="Events as Supervisor" value={user.supervisorCount?.toString() ?? "0"} />
-            <InfoItem label="Events as Manager" value={user.managerCount?.toString() ?? "0"} />
-            <InfoItem label="Logistics Events" value={user.logisticCount?.toString() ?? "0"} />
-            <InfoItem label="Events as Driver" value={user.driverCount?.toString() ?? "0"} />
-            <InfoItem label="Dispatch Events" value={user.dispatchCount?.toString() ?? "0"} />
-            <InfoItem label="Events such as Asist. Manager" value={user.assistantManagerCount?.toString() ?? "0"} />
+            {user?.level === UserLevel.STAFF && (
+              <>
+                <h3 className="text-xl font-semibold text-cyan-800 pt-4 border-t border-gray-300 mt-4">
+                  Activity Counts
+                </h3>
+                <InfoItem label="Events as Supervisor" value={user.supervisorCount?.toString() ?? "0"} />
+                <InfoItem label="Events as Manager" value={user.managerCount?.toString() ?? "0"} />
+                <InfoItem label="Logistics Events" value={user.logisticCount?.toString() ?? "0"} />
+                <InfoItem label="Events as Driver" value={user.driverCount?.toString() ?? "0"} />
+                <InfoItem label="Dispatch Events" value={user.dispatchCount?.toString() ?? "0"} />
+                <InfoItem label="Events such as Asist. Manager" value={user.assistantManagerCount?.toString() ?? "0"} />
+              </>
+            )}
           </div>
         )}
-        
+
         <div className="mt-8 flex justify-end">
           <button
             type="button"
             className="bg-gray-500 text-white font-bold px-6 py-2 rounded-md hover:bg-gray-600"
             onClick={onClose}
           >
-            Closet
+            Close
           </button>
         </div>
       </div>

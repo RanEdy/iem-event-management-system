@@ -345,7 +345,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                     setBirthday(new Date());
                   }
                 }}
-                dateFormat="MMMM, dd,  yyyy hh:mm aa"
+                dateFormat="MMMM, dd,  yyyy"
                 placeholderText="Birthday*"
               />
             </div>
@@ -367,7 +367,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                     setHireDate(date);
                   }
                 }}
-                dateFormat="MMMM, dd,  yyyy hh:mm aa"
+                dateFormat="MMMM, dd,  yyyy"
                 placeholderText="Hire Date*"
               />
             </div>

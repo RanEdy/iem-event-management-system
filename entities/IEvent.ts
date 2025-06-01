@@ -2,6 +2,9 @@ import { EventStatus, USAState } from "@prisma/client";
 
 export interface IEvent 
 {
+    pendingRequests: number;
+    registeredUsers: number;
+    description: string;
     id: number;
     name: string;
     city: string;

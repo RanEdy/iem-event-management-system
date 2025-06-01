@@ -161,7 +161,7 @@ const LoginForm = () => {
                         className="h-10 w-full p-2 mt-6 rounded-md bg-cyan-900 text-white font-extrabold hover:bg-cyan-800 transition-colors duration-200 disabled:opacity-50"
                         disabled={isLoading} // Disable button during charging
                     >
-                        {isLoading ? 'INGRESANDO...' : 'LOGIN'}
+                        {isLoading ? 'LOADING...' : 'LOGIN'}
                     </button>
                 </form>
             </div>

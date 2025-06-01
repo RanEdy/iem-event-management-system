@@ -5,10 +5,6 @@ import { IEvent } from "@/entities/IEvent";
 import RequestCard from "./RequestCard";
 import { EventStatus } from '@prisma/client';
 
-
-// const [toastMessage, setToastMessage] = useState('');
-// const [showToast, setShowToast] = useState(false);
-
 export const RequestStatus: React.FC = () => {
 
     const [events, setEvents] = useState<IEvent[]>([])
@@ -44,15 +40,8 @@ export const RequestStatus: React.FC = () => {
 
     // }, [events]);
 
-
-
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
-            {/* {showToast && (
-                <div className="fixed top-5 left-1/2 transform-translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
-                    {toastMessage}
-                </div>
-            )} */}
             <div className="p-4 flex flex-col sm:flex-row justify-between lg:w-2/3 md:items-center md:w-[88%]">
                 <div className="p-4 rounded text-center">Total applications: <span className="font-bold">{" " + events.length}</span></div>
                 <div className="p-4 rounded text-center">Rejected applications: <span className="font-bold">{" " + events.filter(event => event.status === EventStatus.CANCELLED).length}</span></div>
@@ -69,21 +58,27 @@ export const RequestStatus: React.FC = () => {
                         Rejected Applications
                     </div>
                     <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
-                        {events.filter(event => event.status === EventStatus.CANCELLED).map(event => (
-                            <RequestCard key={event.id} event={event} />
-                        ))}
+                        {events
+                            .filter(event => event.status === EventStatus.CANCELLED)
+                            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+                            .map(event => (
+                                <RequestCard key={event.id} event={event} />
+                            ))}
                     </div>
                 </div>
 
                 {/* Pending Applications */}
-                <div className=" p-4 m-[20px]">
+                <div className="p-4 m-[20px]">
                     <div className="text-cyan-900 text-center text-1xl lg:text-2xl font-extrabold font-maven mb-7">
                         Pending Applications
                     </div>
-                    <div className="bg-bluedark-gradient-r py-0.5 rounded-lg  h-[70%] overflow-y-auto">
-                        {events.filter(event => event.status === EventStatus.IN_PROCESS).map(event => (
-                            <RequestCard key={event.id} event={event} />
-                        ))}
+                    <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
+                        {events
+                            .filter(event => event.status === EventStatus.IN_PROCESS)
+                            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+                            .map(event => (
+                                <RequestCard key={event.id} event={event} />
+                            ))}
                     </div>
                 </div>
 
@@ -93,9 +88,12 @@ export const RequestStatus: React.FC = () => {
                         Accepted Applications
                     </div>
                     <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
-                        {events.filter(event => event.status === EventStatus.DONE).map(event => (
-                            <RequestCard key={event.id} event={event} />
-                        ))}
+                        {events
+                            .filter(event => event.status === EventStatus.DONE)
+                            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+                            .map(event => (
+                                <RequestCard key={event.id} event={event} />
+                            ))}
                     </div>
                 </div>
             </div>

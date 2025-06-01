@@ -5,6 +5,7 @@ import { UserLevel } from '@prisma/client';
 import { NavbarButton } from './NavbarButton';
 // Importa los iconos que necesites, por ejemplo:
 import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser, FaUserShield, FaUserCog, FaTimes } from "react-icons/fa";
+import { IoLayers } from "react-icons/io5";
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLogin } from '../loginUI/LoginProvider';
 
@@ -218,6 +219,15 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                             name={"Archives"} 
                             icon={<FaFolderOpen className="text-white h-3/4 w-3/4"/>}
                             onClick={() => setCurrentPage("Archives")}
+                        />
+                    </>
+                )}
+                {(userSession?.level === UserLevel.STAFF) && (
+                    <>
+                        <NavbarButton 
+                            name={"Request Status"} 
+                            icon={<IoLayers  className="text-white h-3/4 w-3/4"/>}
+                            onClick={() => setCurrentPage("Request")}
                         />
                     </>
                 )}

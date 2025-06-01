@@ -7,6 +7,8 @@ import { EventsPage } from "@/components/eventsUI/EventsPage";
 import { ArchivesPage } from "@/components/ArchivesUI/ArchivesPage";
 import { UsersPage } from "@/components/usersUI/UsersPage";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { UserLevel } from '@prisma/client';
+import { EventsTableStaff } from '@/components/eventsUI/EventsTableStaff'; // Import EventsTableStaff
 
 export default function MainPage() {
     const { currentPage } = useNavigation();
@@ -30,7 +32,11 @@ export default function MainPage() {
     return (
         <>
             {currentPage === "Events" ? (
-                <EventsPage />
+                userSession.level === UserLevel.STAFF ? (
+                    <EventsTableStaff />
+                ) : (
+                    <EventsPage />
+                )
             ) : currentPage === "Users" ? (
                 <UsersPage />
             ) : (

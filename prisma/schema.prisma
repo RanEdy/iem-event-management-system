@@ -65,6 +65,7 @@ model User {
   contactPhone String?
 
   eventUserList EventUserList[]
+  requests EventRequest[]
 }
 
 model Event {
@@ -83,6 +84,7 @@ model Event {
 
   eventUsers EventUserList[]
   sections EventSection[]
+  requests EventRequest[]
 }
 
 model EventSection {
@@ -108,6 +110,15 @@ model EventUserList {
   userId Int 
   eventId Int
   role UserRole
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model EventRequest {
+  id Int @id @default(autoincrement())
+  eventId Int
+  userId Int
+  status GenericRequestStatus @default(PENDING)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }

@@ -5,6 +5,7 @@ import { IEvent } from "@/entities/IEvent";
 import { FaSearch } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
+import { EventsInformationStaff } from "./EventsInformationStaff"; // Import the new component
 
 export const EventsTableStaff: React.FC = () => {
     const [events, setEvents] = useState<IEvent[]>([]);
@@ -13,6 +14,7 @@ export const EventsTableStaff: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState<"all" | "public" | "private">("all");
     const [startDateFilter, setStartDateFilter] = useState("");
     const [endDateFilter, setEndDateFilter] = useState("");
+    const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null); // State for selected event
 
     const columns: TableColumn<IEvent>[] = [
         {
@@ -21,17 +23,17 @@ export const EventsTableStaff: React.FC = () => {
             sortable: true,
             minWidth: "200px",
         },
-        {
+        /*{
             name: "SUMMARY",
             cell: row => (
                 <div className="py-2">
                     <div className="text-sm text-gray-600 line-clamp-2">
-                        {row.description || "Lorem Ipsum dolor sit amet consecte..."}
+                        {row.description || "No description"}
                     </div>
                 </div>
             ),
             minWidth: "250px",
-        },
+        },*/
         {
             name: "DATE",
             cell: row => (
@@ -177,6 +179,12 @@ export const EventsTableStaff: React.FC = () => {
         setEndDateFilter("");
     };
 
+    // Handle row click to open event details modal
+    const handleRowClick = (row: IEvent) => {
+        console.log("Selected Event: ", row);
+        setSelectedEvent(row);
+    };
+
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
             {/* Summary Statistics */}
@@ -275,12 +283,13 @@ export const EventsTableStaff: React.FC = () => {
                 className="h-[60%] overflow-visible"
                 columns={columns}
                 data={filteredEvents}
+                onRowClicked={handleRowClick} // Add row click handler
                 pagination
                 paginationPerPage={10}
                 paginationRowsPerPageOptions={[5, 10, 15, 20]}
                 fixedHeader
                 highlightOnHover
-                pointerOnHover={false}
+                pointerOnHover={true} // Enable pointer cursor on hover
                 noDataComponent={
                     <div className="py-8 text-center text-gray-500">
                         {events.length === 0 
@@ -303,6 +312,11 @@ export const EventsTableStaff: React.FC = () => {
                         style: {
                             fontSize: "14px",
                         }
+                    },
+                    rows: {
+                        style: {
+                            cursor: "pointer", // Add cursor pointer for rows
+                        }
                     }
                 }}
             />
@@ -311,6 +325,14 @@ export const EventsTableStaff: React.FC = () => {
             <div className="p-4 text-sm text-gray-600 border-t">
                 1-{Math.min(10, filteredEvents.length)} of {filteredEvents.length}
             </div>
+
+            {/* Event Information Modal */}
+            {selectedEvent && (
+                <EventsInformationStaff
+                    eventId={selectedEvent.id}
+                    onClose={() => setSelectedEvent(null)}
+                />
+            )}
         </div>
     );
 };

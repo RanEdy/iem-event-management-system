@@ -231,8 +231,8 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
         </div>
         {/* Profile Sidebar */}
         {isProfileOpen &&(
-          <div className='fixed right-0 top-0 h-full w-96 bg-white shadow-lg z-50 overflow-y-auto'>
-            <div className='w-full h-20 flex justify-between items-center px-6 bg-bluedark-gradient-r'>
+          <div className='fixed right-0 top-0 h-full w-96 bg-white shadow-lg z-50 overflow-y-auto border-l-4 border-gray-200'>
+            <div className="flex h-32 w-full p-6 m-0 shadow-lg shadow-gray-700 items-center justify-between bg-bluedark-gradient-r">
               <h2 className='text-2xl font-bold text-white'>Profile Information</h2>
               <button onClick={() => setIsProfileOpen(false)} className='text-gray-500 hover:text-gray-700'>
                 <FaTimes size={24} />

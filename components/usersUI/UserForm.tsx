@@ -123,7 +123,7 @@ export const UserForm: React.FC<UserFormProps> = ({
         active: isActive,
         level,
       };
-      console.log("User to uptade:", userToUpdate);
+      console.log("User to update:", userToUpdate);
 
       const responseUpdateUser = await fetch(`/api/user/${userId}`, {
         method: "PUT",
@@ -491,14 +491,14 @@ export const UserForm: React.FC<UserFormProps> = ({
             <button
               type="button"
               onClick={cleanForm}
-              className="h-10 w-full p-2 rounded-md bg-red-600 text-white font-bold"
+              className="h-10 w-full p-2 rounded-md bg-gray-400 hover:opacity-75 text-white font-bold"
             >
-              Clean
+              Clear
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="h-10 w-full p-2 rounded-md bg-blue-900 text-white font-bold"
+              className="h-10 w-full p-2 rounded-md bg-bluedark-gradient-r hover:opacity-75 text-white font-bold"
             >
               {isSubmitting
                 ? userId
@@ -513,23 +513,22 @@ export const UserForm: React.FC<UserFormProps> = ({
       </div>
 
       {succesDialogOpen && (
-      <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-        <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-3">
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className=" bg-white rounded-md p-6 shadow-md w-full max-w-sm">
+          <h3 className="text-lg font-semibold mb-2">
             {userId ? "User updated" : "User created successfully"}
-          </h2>
+          </h3>
           {!userId ? (
             <p className="text-gray-700 mb-5">
               Password for the user:{" "}
               <span className="font-bold">{generatedPassword}</span>
             </p>
           ) : (
-            <p className="text-gray-700 mb-5 text-center">{successMessage}</p>
+            <p className="text-gray-700 ">{successMessage}</p>
           )}
-          <div className="grid grid-cols-1 justify-items-center">
             <button
               type="button"
-              className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
+              className="mt-4 px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
               onClick={() => {
                 setSuccesDialogOpen(false);
                 if (!userId) {
@@ -543,9 +542,8 @@ export const UserForm: React.FC<UserFormProps> = ({
                 }
               }}
             >
-              OK
+              Close
             </button>
-          </div>
         </div>
       </div>
     )}

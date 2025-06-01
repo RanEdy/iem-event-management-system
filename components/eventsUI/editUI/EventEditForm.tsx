@@ -576,7 +576,7 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
           {/* BUTTONS */}
           <button
             type="submit"
-            className="h-10 w-full p-2 sm:w-1/3 mt-6 rounded-md bg-blue-900 text-white font-bold">
+            className="h-10 w-full p-2 sm:w-1/3 mt-6 rounded-md bg-bluedark-gradient-r hover:opacity-75 text-white font-bold">
             Update Event
           </button>
         </form>
@@ -584,14 +584,14 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
 
       {/* SUCCESS DIALOG */}
       {successDialogOpen && (
-        <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-          <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-3">Success</h2>
-            <p className="text-gray-700 mb-5"><span className="font-bold">Event successfully updated</span></p>
-            <div className="grid grid-cols-1 justify-items-center">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className=" bg-white rounded-md p-6 shadow-md w-full max-w-sm">
+            <h3 className="text-lg font-semibold mb-2">Success</h3>
+            <p className="text-gray-700">Event successfully updated</p>
+            
               <button
                 type="button"
-                className="bg-green-500 text-white font-bold px-20 py-2 rounded-md hover:bg-green-600"
+                className="mt-4 px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
                 onClick={() => {
                   setSuccessDialogOpen(false);
                   if (onSave) {
@@ -599,9 +599,9 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
                   }
                 }}
               >
-                OK
+                Close
               </button>
-            </div>
+            
           </div>
         </div>
       )}

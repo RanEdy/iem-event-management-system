@@ -47,7 +47,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
       }
     };
 
-    const[initialInfo] = useState({
+    const[initialInfo, setInitialInfo] = useState({
       name: userSession?.name || '',
       email: userSession?.email || '',
       phone: userSession?.phone || '',
@@ -103,7 +103,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
           },
           body: JSON.stringify({
             name: editableInfo.name,
-            email: "edit@test.com",
+            email: editableInfo.email, //"edit@test.com",
             phone: editableInfo.phone,
             contactName: editableInfo.contactName,
             contactPhone: editableInfo.contactPhone,
@@ -155,6 +155,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
             };
             setUserSession(updatedUserSession);
           }
+            setInitialInfo(editableInfo);
             setIsProfileOpen(false);
         } else {
           const errorData = await response.json();

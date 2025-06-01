@@ -8,6 +8,8 @@ import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser, FaUserShield, FaU
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLogin } from '../loginUI/LoginProvider';
 
+
+
 type NavbarProps = {
     level: UserLevel; // Esta prop 'level' parece ser del componente Navbar en sí, no necesariamente del usuario en sesión.
                      // Nos basaremos en userSession.level para el icono del usuario.
@@ -21,6 +23,8 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
     const { setUserSession } = useLogin(); // Obtener el estado y el setUserSession del context
     const { userSession } = useLogin(); 
     const [ isProfileOpen, setIsProfileOpen ] = useState(false);
+    const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     const [editableInfo, setEditableInfo] = useState({
       name: userSession?.name || '',
       email: userSession?.email || '',
@@ -77,13 +81,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
         ...prev,
         [name]: value,
       }))
-      /*setEditableInfo({
-        ...editableInfo,
-        [name]: value,
-      });*/
     };
-
-    
 
     const handleSubmit = async () => {
       setIsSubmitting(true);
@@ -133,8 +131,11 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
           ...prev,
            general: validationResult.error || 'Validation failed'
           }));
+          
         }
         setIsSubmitting(false);
+        
+        
         return;
       }
         
@@ -157,6 +158,8 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
           }
             setInitialInfo(editableInfo);
             setIsProfileOpen(false);
+            setSuccessMessage('Profile updated successfully');
+            setSuccessDialogOpen(true);
         } else {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Failed to update profile');
@@ -316,7 +319,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                   className={`w-full mt-6 text-white py-2 px-4 rounded-md transition-colors
                     ${isSubmitting || !isModified() 
                       ? 'bg-gray-300 cursor-not-allowed'  // Botón deshabilitado: gris claro
-                      : 'bg-blue-600 hover:bg-blue-700'}  // Botón activo: azul con hover
+                      : 'bg-bluedark-gradient-r hover:opacity-75'}  // Botón activo: azul con hover
                   `}
                   >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}</button>
@@ -326,6 +329,20 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                       rounded-md transition-colors'>Log Out</button>
                 </div>
             </div>
+        )}
+        {successDialogOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-md shadow-md w-full max-w-sm">
+              <h3 className="text-lg font-semibold mb-2">Success</h3>
+              <p className="text-gray-700">{successMessage}</p>
+              <button
+                onClick={() => setSuccessDialogOpen(false)}
+                className="mt-4 px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         )}
       </>
     );

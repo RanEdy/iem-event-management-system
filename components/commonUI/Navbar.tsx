@@ -1,10 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, {useState} from 'react';
 import { UserLevel } from '@prisma/client';
 import { NavbarButton } from './NavbarButton';
 // Importa los iconos que necesites, por ejemplo:
-import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser, FaUserShield, FaUserCog } from "react-icons/fa";
+import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser, FaUserShield, FaUserCog, FaTimes } from "react-icons/fa";
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLogin } from '../loginUI/LoginProvider';
 
@@ -18,8 +18,57 @@ type NavbarProps = {
 const Navbar: React.FC<NavbarProps> = ({level, options}) => 
 {
     const { currentPage, setCurrentPage } = useNavigation();
+    const { setUserSession } = useLogin(); // Obtener el estado y el setUserSession del context
     const { userSession } = useLogin(); 
+    const [ isProfileOpen, setIsProfileOpen ] = useState(false);
+    const [editableInfo, setEditableInfo] = useState({
+      name: userSession?.name || '',
+      email: userSession?.email || '',
+      phone: userSession?.phone || '',
+      contactName: userSession?.contactName || '',
+      contactPhone: userSession?.contactPhone || '',
+    });
+
     
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setEditableInfo(prev => ({
+        ...prev,
+        [name]: value,
+      }))
+      /*setEditableInfo({
+        ...editableInfo,
+        [name]: value,
+      });*/
+    };
+
+    
+
+    const handleSubmit = async () => {
+      try{
+        const response = await fetch(`/api/user/${userSession?.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(editableInfo),
+        });
+
+        if (response.ok) {
+          if(userSession){
+            const updatedUserSession = {
+              ...userSession,
+              ...editableInfo
+            };
+            setUserSession(updatedUserSession);
+          }
+            setIsProfileOpen(false);
+        }
+      } catch (error) {
+        console.error('Error updating user:', error);
+      }
+    };
+
     const renderUserIcon = () => {
         if (!userSession) {
             return <FaUser className="w-3/5 h-3/5 text-white self-center"/>; // Icono por defecto si no hay sesión
@@ -38,6 +87,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
     };
     
     return (
+      <>
         <div className="flex h-32 w-full p-6 m-0 shadow-lg shadow-gray-700 items-center justify-between bg-bluedark-gradient-r">
             {/* Logo Img */}
             <div className="flex-shrink-0">
@@ -65,28 +115,6 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                         />
                     </>
                 )}
-                {/* 
-                    We no longer need these checks here as they are handled above.
-                */}
-                {/*
-                {
-                    level == UserLevel.MASTER ? <>
-
-                    </> : null
-                }
-
-                {
-                    level == UserLevel.ADMIN ? <>
-
-                    </> : null
-                }
-
-                {
-                    level == UserLevel.STAFF ? <>
-
-                    </> : null
-                }
-                */}
             </div>
 
             {/* User Info */}
@@ -94,11 +122,91 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                 {userSession && ( 
                     <span className="text-white font-semibold mr-4">{userSession.name}</span> 
                 )}
-                <div className="flex w-16 h-16 bg-bluedark-gradient-r justify-center rounded-full">
+                <button className="flex w-16 h-16 bg-bluedark-gradient-r justify-center rounded-full" onClick={() => setIsProfileOpen(true)}>
                     {renderUserIcon()} {/* Llama a la función para renderizar el icono */}
-                </div>
+                </button>
             </div>
         </div>
+        {/* Profile Sidebar */}
+        {isProfileOpen &&(
+          <div className='fixed right-0 top-0 h-full w-96 bg-white shadow-lg z-50 p-6 overflow-y-auto'>
+            <div className='flex justify-between items-center mb-6'>
+              <h2 className='text-2xl font-bold'>Profile Information</h2>
+              <button onClick={() => setIsProfileOpen(false)} className='text-gray-500 hover:text-gray-700'>
+                <FaTimes size={24} />
+              </button>
+            </div>
+            <div className='space-y-4'>
+              {/* Campos editables */}
+              <div>
+                <label className='block text-sm font-medium text-gray-700'>Name</label>
+                <input
+                  type='text'
+                  name='name'
+                  value={editableInfo.name}
+                  onChange={handleInputChange}
+                  className='mt-1 p-2 border border-gray-300 rounded-md w-full'
+                />
+                </div>
+                <div className='space-y-2'>
+                  <label className='block text-sm font-medium text-gray-700'>Email</label>
+                  <input
+                    type='email'
+                    name='email'
+                    value={editableInfo.email}
+                    onChange={handleInputChange}
+                    className='w-full p-2 border rounded-md'
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <label className='block text-sm font-medium text-gray-700'>Phone Number</label>
+                  <input
+                    type='tel'
+                    name='phone'
+                    value={editableInfo.phone}
+                    onChange={handleInputChange}
+                    className='w-full p-2 border rounded-md'
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <label className='block text-sm font-medium text-gray-700'>Emergency Contact Name</label>
+                  <input
+                    type='text'
+                    name='contactName'
+                    value={editableInfo.contactName}
+                    onChange={handleInputChange}
+                    className='w-full p-2 border rounded-md'
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <label className='block text-sm font-medium text-gray-700'>Emergency Contact Phone Number</label>
+                  <input
+                    type='tel'
+                    name='contactPhone'
+                    value={editableInfo.contactPhone}
+                    onChange={handleInputChange}
+                    className='w-full p-2 border rounded-md'
+                  />
+                  </div>
+                  {/* Read-only Fields */}
+                  <div className='space-y-2'>
+                    <label className='block text-sm font-medium text-gray-700'>DOB</label>
+                    <div className='w-full p-2 bg-gray-100 rounded-md'>
+                      {userSession?.birthday ? new Date(userSession.birthday).toLocaleDateString() : 'N/A'}
+                    </div>
+                  </div>
+                  <div className='space-y-2'>
+                    <label className='block text-sm font-medium text-gray-700'>Hire Date</label>
+                    <div className='w-full p-2 bg-gray-100 rounded-md'>
+                      {userSession?.hireDate? new Date(userSession.hireDate).toLocaleDateString() : 'N/A'}
+                    </div>
+                  </div>
+                  <button onClick={handleSubmit} className='w-full mt-6 bg-blue-600 text-white py-2
+                  px-4 rounded-md hover:bg-blue-700 transition-colors'>Save Changes </button>
+                </div>
+            </div>
+        )}
+      </>
     );
 }
 

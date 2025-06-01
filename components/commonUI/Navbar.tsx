@@ -85,7 +85,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
           },
           body: JSON.stringify({
             name: editableInfo.name,
-            email: editableInfo.email,
+            email: "edit@test.com",
             phone: editableInfo.phone,
             contactName: editableInfo.contactName,
             contactPhone: editableInfo.contactPhone,
@@ -213,14 +213,14 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
         </div>
         {/* Profile Sidebar */}
         {isProfileOpen &&(
-          <div className='fixed right-0 top-0 h-full w-96 bg-white shadow-lg z-50 p-6 overflow-y-auto'>
-            <div className='flex justify-between items-center mb-6'>
-              <h2 className='text-2xl font-bold'>Profile Information</h2>
+          <div className='fixed right-0 top-0 h-full w-96 bg-white shadow-lg z-50 overflow-y-auto'>
+            <div className='w-full h-20 flex justify-between items-center px-6 bg-bluedark-gradient-r'>
+              <h2 className='text-2xl font-bold text-white'>Profile Information</h2>
               <button onClick={() => setIsProfileOpen(false)} className='text-gray-500 hover:text-gray-700'>
                 <FaTimes size={24} />
               </button>
             </div>
-            <div className='space-y-4'>
+            <div className='space-y-4 p-6 pt-4'>
               {/* Campos editables */}
               <div>
                 <label className='block text-sm font-medium text-gray-700'>Name</label>

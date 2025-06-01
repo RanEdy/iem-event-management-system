@@ -6,6 +6,7 @@ import { useLogin } from '@/components/loginUI/LoginProvider';
 import { EventsPage } from "@/components/eventsUI/EventsPage";
 import { ArchivesPage } from "@/components/ArchivesUI/ArchivesPage";
 import { UsersPage } from "@/components/usersUI/UsersPage";
+import { RequestPage } from '@/components/requestUI/RequestPage';
 import { useNavigation } from "@/contexts/NavigationContext";
 import { UserLevel } from '@prisma/client';
 import { EventsTableStaff } from '@/components/eventsUI/EventsTableStaff'; // Import EventsTableStaff
@@ -39,9 +40,13 @@ export default function MainPage() {
                 )
             ) : currentPage === "Users" ? (
                 <UsersPage />
-            ) : (
+            ) : currentPage === "Archives" ? (
                 <ArchivesPage />
-            )}
+            ) : (
+                <RequestPage />
+            )
+            
+            }
         </>
     );
 }

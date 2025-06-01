@@ -123,7 +123,7 @@ export const UserForm: React.FC<UserFormProps> = ({
         active: isActive,
         level,
       };
-      console.log("User to uptade:", userToUpdate);
+      console.log("User to update:", userToUpdate);
 
       const responseUpdateUser = await fetch(`/api/user/${userId}`, {
         method: "PUT",

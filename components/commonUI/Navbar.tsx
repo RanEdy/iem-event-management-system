@@ -29,6 +29,29 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
       contactPhone: userSession?.contactPhone || '',
     });
 
+    const[initialInfo] = useState({
+      name: userSession?.name || '',
+      email: userSession?.email || '',
+      phone: userSession?.phone || '',
+      contactName: userSession?.contactName || '',
+      contactPhone: userSession?.contactPhone || '',
+    });
+
+    const isModified = () => {
+      return JSON.stringify(editableInfo) !== JSON.stringify(initialInfo);
+    };
+
+    const [errors, setErrors] = useState<{[key: string]: string}>({
+      name: '',
+      email: '',
+      phone: '',
+      contactName: '',
+      contactPhone: '',
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+
+
     
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
@@ -45,7 +68,58 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
     
 
     const handleSubmit = async () => {
+      setIsSubmitting(true);
+      setErrors({
+       name: '',
+        email: '',
+        phone: '',
+        contactName: '',
+        contactPhone: '',
+        general: ''
+      });
       try{
+        const validation = await fetch('/api/user/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: editableInfo.name,
+            email: editableInfo.email,
+            phone: editableInfo.phone,
+            contactName: editableInfo.contactName,
+            contactPhone: editableInfo.contactPhone,
+            birthday: userSession?.birthday,
+            hireDate: userSession?.hireDate,
+            currentUserID: userSession?.id
+            //id: currentUser.id,
+            //level: userSession?.level,*/
+          }),
+        });
+
+        const validationResult = await validation.json();
+        
+        if(!validationResult.success){
+          if(validationResult.errors){
+          setErrors(prev =>({
+            ...prev,
+            ...validationResult.errors,
+          }));
+        } else if(validationResult.field && validationResult.error){
+          setErrors(prev =>({
+           ...prev,
+           [validationResult.field]: validationResult.error
+          }));
+        } else {
+          setErrors(prev =>({
+          ...prev,
+           general: validationResult.error || 'Validation failed'
+          }));
+        }
+        setIsSubmitting(false);
+        return;
+      }
+        
         const response = await fetch(`/api/user/${userSession?.id}`, {
           method: 'PUT',
           headers: {
@@ -55,6 +129,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
         });
 
         if (response.ok) {
+          const updatedData = await response.json();
           if(userSession){
             const updatedUserSession = {
               ...userSession,
@@ -63,9 +138,18 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
             setUserSession(updatedUserSession);
           }
             setIsProfileOpen(false);
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update profile');
         }
       } catch (error) {
         console.error('Error updating user:', error);
+        setErrors({
+          ...errors,
+          general: 'An unexpected error occurred wile updating the profile.'
+        });
+      } finally {
+        setIsSubmitting(false);
       }
     };
 
@@ -145,8 +229,9 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                   name='name'
                   value={editableInfo.name}
                   onChange={handleInputChange}
-                  className='mt-1 p-2 border border-gray-300 rounded-md w-full'
+                  className={`mt-1 p-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md w-full`}
                 />
+                {errors.name && <div className='mt-1 text-sm text-red-600'>{errors.name}</div>}
                 </div>
                 <div className='space-y-2'>
                   <label className='block text-sm font-medium text-gray-700'>Email</label>
@@ -155,7 +240,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                     name='email'
                     value={editableInfo.email}
                     onChange={handleInputChange}
-                    className='w-full p-2 border rounded-md'
+                    className={`mt-1 p-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md w-full`}
                   />
                 </div>
                 <div className='space-y-2'>
@@ -165,7 +250,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                     name='phone'
                     value={editableInfo.phone}
                     onChange={handleInputChange}
-                    className='w-full p-2 border rounded-md'
+                    className={`mt-1 p-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-md w-full`}
                   />
                 </div>
                 <div className='space-y-2'>
@@ -175,7 +260,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                     name='contactName'
                     value={editableInfo.contactName}
                     onChange={handleInputChange}
-                    className='w-full p-2 border rounded-md'
+                    className={`mt-1 p-2 border ${errors.contactName ? 'border-red-500' : 'border-gray-300'} rounded-md w-full`}
                   />
                 </div>
                 <div className='space-y-2'>
@@ -185,7 +270,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                     name='contactPhone'
                     value={editableInfo.contactPhone}
                     onChange={handleInputChange}
-                    className='w-full p-2 border rounded-md'
+                    className={`mt-1 p-2 border ${errors.contactPhone ? 'border-red-500' : 'border-gray-300'} rounded-md w-full`}
                   />
                   </div>
                   {/* Read-only Fields */}
@@ -201,8 +286,21 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                       {userSession?.hireDate? new Date(userSession.hireDate).toLocaleDateString() : 'N/A'}
                     </div>
                   </div>
-                  <button onClick={handleSubmit} className='w-full mt-6 bg-blue-600 text-white py-2
-                  px-4 rounded-md hover:bg-blue-700 transition-colors'>Save Changes </button>
+                  {errors.general && (
+                  <div className='mt-4 p-3 bg-red-50 border border-red-200 rounded-md'>
+                    <p className='text-sm text-red-600'>{errors.general}</p>
+                  </div>
+)}
+                  <button 
+                  onClick={handleSubmit} 
+                  disabled={isSubmitting || !isModified()}
+                  className={`w-full mt-6 text-white py-2 px-4 rounded-md transition-colors
+                    ${isSubmitting || !isModified() 
+                      ? 'bg-gray-300 cursor-not-allowed'  // Botón deshabilitado: gris claro
+                      : 'bg-blue-600 hover:bg-blue-700'}  // Botón activo: azul con hover
+                  `}
+                  >
+                    {isSubmitting ? 'Saving...' : 'Save Changes'}</button>
                 </div>
             </div>
         )}

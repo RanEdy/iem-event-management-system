@@ -179,10 +179,11 @@ export class UserService {
         hireDate: Date;
         contactName: string;
         contactPhone: string;
+        currentUserID: number;
     }): Promise<ValidationResult> {
 
         // Destructure the userData object
-        const { name, email, phone, birthday, hireDate, contactName, contactPhone } = userData;
+        const { name, email, phone, birthday, hireDate, contactName, contactPhone, currentUserID } = userData;
 
         // Regular expressions for validation
         const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
@@ -208,7 +209,7 @@ export class UserService {
 
         //Check if the email is already registered
         const existingUser = await DAOLocator.userDao.findByEmail(email);
-        if (existingUser) {
+        if (existingUser && existingUser.id !== currentUserID) {
             return { isValid: false, error: 'The e-mail address is already registered' };
         }
         

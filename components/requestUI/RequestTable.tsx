@@ -63,7 +63,7 @@ export const RequestTable: React.FC<RequestTableProps> = ({ event }) => {
       });
       let pendingUsers = await response.json()
 
-
+      //Comentario
       //Get all the requests that matches with the users and event, then filter only the Pending ones
       const requestResp = await fetch("/api/eventRequest/findByEvent", {
         method: "POST",

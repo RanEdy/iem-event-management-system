@@ -62,16 +62,21 @@ export class EventUserListService
     * @param eventUserListData The object containing the eventUserList's information, excluding the ID.
     * @returns A boolean, "true" if the creation was successful, otherwise "false".
     */
-    async create(eventUserListData: Omit<IEventUserList, 'id'>): Promise<boolean>
+    async create(eventUserListData: Omit<IEventUserList, 'id' | 'id'>): Promise<boolean>
     {
         try
         {
-            await DAOLocator.eventUserListDao.create(eventUserListData);
+            const data = {
+                eventId: eventUserListData.eventId,
+                userId: eventUserListData.userId,
+                role: eventUserListData.role
+            }
+            await DAOLocator.eventUserListDao.create(data);
             return true;
         }
         catch(error)
         {
-            console.error("EventUserList could not be created");
+            console.error("EventUserList could not be created: ", error);
             return false;
         }
     }

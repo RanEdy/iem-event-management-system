@@ -135,6 +135,8 @@ export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
       console.log("Accept")
       const requests: IEventRequest[] = await fetch("/api/eventRequest/").then(requests => requests.json())
       const thisRequest = requests.filter(request => request.eventId === eventId && request.userId === userId)[0]
+      console.log(thisRequest)
+      console.log("Event ID: " + eventId + " | User ID: " + userId)
 
       const resp = await fetch("/api/eventRequest/validateAccept/", {
         method: "POST",
@@ -180,7 +182,7 @@ export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
           body: JSON.stringify(userParticipation)
         })
         const addUserSuccess = await response.json();
-        if ( success && addUserSuccess) alert("Request succesfully accepted")
+        if ( success && addUserSuccess.success) alert("Request succesfully accepted")
         //update table
         setAcceptDialog(false);
         loadUsers()

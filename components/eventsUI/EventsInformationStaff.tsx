@@ -306,14 +306,14 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
         <div className="mt-8 flex justify-between">
           <button
             type="button"
-            className="bg-blue-500 text-white font-bold px-6 py-2 rounded-md hover:bg-blue-600"
+            className="px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
             onClick={ handleRequest }
           >
             Request
           </button>
           <button
             type="button"
-            className="bg-gray-500 text-white font-bold px-6 py-2 rounded-md hover:bg-gray-600"
+            className="px-4 py-2 bg-gray-400 hover:opacity-75 text-white rounded-md"
             onClick={onClose}
           >
             Close
@@ -323,20 +323,20 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
         {showConfirmation && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-            <h2 className="text-2xl text-center font-bold text-gray-800 mb-3">Are you sure to request this event?</h2>
+            <h2 className="text-lg font-semibold mb-4 text-left">Are you sure to request this event?</h2>
               <p className="text-gray-700 mb-8">You will be placed in pending status at the event of {" "}<span className="font-semibold">{event?.name}</span> and you have to wait for acceptance.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
-                  className="border-2 font-bold bg-orange-400 text-white px-2 py-2 rounded-md hover:bg-orange-500"
-                  onClick={handleConfirmRequest}
-                >
-                  Apply
-                </button>
-                <button
-                  className="bg-red-400 font-bold text-white px-2 py-2 rounded-md hover:bg-red-500"
+                  className="px-4 py-2 bg-gray-400 hover:opacity-75 text-white rounded-md"
                   onClick={() => setShowConfirmation(false)}
                 >
                   Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
+                  onClick={handleConfirmRequest}
+                >
+                  Apply
                 </button>
               </div>
             </div>
@@ -347,11 +347,11 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
         {showAlreadyRegistered && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-              <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Already Registered!</h2>
+              <h2 className="text-lg font-semibold mb-4 text-left">Already Registered!</h2>
               <p className="text-gray-700 mb-7">You have already sent a request for the event <span className="font-semibold">{event?.name}</span>. Please wait for the event organizer to respond.</p>
               <div className="grid grid-cols-1 justify-items-center">
                 <button
-                  className="bg-red-500 text-white font-bold px-20 py-2 rounded-md hover:bg-red-600"
+                  className="px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
                   onClick={() => setShowAlreadyRegistered(false)}
                 >
                   OK
@@ -365,11 +365,11 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
         {showSuccess && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
-              <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Your request has been sent!</h2>
+              <h2 className="text-lg font-semibold mb-4 text-left">Your request has been sent!</h2>
                 <p className="text-gray-700 mb-7">We will notify you when we accepted your application for this event.</p>
                 <div className="grid grid-cols-1 justify-items-center">
                   <button
-                    className="bg-red-500 text-white font-bold px-20 py-2 rounded-md hover:bg-red-600"
+                    className="px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
                     onClick={handleCloseSuccess}
                   >
                     OK

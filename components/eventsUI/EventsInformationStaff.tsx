@@ -15,11 +15,13 @@ type EditableFile = ISectionFile & { file?: File; isNew?: boolean };
 interface EventsInformationStaffProps {
   eventId: number;
   onClose: () => void;
+  action: boolean;
 }
 
 export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
   eventId,
-  onClose
+  onClose,
+  action
 }) => {
   const [event, setEvent] = useState<IEvent | null>(null);
   const [sections, setSections] = useState<(IEventSection & { files: EditableFile[] })[]>([]);
@@ -304,6 +306,7 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
         )}
 
         <div className="mt-8 flex justify-between">
+          {action && (
           <button
             type="button"
             className="px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
@@ -311,6 +314,7 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
           >
             Request
           </button>
+          )}
           <button
             type="button"
             className="px-4 py-2 bg-gray-400 hover:opacity-75 text-white rounded-md"

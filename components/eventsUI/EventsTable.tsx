@@ -7,10 +7,7 @@ import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import ContextMenu from "../commonUI/ContextMenu";
 import { EventForm } from "./registerUI/EventForm";
-
-import { UserForm } from "../usersUI/UserForm"; //Only for testing purposes, remove later
-
-
+import { EventsInformation } from "./EventsInformation"; // Add this import
 
 export const EventsTable: React.FC = () =>
 {
@@ -19,7 +16,46 @@ export const EventsTable: React.FC = () =>
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    
+    const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null); // Add this state
+
+    const loadEvents = async () =>
+    {
+        fetch("api/event")
+        .then(res => res.json())
+        .then((data: IEvent[]) => {
+            // Cast string dates to Date objects and filter only events in process
+            const parsedEvents = data
+                .filter(event => event.status === EventStatus.IN_PROCESS)
+                .map(event => ({
+                    ...event,
+                    startDate: new Date(event.startDate),
+                    endDate: new Date(event.endDate),
+                }));
+            setEvents(parsedEvents);
+        })
+        .catch(error => console.error("Error fetching or parsing events:", error));
+    }
+
+    useEffect(() => {
+        if (searchTerm)
+        {
+            const filteredEvents = events.filter((event) =>
+                event.name.toLowerCase().includes(searchTerm.toLowerCase())
+            || event.id.toString().includes(searchTerm.toLowerCase()));
+            setEvents(filteredEvents)
+        }
+        else
+        {
+            loadEvents();
+        }
+    }, [searchTerm]);
+      
+    const handleRowClick = (row: IEvent) =>
+    {
+        console.log("Selected Event: ", row);
+        setSelectedEvent(row);
+    };
+
     const columns: TableColumn<IEvent>[] = [
         {
             name: "ID",
@@ -111,45 +147,6 @@ export const EventsTable: React.FC = () =>
         }
     ]
 
-    const loadEvents = async () =>
-    {
-        fetch("api/event")
-        .then(res => res.json())
-        .then((data: IEvent[]) => {
-            // Cast string dates to Date objects and filter only events in process
-            const parsedEvents = data
-                .filter(event => event.status === EventStatus.IN_PROCESS)
-                .map(event => ({
-                    ...event,
-                    startDate: new Date(event.startDate),
-                    endDate: new Date(event.endDate),
-                }));
-            setEvents(parsedEvents);
-        })
-        .catch(error => console.error("Error fetching or parsing events:", error));
-    }
-    useEffect(() => {
-        if (searchTerm)
-        {
-            const filteredEvents = events.filter((event) =>
-                event.name.toLowerCase().includes(searchTerm.toLowerCase())
-            || event.id.toString().includes(searchTerm.toLowerCase()));
-            setEvents(filteredEvents)
-        }
-        else
-        {
-            loadEvents();
-        }
-    }, [searchTerm]);
-      
-    const handleRowClick = (row: any) =>
-    {
-        console.log("Selected: ");
-        console.log(row);
-    }
-
-
-
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
             {showToast && (
@@ -217,6 +214,14 @@ export const EventsTable: React.FC = () =>
             fixedHeader
             customStyles={{headCells: {style: {fontWeight: "bold",backgroundColor: "#F5F5F5", borderRadius: "0"}}}}
             />
+
+            {/* Event Information Modal */}
+            {selectedEvent && (
+                <EventsInformation
+                    eventId={selectedEvent.id}
+                    onClose={() => setSelectedEvent(null)}
+                />
+            )}
         </div>
     );
 }

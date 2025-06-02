@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { GenericRequestStatus } from "@prisma/client";
 import { IEventUserList } from "@/entities/IEventUserList";
 import { useLogin } from "../loginUI/LoginProvider";
+import { EventsInformationStaff } from "@/components/eventsUI/EventsInformationStaff";
 
 interface RequestCardProps {
     event: IEvent;
@@ -15,7 +16,8 @@ const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel, reque
 
     const { userSession } = useLogin();
 
-    const { name, startDate, status } = event;
+    const { name, startDate } = event;
+    const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
     const [cancelRequestDialogOpen, setCancelRequestDialogOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [eventUserList, setEventUserList] = useState<IEventUserList | null>(null)
@@ -102,21 +104,55 @@ const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel, reque
                 <>
                     <hr className="border-t-2 border-gray-300 my-2" />
                     <div className="flex justify-center mt-5">
-                        <button
-                            className="bg-gradient-to-r from-gray-800 to-gray-600   hover:opacity-75 text-white px-4 py-2 rounded-2xl font-bold  w-2/3"
-                            onClick={() => {
-                                setIsSubmitting(true);
-                                setCancelRequestDialogOpen(true);
-                            }}
-                        >
-                            {isSubmitting ? "Canceling..." : "Cancel"}
-                        </button>
+                        <div className="flex justify-center gap-4 w-full">
+                            <button
+                                type="button"
+                                className="w-1/2 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-600 hover:opacity-75 text-white rounded-2xl font-bold"
+                                onClick={() => {
+                                    setIsSubmitting(true);
+                                    setCancelRequestDialogOpen(true);
+                                }}
+                            >
+                                {isSubmitting ? "Canceling..." : "Cancel"}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="w-1/2 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-600 hover:opacity-75 text-white rounded-2xl font-bold"
+                                onClick={() => setSelectedEvent(event)}
+                            >
+                                Resume
+                            </button>
+                        </div>
                     </div>
                 </>
             ) : requestStatus === GenericRequestStatus.ACCEPTED ? (
                 <>
                     <hr className="border-t-2 border-gray-300 my-2" />
                     <p className="font-bold text-gray-700 uppercase">Role: <span className="font-normal normal-case">{eventUserList?.role}</span></p>
+                    <hr className="border-t-2 border-gray-300 my-2" />
+                    <div className="flex justify-center gap-4">
+                        <button
+                            type="button"
+                            className="w-1/2 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-600 hover:opacity-75 text-white rounded-2xl font-bold"
+                            onClick={() => setSelectedEvent(event)}
+                        >
+                            Resume
+                        </button>
+                    </div>
+                </>
+            ) : requestStatus === GenericRequestStatus.REJECTED ? (
+                <>
+                    <hr className="border-t-2 border-gray-300 my-2" />
+                    <div className="flex justify-center gap-4">
+                        <button
+                            type="button"
+                            className="w-1/2 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-600 hover:opacity-75 text-white rounded-2xl font-bold"
+                            onClick={() => setSelectedEvent(event)}
+                        >
+                            Resume
+                        </button>
+                    </div>
                 </>
             ) : null}
 
@@ -157,6 +193,13 @@ const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel, reque
                         </div>
                     </div>
                 </div>
+            )}
+
+            {selectedEvent && (
+                <EventsInformationStaff
+                    eventId={selectedEvent.id}
+                    onClose={() => setSelectedEvent(null)}
+                />
             )}
         </div>
     );

@@ -83,7 +83,7 @@ export const RequestStatus: React.FC = () => {
 
             <hr className="border-t-2 border-gray-300 w-[98%] mx-auto " />
 
-            <div className="w-full h-auto grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-1">
+            <div className="w-full h-[120%] grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-1">
                 {/* Rejected Applications */}
                 <div className="p-4 m-[20px]">
                     <div className="text-cyan-900 text-center text-1xl lg:text-2xl font-extrabold font-maven mb-7">

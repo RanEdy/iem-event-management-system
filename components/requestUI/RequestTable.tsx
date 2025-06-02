@@ -289,7 +289,7 @@ export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
         name: "OPTIONS",
         cell: (row) => (
             <div className="flex flex-row items-center justify-evenly py-2">
-                <button className="h-8 w-10 bg-green-600 rounded-md m-1 hover:bg-green-500 text-lg text-white font-bold"
+                <button className="h-8 w-10 bg-bluedark-gradient-r rounded-md m-1 hover:opacity-75 text-lg text-white font-bold"
                   onClick={e => handleAcceptDialog(e, row.id)}
                 >
                   <div className="flex justify-center"> <FaCheck/> </div>

@@ -9,6 +9,12 @@ import { IEventUserList } from "@/entities/IEventUserList";
 import { GenericRequestStatus } from "@prisma/client";
 import { useLogin } from "../loginUI/LoginProvider";
 
+export interface IFullRequest {
+    id: number;
+    event: IEvent;
+    status: GenericRequestStatus;
+}
+
 export const RequestStatus: React.FC = () => {
     const { userSession } = useLogin();
 
@@ -17,20 +23,28 @@ export const RequestStatus: React.FC = () => {
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [showToast, setShowToast] = useState(false);
     const [eventRequest, setEventRequest] = useState<IEventRequest[]>([]);
+    const [fullRequests, setFullRequests] = useState<IFullRequest[]>([]);
 
-    const loadEvents = async () => {
-        fetch("api/event")
-            .then(res => res.json())
-            .then((data: IEvent[]) => {
-                // Convert string dates to Date objects and filter only ongoing events
-                const parsedEvents = data.map(event => ({
-                    ...event,
-                    startDate: new Date(event.startDate),
-                    endDate: new Date(event.endDate),
-                }));
-                setEvents(parsedEvents);
-            })
-            .catch(error => console.error("Error fetching or parsing events:", error));
+    const loadEventById = async (eventId: number): Promise<IEvent | null> => {
+        try {
+            const res = await fetch(`api/event/${eventId}`); // Directly accesses the event by its ID
+            const event: IEvent = await res.json();
+
+            if (!event) {
+                console.error("No event found for the given ID.");
+                return null; // Returns null if no event is found
+            }
+
+            // Converts string dates to Date objects before returning the event
+            return {
+                ...event,
+                startDate: new Date(event.startDate),
+                endDate: new Date(event.endDate),
+            };
+        } catch (error) {
+            console.error("Error fetching or parsing event:", error);
+            return null; // Returns null in case of an error
+        }
     };
 
     const loadRequests = async () => {
@@ -45,8 +59,25 @@ export const RequestStatus: React.FC = () => {
 
                 // Stores requests in state
                 setEventRequest(data.requests);
+
             })
             .catch(error => console.error("Error fetching or parsing event requests:", error));
+    };
+
+    const loadFullRequests = async () => {
+        const updatedRequests: IFullRequest[] = [];
+        console.log(eventRequest.length);
+        for (const request of eventRequest) {
+            const event = await loadEventById(request.eventId); // Retrieves the event by its ID
+            if (event) {
+                updatedRequests.push({
+                    id: request.id,
+                    event: event,
+                    status: request.status,
+                });
+            }
+        }
+        setFullRequests(updatedRequests); // Stores the results in state
     };
 
     const handleRequestCancelled = (message: string) => {
@@ -59,6 +90,13 @@ export const RequestStatus: React.FC = () => {
     useEffect(() => {
         loadRequests();
     }, []);
+
+    useEffect(() => {
+        if (eventRequest.length > 0) {
+            loadFullRequests();
+        }
+    }, [eventRequest]);
+
 
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
@@ -78,7 +116,7 @@ export const RequestStatus: React.FC = () => {
                         Rejected Applications
                     </div>
                     <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[100%] overflow-y-auto">
-                        {eventRequest
+                        {fullRequests
                             .filter(request => request.status === GenericRequestStatus.REJECTED) // Filters only rejected requests
                             .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events
                             .sort((a, b) => new Date(a.event.startDate).getTime() - new Date(b.event.startDate).getTime()) // Sorts by start date
@@ -100,7 +138,7 @@ export const RequestStatus: React.FC = () => {
                         Pending Applications
                     </div>
                     <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[100%] overflow-y-auto">
-                        {eventRequest
+                        {fullRequests
                             .filter(request => request.status === GenericRequestStatus.PENDING) // Filters only pending requests
                             .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events
                             .sort((a, b) => new Date(a.event.startDate).getTime() - new Date(b.event.startDate).getTime()) // Sorts by start date
@@ -122,7 +160,7 @@ export const RequestStatus: React.FC = () => {
                         Accepted Applications
                     </div>
                     <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[100%] overflow-y-auto">
-                        {eventRequest
+                        {fullRequests
                             .filter(request => request.status === GenericRequestStatus.ACCEPTED) // Filters only accepted requests
                             .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events
                             .sort((a, b) => new Date(a.event.startDate).getTime() - new Date(b.event.startDate).getTime()) // Sorts by start date

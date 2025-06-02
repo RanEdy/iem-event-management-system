@@ -55,6 +55,7 @@ export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
     {
         try
         {
+          console.log("Event ID loading Users: " + event.id)
             const response = await fetch("/api/eventRequest/findUsersByEvent/", {
                 method: 'POST',
                 headers: {
@@ -79,7 +80,7 @@ export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
 
             usersByEvent.forEach(user => {
               pendingRequests.forEach(request => {
-                if(user.id === request.userId) pendingUsers.push(user)
+                if(user.id === request.userId && request.eventId === event.id) pendingUsers.push(user)
               })
             })
 

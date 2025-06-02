@@ -176,9 +176,7 @@ export class EventRequestService {
         let usersByEvent: IUser[] = [];
         try {
             //Filter all the request by the event id
-            let requestsFromEvent = await this.findAll();
-            requestsFromEvent = requestsFromEvent.filter(request => request.eventId === eventId);
-
+            let requestsFromEvent = await this.findByEvent(eventId)
             //Gets all the users that matches id
             const allUsers = await DAOLocator.userDao.findAll();
             allUsers.forEach(user => {

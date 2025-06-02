@@ -7,6 +7,7 @@ import { EventEditDescription } from "./editUI/EventEditDescription";
 import 'react-datepicker/dist/react-datepicker.css';
 import { IEventSection } from "@/entities/IEventSection";
 import { ISectionFile } from "@/entities/ISectionFile";
+import { useLogin } from '@/components/loginUI/LoginProvider';
 
 // Define EditableFile type as it's used in EventEditDescription
 type EditableFile = ISectionFile & { file?: File; isNew?: boolean };
@@ -24,6 +25,13 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
   const [sections, setSections] = useState<(IEventSection & { files: EditableFile[] })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Request constants and interfaces
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [showAlreadyRegistered, setShowAlreadyRegistered] = useState(false);
+  // Send request logic
+  const { userSession } = useLogin();
 
   useEffect(() => {
     if (!eventId) return;
@@ -149,6 +157,83 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
     return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
   };
 
+  // Request logic
+  const handleRequest = async () => {
+    if (!userSession?.id || !event?.id) {
+      setToastMessage("Error: User session or event ID not found.");
+      return;
+    }
+
+    try {
+      // The API endpoint should ideally filter by userId and eventId.
+      const response = await fetch(`/api/eventRequest?userId=${userSession.id}&eventId=${event.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to check existing requests.');
+      }
+      const allRequestsForUserAndEvent = await response.json(); // This might be an array of all requests if backend isn't filtering
+
+      // Client-side filtering
+      const specificExistingRequests = Array.isArray(allRequestsForUserAndEvent) 
+        ? allRequestsForUserAndEvent.filter(
+            (req: any) => req.userId === userSession.id && req.eventId === event.id
+          )
+        : [];
+
+      if (specificExistingRequests.length > 0) {
+        setShowAlreadyRegistered(true);
+      } else {
+        setShowConfirmation(true);
+      }
+    } catch (err: any) {
+      console.error("Error checking existing requests: ", err);
+      setToastMessage(err.message || "Error checking existing requests.");
+    }
+  };
+
+  const handleConfirmRequest = async () => {
+    setShowConfirmation(false);
+    if (!event || !userSession?.id) {
+      setToastMessage("Error: No event or user session found");
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/eventRequest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId: event.id,
+          userId: userSession.id,
+          status: 'PENDING',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error sending event request');
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setToastMessage("Event request sent successfully!");
+        setShowSuccess(true);
+      } else {
+        setToastMessage(result.error || "Error sending event request.");
+      }
+    } catch (err: any) {
+      console.error("An error: ", err);
+      setToastMessage(err.message || "Error sending event request.");
+    }
+  };
+
+  const handleCloseSuccess = () => {
+    setShowSuccess(false);
+    setToastMessage(null);
+    onClose();
+  };
+
   const statusDisplay = event ? getStatusDisplay(event.status) : null;
 
   return (
@@ -222,7 +307,7 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
           <button
             type="button"
             className="bg-blue-500 text-white font-bold px-6 py-2 rounded-md hover:bg-blue-600"
-            onClick={() => { /* Add request logic here */ }}
+            onClick={ handleRequest }
           >
             Request
           </button>
@@ -234,6 +319,71 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
             Close
           </button>
         </div>
+        {/* Confirmation */}
+        {showConfirmation && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+            <h2 className="text-2xl text-center font-bold text-gray-800 mb-3">Are you sure to request this event?</h2>
+              <p className="text-gray-700 mb-8">You will be placed in pending status at the event of {" "}<span className="font-semibold">{event?.name}</span> and you have to wait for acceptance.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  className="border-2 font-bold bg-orange-400 text-white px-2 py-2 rounded-md hover:bg-orange-500"
+                  onClick={handleConfirmRequest}
+                >
+                  Apply
+                </button>
+                <button
+                  className="bg-red-400 font-bold text-white px-2 py-2 rounded-md hover:bg-red-500"
+                  onClick={() => setShowConfirmation(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Already Registered Dialog */}
+        {showAlreadyRegistered && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+              <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Already Registered!</h2>
+              <p className="text-gray-700 mb-7">You have already sent a request for the event <span className="font-semibold">{event?.name}</span>. Please wait for the event organizer to respond.</p>
+              <div className="grid grid-cols-1 justify-items-center">
+                <button
+                  className="bg-red-500 text-white font-bold px-20 py-2 rounded-md hover:bg-red-600"
+                  onClick={() => setShowAlreadyRegistered(false)}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Success */}
+        {showSuccess && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">
+              <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Your request has been sent!</h2>
+                <p className="text-gray-700 mb-7">We will notify you when we accepted your application for this event.</p>
+                <div className="grid grid-cols-1 justify-items-center">
+                  <button
+                    className="bg-red-500 text-white font-bold px-20 py-2 rounded-md hover:bg-red-600"
+                    onClick={handleCloseSuccess}
+                  >
+                    OK
+                  </button>
+                </div>
+            </div>
+          </div>
+        )}
+        {/* Toast */}
+        {toastMessage && (
+          <div className="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
+            {toastMessage}
+          </div>
+        )}
       </div>
     </div>
   );

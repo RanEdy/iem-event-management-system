@@ -87,16 +87,16 @@ export const EventsTableStaff: React.FC = () => {
         },
         {
             name: "USERS",
-            selector: row => `${row.registeredUsers || 0} / ${row.maxUsers}`,
+            selector: row => `${row.maxUsers || 0} / ${row.maxUsers}`,
             sortable: true,
             minWidth: "80px",
         },
-        {
+        /*{
             name: "REQUESTS",
             selector: row => row.pendingRequests || 0,
             sortable: true,
             minWidth: "100px",
-        }
+        }*/
     ];
 
     const loadEvents = async () => {

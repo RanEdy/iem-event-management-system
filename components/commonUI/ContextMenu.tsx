@@ -5,8 +5,9 @@ import { IEvent } from "@/entities/IEvent";
 import { ISectionFile } from "@/entities/ISectionFile";
 import { IEventSection } from "@/entities/IEventSection";
 import { EventEditForm } from "../eventsUI/editUI/EventEditForm";
+import { RequestTable } from "../requestUI/RequestTable";
 
-const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void }) => {
+const ContextMenu = ({ row, OnCompleted }: { row: IEvent, OnCompleted?: () => void }) => {
   const [open, setOpen] = useState(false);
   const [dialogType, setDialogType] = useState<
     | null
@@ -317,7 +318,49 @@ const ContextMenu = ({ row, OnCompleted }: { row: any, OnCompleted?: () => void 
         </div>
       )}
 
-      {dialogType === "requests" && <></>}
+      {dialogType === "requests" && (
+        <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white rounded-3xl p-8 shadow-lg my-4 lg:w-3/4 w-full lg:h-[80%] h-full max-h-[95vh]">
+            {/* CLOSE BUTTON */}
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={closeDialog}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {(
+              <div className="p-1 my-4 h-full w-full">
+                {/* HEADER TITLE */}
+                <div className="mb-5 justify-self-center">
+                  <div className="text-cyan-900 text-center text-3xl lg:text-5xl font-extrabold font-maven">
+                    Requests 
+                  </div>
+                </div>
+                <hr className="w-full border-t-4 border-cyan-900 mb-3" />
+
+                {/* FORM */}
+                {(
+                  <RequestTable event={row}/>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {dialogType === "delete" && (
         <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
           <div className="relative bg-white rounded-3xl p-10 shadow-xl max-w-md">

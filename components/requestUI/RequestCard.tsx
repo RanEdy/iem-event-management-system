@@ -137,7 +137,7 @@ const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel, reque
                             className="w-1/2 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-600 hover:opacity-75 text-white rounded-2xl font-bold"
                             onClick={() => setSelectedEvent(event)}
                         >
-                            Resume
+                            Information
                         </button>
                     </div>
                 </>
@@ -150,7 +150,7 @@ const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel, reque
                             className="w-1/2 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-600 hover:opacity-75 text-white rounded-2xl font-bold"
                             onClick={() => setSelectedEvent(event)}
                         >
-                            Resume
+                            Information
                         </button>
                     </div>
                 </>

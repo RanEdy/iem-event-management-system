@@ -215,7 +215,7 @@ export const EventsInformation: React.FC<EventsInformationProps> = ({
             />
             <InfoItem
               label="Registered Users"
-              value={`${event.registeredUsers || 0} / ${event.maxUsers || 0}`}
+              value={`${event.maxUsers || 0} / ${event.maxUsers || 0}`}
             />
             <InfoItem
               label="Visibility"
@@ -227,8 +227,6 @@ export const EventsInformation: React.FC<EventsInformationProps> = ({
               value={statusDisplay?.text}
               highlight={statusDisplay?.color === "text-green-600" ? "green" :
                        statusDisplay?.color === "text-red-600" ? "red" : undefined}
-            />
-            <InfoItem label="Pending Requests" value={event.pendingRequests?.toString() || "0"}
             />
 
             {/* Event Description Sections - Read-only view */}

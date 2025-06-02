@@ -7,6 +7,4 @@ export interface IEventRequest {
     eventId: number;
     userId: number;
     status: GenericRequestStatus;
-    user: User;
-    event: Event;
 }

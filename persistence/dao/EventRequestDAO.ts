@@ -12,4 +12,15 @@ export class EventRequestDAO extends GenericDAO<"eventRequest", IEventRequest>
      * Create a new EventRequestDAO instance.
      */
     constructor() { super('eventRequest'); }
+
+    async findByEvent(id: number): Promise<IEventRequest[]> {
+
+        const requests = await this.getModel().findMany({
+            where: {
+                eventId: id
+            },
+        });
+
+        return requests;
+    }
 }

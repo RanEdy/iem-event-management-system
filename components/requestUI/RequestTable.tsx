@@ -337,14 +337,14 @@ export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-base">
         <button
           type="button"
-          className="bg-green-600 text-white font-bold px-6 py-2 rounded-md hover:bg-green-700 w-full"
+          className="bg-bluedark-gradient-r text-white font-bold px-6 py-2 rounded-md hover:opacity-75 w-full"
           onClick={(e) => handleAccept(e, event.id, selectedUserId)}
         >
           ACCEPT
         </button>
         <button
           type="button"
-          className="border-2 border-pink-700 text-pink-700 font-bold px-6 py-2 rounded-md hover:bg-pink-100 w-full"
+          className=" text-white bg-gray-400 font-bold px-6 py-2 rounded-md hover:bg-gray-300 w-full"
           onClick={() => setAcceptDialog(false)}
         >
           CANCEL

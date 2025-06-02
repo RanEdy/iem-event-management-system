@@ -49,10 +49,6 @@ export const RequestStatus: React.FC = () => {
             .catch(error => console.error("Error fetching or parsing event requests:", error));
     };
 
-    const loadAcceptedApplications = async () => {
-        // Function to load accepted applications (To be implemented)
-    };
-
     const handleRequestCancelled = (message: string) => {
         setToastMessage(message);
         setShowToast(true);
@@ -61,15 +57,7 @@ export const RequestStatus: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log("CURRENT USER:", userSession?.name);
-        console.log("CURRENT USER LEVEL:", userSession?.level);
-        console.log("CURRENT USER ID:", userSession?.id);
         loadRequests();
-
-        // Check if there are any accepted requests before loading accepted applications
-        if (eventRequest.some(request => request.status === GenericRequestStatus.ACCEPTED)) {
-            loadAcceptedApplications();
-        }
     }, []);
 
     return (
@@ -83,13 +71,13 @@ export const RequestStatus: React.FC = () => {
 
             <hr className="border-t-2 border-gray-300 w-[98%] mx-auto " />
 
-            <div className="w-full h-[120%] grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-1">
+            <div className="w-full h-5/6 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-1">
                 {/* Rejected Applications */}
                 <div className="p-4 m-[20px]">
                     <div className="text-cyan-900 text-center text-1xl lg:text-2xl font-extrabold font-maven mb-7">
                         Rejected Applications
                     </div>
-                    <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
+                    <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[100%] overflow-y-auto">
                         {eventRequest
                             .filter(request => request.status === GenericRequestStatus.REJECTED) // Filters only rejected requests
                             .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events
@@ -111,7 +99,7 @@ export const RequestStatus: React.FC = () => {
                     <div className="text-cyan-900 text-center text-1xl lg:text-2xl font-extrabold font-maven mb-7">
                         Pending Applications
                     </div>
-                    <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
+                    <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[100%] overflow-y-auto">
                         {eventRequest
                             .filter(request => request.status === GenericRequestStatus.PENDING) // Filters only pending requests
                             .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events
@@ -133,7 +121,7 @@ export const RequestStatus: React.FC = () => {
                     <div className="text-cyan-900 text-center text-1xl lg:text-2xl font-extrabold font-maven mb-7">
                         Accepted Applications
                     </div>
-                    <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
+                    <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[100%] overflow-y-auto">
                         {eventRequest
                             .filter(request => request.status === GenericRequestStatus.ACCEPTED) // Filters only accepted requests
                             .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events

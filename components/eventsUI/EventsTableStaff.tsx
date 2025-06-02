@@ -331,6 +331,7 @@ export const EventsTableStaff: React.FC = () => {
                 <EventsInformationStaff
                     eventId={selectedEvent.id}
                     onClose={() => setSelectedEvent(null)}
+                    action={true}
                 />
             )}
         </div>

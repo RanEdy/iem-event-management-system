@@ -199,6 +199,7 @@ const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel, reque
                 <EventsInformationStaff
                     eventId={selectedEvent.id}
                     onClose={() => setSelectedEvent(null)}
+                    action={false}
                 />
             )}
         </div>

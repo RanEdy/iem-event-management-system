@@ -354,7 +354,8 @@ const ContextMenu = ({ row, OnCompleted }: { row: IEvent, OnCompleted?: () => vo
 
                 {/* FORM */}
                 {(
-                  <RequestTable event={row}/>
+                  <div className="overflow-x-auto w-full"><RequestTable event={row}/></div>
+                  
                 )}
               </div>
             )}

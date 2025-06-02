@@ -206,30 +206,6 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
             <InfoItem label="Zip Code" value={event.zipCode} />
             <InfoItem label="Complete Address" value={formatAddress(event)} />
 
-            {/* Event Details */}
-            <h3 className="text-xl font-semibold text-cyan-800 pt-4 border-t border-gray-300 mt-4">Event Details</h3>
-            <InfoItem
-              label="Maximum Employees"
-              value={event.maxUsers?.toString()}
-            />
-            <InfoItem
-              label="Registered Users"
-              value={`${event.registeredUsers || 0} / ${event.maxUsers || 0}`}
-            />
-            <InfoItem
-              label="Visibility"
-              value={event.public ? "Público" : "Privado"}
-              highlight={event.public ? "green" : "red"}
-            />
-            <InfoItem
-              label="Status"
-              value={statusDisplay?.text}
-              highlight={statusDisplay?.color === "text-green-600" ? "green" :
-                       statusDisplay?.color === "text-red-600" ? "red" : undefined}
-            />
-            <InfoItem label="Pending Requests" value={event.pendingRequests?.toString() || "0"}
-            />
-
             {/* Event Description Sections - Read-only view */}
             {event && sections.length > 0 && (
               <EventEditDescription

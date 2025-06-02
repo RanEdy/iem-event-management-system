@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./node_modules/@prisma/client"
 }
 
 datasource db {
@@ -21,6 +20,7 @@ enum UserRole {
   DRIVER
   DISPATCH
   ASSISTANT_MANAGER
+  ACCESS_CONTROL
 }
 
 enum UserLevel {

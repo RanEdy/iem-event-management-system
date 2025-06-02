@@ -1,5 +1,7 @@
 import { IEventRequest } from "@/entities/IEventRequest";
 import { DAOLocator } from "@/persistence/DAOLocator";
+import { IUser } from "@/entities/IUser";
+import { ServiceLocator } from "./ServiceLocator";
 
 /**
  * Class with methods for everything related to the eventRequest.
@@ -102,5 +104,84 @@ export class EventRequestService {
             console.error("eventRequest could not be deleted");
             return false;
         }
+    }
+
+    async findByEvent(eventId: number): Promise<IEventRequest[]>
+    {
+        try {
+            return DAOLocator.eventRequestDAO.findByEvent(eventId);
+        } catch (error) {
+            console.log("Error while trying to get all requests from the event: " + eventId + ">> ", error)
+        }
+        return [];
+    }
+
+    async validateAccept(eventId: number, userId: number): Promise<string>
+    {
+        const event = await ServiceLocator.eventService.findById(eventId)
+        //Event existance validation
+        if (!event) return "Event does not exists"
+        //User existance valdiation
+        console.log(userId)
+        const user = await ServiceLocator.userService.findById(userId)
+        
+        if (!user) return "User does not exists"
+        //Request existance validation
+        const request = (await ServiceLocator.eventRequestService.findAll()).filter(request => request.eventId === eventId && request.userId === userId)
+        
+        //Max capacity validation
+        const totalUsers = await ServiceLocator.eventService.getTotalUsers(eventId);
+        if (totalUsers >= (event?.maxUsers ?? Infinity)) return "Max Users capacity reached"
+
+        //Employee Repetition validation
+        const usersInEvent = (await ServiceLocator.eventUserListService.findAll()).filter(relation => relation.eventId === eventId)
+        const repetition = usersInEvent.map(relation => {
+            if (relation.userId === userId) return relation
+        })
+        if (repetition.length > 1) return "There is 1 or more users with the same id already in the event"
+        
+        //User active status validation
+        if (!user.active) return "The user account is not active"
+
+        //Event date conflicts validation
+
+        return "";
+    }
+
+    async validateReject(eventId: number, userId: number): Promise<string>
+    {
+        const event = await ServiceLocator.eventService.findById(eventId)
+        //Event existance validation
+        if (!event) return "Event does not exists"
+        //User existance valdiation
+        const user = await ServiceLocator.userService.findById(userId)
+        if (!user) return "User does not exists"
+        //Request existance validation
+        const request = (await ServiceLocator.eventRequestService.findAll()).filter(request => request.eventId === eventId && request.userId === userId)
+        if (request.length != 1) return "Request does not exists"
+        return "";
+    }
+
+
+    async findUsersByEvent(eventId: number): Promise<IUser[]> {
+        let usersByEvent: IUser[] = [];
+        try {
+            //Filter all the request by the event id
+            const requestsFromEvent = await this.findAll();
+            requestsFromEvent.filter(request => request.eventId === eventId);
+
+            //Gets all the users that matches id
+            const allUsers = await DAOLocator.userDao.findAll();
+            allUsers.forEach(user => {
+                requestsFromEvent.forEach(request => {
+                    if(user.id === request.userId)
+                        usersByEvent.push(user)
+                })
+            });
+        }
+        catch (error) {
+            console.error("[115][EventRequestService][METHOD : findUsersByEvent] could not find users by the given event id")
+        }
+        return usersByEvent
     }
 }

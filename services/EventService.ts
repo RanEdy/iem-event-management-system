@@ -154,4 +154,12 @@ export class EventService
 
         return { isValid: true, error: "" };
     }
+
+    async getTotalUsers(eventId: number): Promise<number>
+    {
+        const allRelations = await DAOLocator.eventUserListDao.findAll();
+        console.log(allRelations)
+        console.log(allRelations.filter(relation => relation.eventId === eventId).length)
+        return allRelations.filter(relation => relation.eventId === eventId).length
+    }
 }

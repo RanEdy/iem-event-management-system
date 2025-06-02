@@ -6,7 +6,8 @@ export async function POST(req: Request)
 {
     try
     {
-        const { eventId } = await req.json()
+        let { eventId } = await req.json()
+        console.log("[10 rutes.ts findUsersByEvent]: " + eventId)
         const users = await ServiceLocator.eventRequestService.findUsersByEvent(eventId);
         return NextResponse.json(users);
     }

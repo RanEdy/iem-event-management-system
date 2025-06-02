@@ -34,7 +34,6 @@ export class EventRequestDAO extends GenericDAO<"eventRequest", IEventRequest> {
                 eventId: id
             },
         });
-
         return requests;
     }
 }

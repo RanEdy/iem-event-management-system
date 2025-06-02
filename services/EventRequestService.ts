@@ -2,6 +2,7 @@ import { IEventRequest } from "@/entities/IEventRequest";
 import { DAOLocator } from "@/persistence/DAOLocator";
 import { IUser } from "@/entities/IUser";
 import { ServiceLocator } from "./ServiceLocator";
+import { GenericRequestStatus } from "@prisma/client";
 
 /**
  * Class with methods for everything related to the eventRequest.
@@ -176,15 +177,15 @@ export class EventRequestService {
         let usersByEvent: IUser[] = [];
         try {
             //Filter all the request by the event id
-            let requestsFromEvent = await this.findByEvent(eventId)
-            //Gets all the users that matches id
+            const requestsFromEvent = (await this.findByEvent(eventId))
+                .filter(request => request.status === GenericRequestStatus.PENDING);
+
             const allUsers = await DAOLocator.userDao.findAll();
-            allUsers.forEach(user => {
-                requestsFromEvent.forEach(request => {
-                    if(user.id === request.userId)
-                        usersByEvent.push(user)
-                })
-            });
+
+            // Filter all users with matching ids
+            usersByEvent = allUsers.filter(user =>
+                requestsFromEvent.some(request => request.userId === user.id)
+            );
         }
         catch (error) {
             console.error("[115][EventRequestService][METHOD : findUsersByEvent] could not find users by the given event id")

@@ -8,239 +8,224 @@ import { useEffect, useState } from "react"
 import DataTable, { TableColumn } from "react-data-table-component"
 import { FaTimes, FaCheck } from "react-icons/fa";
 type RequestTableProps = {
-    event: IEvent
+  event: IEvent
 }
 
-export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
-{
+export const RequestTable: React.FC<RequestTableProps> = ({ event }) => {
 
-    const [users, setUsers] = useState<IUser[]>([])
-    const [eventFetched, setEventFetched] = useState<IEvent>()
-    const [totalUsers, setTotalUsers] = useState<number>(0)
-    const [requests, setRequests] = useState<IEventRequest[]>([])
-    const [acceptDialog, setAcceptDialog] = useState<boolean>(false)
-    const [rejectDialog, setRejectDialog] = useState<boolean>(false)
-    const [selectedUserId, setSelectedUserId] = useState<number>(0)
-    const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.ASSISTANT_MANAGER)
+  const [users, setUsers] = useState<IUser[]>([])
+  const [eventFetched, setEventFetched] = useState<IEvent>()
+  const [totalUsers, setTotalUsers] = useState<number>(0)
+  const [requests, setRequests] = useState<IEventRequest[]>([])
+  const [acceptDialog, setAcceptDialog] = useState<boolean>(false)
+  const [rejectDialog, setRejectDialog] = useState<boolean>(false)
+  const [selectedUserId, setSelectedUserId] = useState<number>(0)
+  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.ASSISTANT_MANAGER)
+  console.log(event);
 
-    const calculateSeniority = (hireDateString: string | Date): string => {
-        const hireDate = new Date(hireDateString);
-        if (isNaN(hireDate.getTime())) {
-            return "N/A";
-        }
-        const now = new Date();
-        let years = now.getFullYear() - hireDate.getFullYear();
-        let months = now.getMonth() - hireDate.getMonth();
-        let days = now.getDate() - hireDate.getDate();
+  const calculateSeniority = (hireDateString: string | Date): string => {
+    const hireDate = new Date(hireDateString);
+    if (isNaN(hireDate.getTime())) {
+      return "N/A";
+    }
+    const now = new Date();
+    let years = now.getFullYear() - hireDate.getFullYear();
+    let months = now.getMonth() - hireDate.getMonth();
+    let days = now.getDate() - hireDate.getDate();
 
-        if (days < 0) {
-            months--;
-            days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); // Days in the previous month
-        }
-        if (months < 0) {
-            years--;
-            months += 12;
-        }
-
-        if (years > 0) {
-            return `${years} year${years > 1 ? "s" : ""}`;
-        } else if (months > 0) {
-            return `${months} month${months > 1 ? "s" : ""}`;
-        } else {
-            return `${days} day${days > 1 ? "s" : ""}`;
-        }
-    };
-
-    const loadUsers = async () =>
-    {
-        try
-        {
-          console.log("Event ID loading Users: " + event.id)
-            const response = await fetch("/api/eventRequest/findUsersByEvent/", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(event.id)
-            });
-            
-
-            //Get all the requests that matches with the users and event, then filter only the Pending ones
-            const requestResp = await fetch("/api/eventRequest/findByEvent", {
-              method: "POST",
-              headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(event.id)
-            })
-            const allRequests: IEventRequest[] = await requestResp.json();
-            const pendingRequests = allRequests.filter(request => request.status === GenericRequestStatus.PENDING)
-            const usersByEvent: IUser[] = await response.json()
-            const pendingUsers: IUser[] = []
-
-            usersByEvent.forEach(user => {
-              pendingRequests.forEach(request => {
-                if(user.id === request.userId && request.eventId === event.id) pendingUsers.push(user)
-              })
-            })
-
-            console.log(usersByEvent)
-            setRequests(pendingRequests)
-            setUsers(pendingUsers)
-        }
-        catch(error)
-        {
-            console.log("Error trying to load users from event requests");
-        }
+    if (days < 0) {
+      months--;
+      days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); // Days in the previous month
+    }
+    if (months < 0) {
+      years--;
+      months += 12;
     }
 
-    const loadEventInfo = async () =>
-    {
-      try {
-        const response = await fetch(`/api/event/${event.id}`)
-        const eventResp = await response.json();
-        setEventFetched(eventResp);
-
-        const totalUsersResponse = await fetch("/api/event/totalUsers/", {
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({eventId: event.id})
-
-        })
-        const totalUsersJson = await totalUsersResponse.json();
-        console.log(totalUsersJson)
-        setTotalUsers(totalUsersJson.totalUsers)
-        
-      } catch (error) {
-        console.log("Error loading event")
-      }
+    if (years > 0) {
+      return `${years} year${years > 1 ? "s" : ""}`;
+    } else if (months > 0) {
+      return `${months} month${months > 1 ? "s" : ""}`;
+    } else {
+      return `${days} day${days > 1 ? "s" : ""}`;
     }
+  };
 
-    const handleAcceptDialog = (e: React.FormEvent, userId: number) =>
-    {
-      setAcceptDialog(true);
-      setSelectedUserId(userId)
-    }
+  const loadUsers = async () => {
+    try {
+      console.log("[55 RequestTable] Event ID loading Users: " + event.id)
+      const response = await fetch("/api/eventRequest/findUsersByEvent/", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ eventId: event.id })
+      });
+      let pendingUsers = await response.json()
 
-    const handleRejectDialog = (e: React.FormEvent, userId: number) =>
-    {
-      setRejectDialog(true);
-      setSelectedUserId(userId)
-    }
 
-    const handleAccept = async (e: React.FormEvent, eventId: number, userId: number) =>
-    {
-      e.preventDefault()
-      console.log("Accept")
-      const requests: IEventRequest[] = await fetch("/api/eventRequest/").then(requests => requests.json())
-      const thisRequest = requests.filter(request => request.eventId === eventId && request.userId === userId)[0]
-      console.log(thisRequest)
-      console.log("Event ID: " + eventId + " | User ID: " + userId)
-
-      const resp = await fetch("/api/eventRequest/validateAccept/", {
+      //Get all the requests that matches with the users and event, then filter only the Pending ones
+      const requestResp = await fetch("/api/eventRequest/findByEvent", {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({eventId, userId})
-
+        body: JSON.stringify({ eventId: event.id })
       })
+      const allRequests: IEventRequest[] = await requestResp.json();
 
-      const validate: string = await resp.json()
-      if (validate)
-      {
-        console.log("Cannot accept the request");
-        alert("Error in validation: " + validate)
-      }
-      else
-      {
-        //Update request
-        thisRequest.status = GenericRequestStatus.ACCEPTED
-        const updateResponse = await fetch(`/api/eventRequest/${thisRequest.id}`, {
-          method: "PUT",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(thisRequest)
+      // Solo solicitudes pendientes de este evento
+      const pendingRequests = allRequests.filter(request =>
+        request.status === GenericRequestStatus.PENDING && request.eventId === event.id
+      );
 
-        })
-        const success = await updateResponse.json()
-
-        //Add User to event
-        const userParticipation: IEventUserList = {
-          id: 0,
-          userId: userId,
-          eventId: eventId,
-          role: selectedRole
-        }
-        const response = await fetch("/api/eventUserList/", {
-          method: "POST",
-          headers: {
-            'Content-Type' : 'application/json'
-          },
-          body: JSON.stringify(userParticipation)
-        })
-        const addUserSuccess = await response.json();
-        if ( success && addUserSuccess.success) alert("Request succesfully accepted")
-        //update table
-        setAcceptDialog(false);
-        loadUsers()
-        loadEventInfo()
-      }
+      setRequests(pendingRequests);
+      setUsers(pendingUsers);
     }
+    catch (error) {
+      console.log("Error trying to load users from event requests");
+    }
+  }
 
-    const handleReject = async (e: React.FormEvent, eventId: number, userId: number) =>
-    {
-      e.preventDefault()
-      console.log("Reject")
-      const requests: IEventRequest[] = await fetch("/api/eventRequest/").then(requests => requests.json())
-      const thisRequest = requests.filter(request => request.eventId === eventId && request.userId === userId)[0]
+  const loadEventInfo = async () => {
+    try {
+      const response = await fetch(`/api/event/${event.id}`)
+      const eventResp = await response.json();
+      setEventFetched(eventResp);
 
-      const resp = await fetch("/api/eventRequest/validateReject/", {
+      const totalUsersResponse = await fetch("/api/event/totalUsers/", {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({eventId, userId})
+        body: JSON.stringify({ eventId: event.id })
 
       })
+      const totalUsersJson = await totalUsersResponse.json();
+      console.log(totalUsersJson)
+      setTotalUsers(totalUsersJson.totalUsers)
 
-      const validate: string = await resp.json()
-      if (validate)
-      {
-        console.log("Cannot reject the request");
-        alert("Error in validation: " + validate)
+    } catch (error) {
+      console.log("Error loading event")
+    }
+  }
+
+  const handleAcceptDialog = (e: React.FormEvent, userId: number) => {
+    setAcceptDialog(true);
+    setSelectedUserId(userId)
+  }
+
+  const handleRejectDialog = (e: React.FormEvent, userId: number) => {
+    setRejectDialog(true);
+    setSelectedUserId(userId)
+  }
+
+  const handleAccept = async (e: React.FormEvent, eventId: number, userId: number) => {
+    e.preventDefault()
+    console.log("Accept")
+    const requests: IEventRequest[] = await fetch("/api/eventRequest/").then(requests => requests.json())
+    const thisRequest = requests.filter(request => request.eventId === eventId && request.userId === userId)[0]
+    console.log(thisRequest)
+    console.log("Event ID: " + eventId + " | User ID: " + userId)
+
+    const resp = await fetch("/api/eventRequest/validateAccept/", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ eventId, userId })
+
+    })
+
+    const validate: string = await resp.json()
+    if (validate) {
+      console.log("Cannot accept the request");
+      alert("Error in validation: " + validate)
+    }
+    else {
+      //Update request
+      thisRequest.status = GenericRequestStatus.ACCEPTED
+      const updateResponse = await fetch(`/api/eventRequest/${thisRequest.id}`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(thisRequest)
+
+      })
+      const success = await updateResponse.json()
+
+      //Add User to event
+      const userParticipation: IEventUserList = {
+        id: 0,
+        userId: userId,
+        eventId: eventId,
+        role: selectedRole
       }
-      else
-      {
-        thisRequest.status = GenericRequestStatus.REJECTED
-        const updateResponse = await fetch(`/api/eventRequest/${thisRequest.id}`, {
-          method: "PUT",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(thisRequest)
+      const response = await fetch("/api/eventUserList/", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userParticipation)
+      })
+      const addUserSuccess = await response.json();
+      if (success && addUserSuccess.success) alert("Request succesfully accepted")
+      //update table
+      setAcceptDialog(false);
+      loadUsers()
+      loadEventInfo()
+    }
+  }
 
-        })
-        const success = await updateResponse.json()
-        if ( success) alert("Request succesfully rejected")
-        //update table
-        setRejectDialog(false);
-        loadUsers()
-        loadEventInfo()
-      }
+  const handleReject = async (e: React.FormEvent, eventId: number, userId: number) => {
+    e.preventDefault()
+    console.log("Reject")
+    const requests: IEventRequest[] = await fetch("/api/eventRequest/").then(requests => requests.json())
+    const thisRequest = requests.filter(request => request.eventId === eventId && request.userId === userId)[0]
 
+    const resp = await fetch("/api/eventRequest/validateReject/", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ eventId, userId })
+
+    })
+
+    const validate: string = await resp.json()
+    if (validate) {
+      console.log("Cannot reject the request");
+      alert("Error in validation: " + validate)
+    }
+    else {
+      thisRequest.status = GenericRequestStatus.REJECTED
+      const updateResponse = await fetch(`/api/eventRequest/${thisRequest.id}`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(thisRequest)
+
+      })
+      const success = await updateResponse.json()
+      if (success) alert("Request succesfully rejected")
+      //update table
+      setRejectDialog(false);
+      loadUsers()
+      loadEventInfo()
     }
 
-    useEffect(() =>
-    {
-        loadUsers()
-        loadEventInfo()
-    }, [])
+  }
 
-    const columns: TableColumn<IUser>[] = [
+  useEffect(() => {
+    if (event?.id) {
+      loadUsers();
+      loadEventInfo();
+    }
+  }, [event?.id]);
+
+  const columns: TableColumn<IUser>[] = [
     {
       name: "USER",
       selector: (row) => row.name,
@@ -269,9 +254,8 @@ export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
       cell: (row) => (
         <div className="flex items-center">
           <div
-            className={`w-3 h-3 rounded-full mr-2 ${
-              row.active ? "bg-green-500" : "bg-red-500"
-            }`}
+            className={`w-3 h-3 rounded-full mr-2 ${row.active ? "bg-green-500" : "bg-red-500"
+              }`}
           ></div>
           <span>{row.active ? "Active" : "Inactive"}</span>
         </div>
@@ -286,22 +270,23 @@ export const RequestTable: React.FC<RequestTableProps> = ({event}) =>
         row.hireDate ? calculateSeniority(row.hireDate) : "N/A", // Necessary for sort to use calculated value
     },
     {
-        name: "OPTIONS",
-        cell: (row) => (
-            <div className="flex flex-row items-center justify-evenly py-2">
-                <button className="h-8 w-10 bg-bluedark-gradient-r rounded-md m-1 hover:opacity-75 text-lg text-white font-bold"
-                  onClick={e => handleAcceptDialog(e, row.id)}
-                >
-                  <div className="flex justify-center"> <FaCheck/> </div>
-                </button>
-                <button className="h-8 w-10 bg-red-600 rounded-md m-1 hover:bg-red-400 text-lg text-white font-bold"
-                  onClick={e => handleRejectDialog(e, row.id)}
-                >
-                  <div className="flex justify-center"><FaTimes/></div>
-                </button>
-            </div>
-        ),
-        ignoreRowClick: true,
+
+      name: "OPTIONS",
+      cell: (row) => (
+        <div className="flex flex-row items-center justify-evenly py-2">
+          <button className="h-8 w-10 bg-green-600 rounded-md m-1 hover:bg-green-500 text-lg text-white font-bold"
+            onClick={e => handleAcceptDialog(e, row.id)}
+          >
+            <div className="flex justify-center"> <FaCheck /> </div>
+          </button>
+          <button className="h-8 w-10 bg-red-600 rounded-md m-1 hover:bg-red-400 text-lg text-white font-bold"
+            onClick={e => handleRejectDialog(e, row.id)}
+          >
+            <div className="flex justify-center"><FaTimes /></div>
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
     }
   ];
   return (

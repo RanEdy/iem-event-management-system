@@ -5,7 +5,6 @@ import { UserLevel } from '@prisma/client';
 import { NavbarButton } from './NavbarButton';
 // Importa los iconos que necesites, por ejemplo:
 import { FaUserFriends, FaFolderOpen, FaClipboardList, FaUser, FaUserShield, FaUserCog, FaTimes } from "react-icons/fa";
-import { IoLayers } from "react-icons/io5";
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLogin } from '../loginUI/LoginProvider';
 
@@ -34,7 +33,14 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
       contactPhone: userSession?.contactPhone || '',
     });
 
+    const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
+    const initiateLogout = () => {
+      setLogoutDialogOpen(true);
+  };
+
     const handleLogout = async () => {
+      
       try {
         const response = await fetch('/api/user/logout', {
           method: 'POST',
@@ -222,15 +228,6 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                         />
                     </>
                 )}
-                {(userSession?.level === UserLevel.STAFF) && (
-                    <>
-                        <NavbarButton 
-                            name={"Request Status"} 
-                            icon={<IoLayers  className="text-white h-3/4 w-3/4"/>}
-                            onClick={() => setCurrentPage("Request")}
-                        />
-                    </>
-                )}
             </div>
 
             {/* User Info */}
@@ -334,12 +331,34 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                   >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}</button>
                     <button 
-                      onClick={handleLogout}
+                      onClick={initiateLogout}
                       className='w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white 
                       rounded-md transition-colors'>Log Out</button>
                 </div>
             </div>
         )}
+        {logoutDialogOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-md shadow-md w-full max-w-sm">
+                        <h3 className="text-lg font-semibold mb-2">Confirm Logout</h3>
+                        <p className="text-gray-700">Are you sure you want to log out?</p>
+                        <div className="mt-4 flex justify-end space-x-3">
+                            <button
+                                onClick={() => setLogoutDialogOpen(false)}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-md"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         {successDialogOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-md shadow-md w-full max-w-sm">

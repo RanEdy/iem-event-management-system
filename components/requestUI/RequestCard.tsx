@@ -1,46 +1,51 @@
 import { IEvent } from "@/entities/IEvent";
 import React, { useEffect, useState } from "react";
+import { GenericRequestStatus } from "@prisma/client";
+import { IEventUserList } from "@/entities/IEventUserList";
+import { useLogin } from "../loginUI/LoginProvider";
 
 interface RequestCardProps {
     event: IEvent;
     onRequestCancel?: (message: string) => void;
+    requestStatus: GenericRequestStatus;
+    requestId: number;
 }
 
-const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel }) => {
+const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel, requestStatus, requestId }) => {
+
+    const { userSession } = useLogin();
+
     const { name, startDate, status } = event;
     const [cancelRequestDialogOpen, setCancelRequestDialogOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [eventUserList, setEventUserList] = useState<IEventUserList | null>(null)
 
+    useEffect(() => {
+        if (requestStatus === GenericRequestStatus.ACCEPTED) {
+            loadAcceptedApplication();
+        }
 
+    }, []);
+
+    const loadAcceptedApplication = async () => {
+        fetch(`/api/eventUserList/findByUserAndEvent?userId=${userSession?.id}&eventId=${event?.id}`)
+            .then(res => res.json())
+            .then((data: { success: boolean; eventUserList: IEventUserList | null; error?: string }) => {
+                if (!data.success) {
+                    console.error("Error fetching event user list:", data.error || "Unknown error");
+                    setEventUserList(null);
+                    return;
+                }
+
+                setEventUserList(data.eventUserList);
+            })
+            .catch(error => console.error("Error fetching or parsing event user list:", error));
+    }
 
     const cancelRequest = async (eventId: number): Promise<void> => {
         try {
-            // First, get the event information
-            const eventResponse = await fetch(`/api/event/${eventId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!eventResponse.ok) {
-                throw new Error('Error getting event information');
-            }
-
-            const event = await eventResponse.json();
-            const currentDate = new Date();
-            const startDate = new Date(event.startDate);
-            const endDate = new Date(event.endDate);
-
-            // Verify if the current date is within the event's date range
-            // Note: For files, this logic may need to be adjusted or deleted if not applicable.
-            // For now, the original logic is maintained.
-            if (currentDate >= startDate && currentDate <= endDate) {
-                return;
-            }
-
             // Delete the event from the database
-            const response = await fetch(`/api/event/${eventId}`, {
+            const response = await fetch(`/api/eventRequest/${requestId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,10 +97,8 @@ const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel }) => 
                 </span>
             </p>
 
-
-
             {/* Condition to add elements based on status */}
-            {status === "IN_PROCESS" ? (
+            {requestStatus === GenericRequestStatus.PENDING ? (
                 <>
                     <hr className="border-t-2 border-gray-300 my-2" />
                     <div className="flex justify-center mt-5">
@@ -110,10 +113,10 @@ const RequestCard: React.FC<RequestCardProps> = ({ event, onRequestCancel }) => 
                         </button>
                     </div>
                 </>
-            ) : status === "DONE" ? (
+            ) : requestStatus === GenericRequestStatus.ACCEPTED ? (
                 <>
                     <hr className="border-t-2 border-gray-300 my-2" />
-                    <p className="font-bold text-gray-700 uppercase">Role: {status}</p>
+                    <p className="font-bold text-gray-700 uppercase">Role: <span className="font-normal normal-case">{eventUserList?.role}</span></p>
                 </>
             ) : null}
 

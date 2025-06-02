@@ -3,60 +3,82 @@
 import React, { useEffect, useState } from "react";
 import { IEvent } from "@/entities/IEvent";
 import RequestCard from "./RequestCard";
-import { EventStatus } from '@prisma/client';
+import { EventStatus } from "@prisma/client";
+import { IEventRequest } from "@/entities/IEventRequest";
+import { IEventUserList } from "@/entities/IEventUserList";
+import { GenericRequestStatus } from "@prisma/client";
+import { useLogin } from "../loginUI/LoginProvider";
 
 export const RequestStatus: React.FC = () => {
+    const { userSession } = useLogin();
 
-    const [events, setEvents] = useState<IEvent[]>([])
-    // Toast message that pair with RequestCard
+    const [events, setEvents] = useState<IEvent[]>([]);
+    // Toast message that pairs with RequestCard
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [showToast, setShowToast] = useState(false);
+    const [eventRequest, setEventRequest] = useState<IEventRequest[]>([]);
 
     const loadEvents = async () => {
         fetch("api/event")
             .then(res => res.json())
             .then((data: IEvent[]) => {
-                // Cast string dates to Date objects and filter only events in process
-                const parsedEvents = data
-                    .map(event => ({
-                        ...event,
-                        startDate: new Date(event.startDate),
-                        endDate: new Date(event.endDate),
-                    }));
+                // Convert string dates to Date objects and filter only ongoing events
+                const parsedEvents = data.map(event => ({
+                    ...event,
+                    startDate: new Date(event.startDate),
+                    endDate: new Date(event.endDate),
+                }));
                 setEvents(parsedEvents);
             })
             .catch(error => console.error("Error fetching or parsing events:", error));
-    }
+    };
+
+    const loadRequests = async () => {
+        fetch(`/api/eventRequest/findByUserId?id=${userSession?.id}`)
+            .then(res => res.json())
+            .then((data: { success: boolean; requests: IEventRequest[]; error?: string }) => {
+                if (!data.success) {
+                    console.error("Error fetching event requests:", data.error || "Unknown error");
+                    setEventRequest([]); // Returns an empty array if an error occurs
+                    return;
+                }
+
+                // Stores requests in state
+                setEventRequest(data.requests);
+            })
+            .catch(error => console.error("Error fetching or parsing event requests:", error));
+    };
+
+    const loadAcceptedApplications = async () => {
+        // Function to load accepted applications (To be implemented)
+    };
 
     const handleRequestCancelled = (message: string) => {
         setToastMessage(message);
         setShowToast(true);
-        loadEvents(); // Reload events to update the table
-        setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+        loadRequests(); // Reloads requests to update the table
+        setTimeout(() => setShowToast(false), 3000); // Hides toast after 3 seconds
     };
 
     useEffect(() => {
-        loadEvents();
+        console.log("CURRENT USER:", userSession?.name);
+        console.log("CURRENT USER LEVEL:", userSession?.level);
+        console.log("CURRENT USER ID:", userSession?.id);
+        loadRequests();
+
+        // Check if there are any accepted requests before loading accepted applications
+        if (eventRequest.some(request => request.status === GenericRequestStatus.ACCEPTED)) {
+            loadAcceptedApplications();
+        }
     }, []);
-
-    // useEffect(() => {
-    //     console.log("Cantidad de eventos: " + events.length);
-
-    //     events.forEach(event => {
-    //         console.log("-------------------------------");
-    //         console.log("Event Name:", event.name);
-    //         console.log("Start Date:", event.startDate);
-    //     });
-
-    // }, [events]);
 
     return (
         <div className="h-full w-full border-2 border-zinc-100 rounded-lg overflow-visible">
             <div className="p-4 flex flex-col sm:flex-row justify-between lg:w-2/3 md:items-center md:w-[88%]">
-                <div className="p-4 rounded text-center">Total applications: <span className="font-bold">{" " + events.length}</span></div>
-                <div className="p-4 rounded text-center">Rejected applications: <span className="font-bold">{" " + events.filter(event => event.status === EventStatus.CANCELLED).length}</span></div>
-                <div className="p-4 rounded text-center">Pending applications: <span className="font-bold">{" " + events.filter(event => event.status === EventStatus.IN_PROCESS).length}</span></div>
-                <div className="p-4 rounded text-center">Accepted applications: <span className="font-bold">{" " + events.filter(event => event.status === EventStatus.DONE).length}</span></div>
+                <div className="p-4 rounded text-center">Total applications: <span className="font-bold">{" " + eventRequest.length}</span></div>
+                <div className="p-4 rounded text-center">Rejected applications: <span className="font-bold">{" " + eventRequest.filter(request => request.status === GenericRequestStatus.REJECTED).length}</span></div>
+                <div className="p-4 rounded text-center">Pending applications: <span className="font-bold">{" " + eventRequest.filter(request => request.status === GenericRequestStatus.PENDING).length}</span></div>
+                <div className="p-4 rounded text-center">Accepted applications: <span className="font-bold">{" " + eventRequest.filter(request => request.status === GenericRequestStatus.ACCEPTED).length}</span></div>
             </div>
 
             <hr className="border-t-2 border-gray-300 w-[98%] mx-auto " />
@@ -68,11 +90,18 @@ export const RequestStatus: React.FC = () => {
                         Rejected Applications
                     </div>
                     <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
-                        {events
-                            .filter(event => event.status === EventStatus.CANCELLED)
-                            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-                            .map(event => (
-                                <RequestCard key={event.id} event={event} onRequestCancel={handleRequestCancelled} />
+                        {eventRequest
+                            .filter(request => request.status === GenericRequestStatus.REJECTED) // Filters only rejected requests
+                            .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events
+                            .sort((a, b) => new Date(a.event.startDate).getTime() - new Date(b.event.startDate).getTime()) // Sorts by start date
+                            .map(request => ( // Maps the entire request object, not just the event
+                                <RequestCard
+                                    key={request.id} // Uses request ID as the key
+                                    event={request.event} // Passes the event
+                                    requestId={request.id} // Passes the request ID as a prop
+                                    requestStatus={GenericRequestStatus.REJECTED} // Passes the request status
+                                    onRequestCancel={handleRequestCancelled}
+                                />
                             ))}
                     </div>
                 </div>
@@ -83,11 +112,18 @@ export const RequestStatus: React.FC = () => {
                         Pending Applications
                     </div>
                     <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
-                        {events
-                            .filter(event => event.status === EventStatus.IN_PROCESS)
-                            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-                            .map(event => (
-                                <RequestCard key={event.id} event={event} onRequestCancel={handleRequestCancelled} />
+                        {eventRequest
+                            .filter(request => request.status === GenericRequestStatus.PENDING) // Filters only pending requests
+                            .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events
+                            .sort((a, b) => new Date(a.event.startDate).getTime() - new Date(b.event.startDate).getTime()) // Sorts by start date
+                            .map(request => (
+                                <RequestCard
+                                    key={request.id}
+                                    event={request.event}
+                                    requestId={request.id}
+                                    requestStatus={GenericRequestStatus.PENDING}
+                                    onRequestCancel={handleRequestCancelled}
+                                />
                             ))}
                     </div>
                 </div>
@@ -98,23 +134,29 @@ export const RequestStatus: React.FC = () => {
                         Accepted Applications
                     </div>
                     <div className="bg-bluedark-gradient-r py-0.5 rounded-lg h-[70%] overflow-y-auto">
-                        {events
-                            .filter(event => event.status === EventStatus.DONE)
-                            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-                            .map(event => (
-                                <RequestCard key={event.id} event={event} onRequestCancel={handleRequestCancelled} />
+                        {eventRequest
+                            .filter(request => request.status === GenericRequestStatus.ACCEPTED) // Filters only accepted requests
+                            .filter(request => request.event.status === EventStatus.IN_PROCESS) // Filters only ongoing events
+                            .sort((a, b) => new Date(a.event.startDate).getTime() - new Date(b.event.startDate).getTime()) // Sorts by start date
+                            .map(request => (
+                                <RequestCard
+                                    key={request.id}
+                                    event={request.event}
+                                    requestId={request.id}
+                                    requestStatus={GenericRequestStatus.ACCEPTED}
+                                    onRequestCancel={handleRequestCancelled}
+                                />
                             ))}
                     </div>
                 </div>
             </div>
-            
-            {/* A toast message, we can use a dialog insted */}
+
+            {/* Toast message, an alternative would be using a modal */}
             {showToast && toastMessage && (
                 <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
                     {toastMessage}
                 </div>
             )}
         </div>
-    )
-
-}
+    );
+};

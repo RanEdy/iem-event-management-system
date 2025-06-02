@@ -103,4 +103,14 @@ export class EventRequestService {
             return false;
         }
     }
+
+    /**
+     * Retrieves all eventRequest entries associated with a specific user ID.
+     * @param userId The unique identifier of the user whose event requests are being retrieved.
+     * @returns An array of IEventRequest objects corresponding to the user's requests.
+     */
+    async findByUserId(userId: number): Promise<IEventRequest[]> {
+        return DAOLocator.eventRequestDAO.findByUserId(userId);
+    }
+
 }

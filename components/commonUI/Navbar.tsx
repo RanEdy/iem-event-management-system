@@ -25,6 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
     const [ isProfileOpen, setIsProfileOpen ] = useState(false);
     const [successDialogOpen, setSuccessDialogOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
     const [editableInfo, setEditableInfo] = useState({
       name: userSession?.name || '',
       email: userSession?.email || '',
@@ -32,6 +33,112 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
       contactName: userSession?.contactName || '',
       contactPhone: userSession?.contactPhone || '',
     });
+
+    const [passwordInfo, setPasswordInfo] = useState({
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: '',
+    });
+    const [passwordErrors, setPasswordErrors] = useState({
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: '',
+    })
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setPasswordInfo(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+
+      setPasswordErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }))
+    };
+
+    const handlePasswordUpdate = async () => {
+        setPasswordErrors({
+          currentPassword: '',
+          newPassword: '',
+          confirmNewPassword: '',
+        });
+
+        let hasErrors = false;
+        if (!passwordInfo.currentPassword) {
+          setPasswordErrors(prev => ({
+            ...prev,
+            currentPassword: 'Current password is required',
+          }));
+          hasErrors = true;
+        }
+        if (!passwordInfo.newPassword) {
+          setPasswordErrors(prev => ({
+            ...prev,
+            newPassword: 'New password is required',
+            hasErrors: true,
+          }));
+        }
+        if(!passwordInfo.confirmNewPassword) {
+          setPasswordErrors(prev => ({
+           ...prev,
+            confirmNewPassword: 'Confirm new password is required',
+          }));
+          hasErrors = true;
+        }
+        if (passwordInfo.newPassword !== passwordInfo.confirmNewPassword) {
+          setPasswordErrors(prev => ({
+           ...prev,
+            confirmNewPassword: 'New passwords do not match',
+          }))
+          hasErrors = true;
+        }
+        if (hasErrors) return;
+        try{
+          const response = await fetch(`/api/user/${userSession?.id}/password`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              currentPassword: passwordInfo.currentPassword,
+              newPassword: passwordInfo.newPassword,
+            }),
+          });
+          if(response.ok){
+              setPasswordDialogOpen(false);
+              setPasswordInfo({
+                currentPassword: '',
+                newPassword: '',
+                confirmNewPassword: '',
+              });
+              setSuccessMessage('Password updated successfully');
+              setSuccessDialogOpen(true);
+            } else {
+              const error = await response.json();
+              if(error.field){
+                setPasswordErrors(prev => ({
+                ...prev,
+                  [error.field]: error.message
+                }));
+              } else {
+                  setPasswordErrors(prev => ({
+                      ...prev,
+                      currentPassword: 'Current password is incorrect',
+                  }));
+              }
+            }
+          } catch (error) {
+            console.error('Error updating password:', error);
+            setPasswordErrors(prev => ({
+            ...prev,
+              currentPassword: 'An unexpected error occurred while updating the password.',
+            }));
+          }
+        };
+
+    
 
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
@@ -340,6 +447,9 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
                   `}
                   >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}</button>
+                    <button onClick={() => setPasswordDialogOpen(true)} 
+                      className='w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white
+                      rounded-md transition-colors mb-2'>Change Password</button>
                     <button 
                       onClick={initiateLogout}
                       className='w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white 
@@ -380,6 +490,80 @@ const Navbar: React.FC<NavbarProps> = ({level, options}) =>
               >
                 Close
               </button>
+            </div>
+          </div>
+        )}
+        {passwordDialogOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-md shadow-md w-full max-w-sm">
+              <h3 className="text-lg font-semibold mb-4">Change Password</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    value={passwordInfo.currentPassword}
+                    onChange={handlePasswordChange}
+                    className={`mt-1 p-2 w-full border ${passwordErrors.currentPassword ? 'border-red-500' : 'border-gray-300'} rounded-md`}
+                  />
+                  {passwordErrors.currentPassword && (
+                    <p className="mt-1 text-sm text-red-600">{passwordErrors.currentPassword}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={passwordInfo.newPassword}
+                    onChange={handlePasswordChange}
+                    className={`mt-1 p-2 w-full border ${passwordErrors.newPassword ? 'border-red-500' : 'border-gray-300'} rounded-md`}
+                  />
+                  {passwordErrors.newPassword && (
+                    <p className="mt-1 text-sm text-red-600">{passwordErrors.newPassword}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    name="confirmNewPassword"
+                    value={passwordInfo.confirmNewPassword}
+                    onChange={handlePasswordChange}
+                    className={`mt-1 p-2 w-full border ${passwordErrors.confirmNewPassword ? 'border-red-500' : 'border-gray-300'} rounded-md`}
+                  />
+                  {passwordErrors.confirmNewPassword && (
+                    <p className="mt-1 text-sm text-red-600">{passwordErrors.confirmNewPassword}</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setPasswordDialogOpen(false);
+                    setPasswordInfo({
+                      currentPassword: '',
+                      newPassword: '',
+                      confirmNewPassword: ''
+                    });
+                    setPasswordErrors({
+                      currentPassword: '',
+                      newPassword: '',
+                      confirmNewPassword: ''
+                    });
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordUpdate}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+                >
+                  Update Password
+                </button>
+              </div>
             </div>
           </div>
         )}

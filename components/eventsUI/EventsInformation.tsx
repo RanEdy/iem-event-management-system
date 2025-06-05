@@ -25,6 +25,7 @@ export const EventsInformation: React.FC<EventsInformationProps> = ({
   const [sections, setSections] = useState<(IEventSection & { files: EditableFile[] })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalUsers, setTotalUsers] = useState<number>(0)
 
   useEffect(() => {
     if (!eventId) return;
@@ -215,7 +216,7 @@ export const EventsInformation: React.FC<EventsInformationProps> = ({
             />
             <InfoItem
               label="Registered Users"
-              value={`${event.maxUsers || 0} / ${event.maxUsers || 0}`}
+              value={`${totalUsers || 0} / ${event.maxUsers || 0}`}
             />
             <InfoItem
               label="Visibility"

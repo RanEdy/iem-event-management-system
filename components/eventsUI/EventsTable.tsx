@@ -17,6 +17,7 @@ export const EventsTable: React.FC = () =>
     const [showToast, setShowToast] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null); // Add this state
+    const [totalUsers, setTotalUsers] = useState<number>(0)
 
     const loadEvents = async () =>
     {
@@ -131,7 +132,7 @@ export const EventsTable: React.FC = () =>
         },
         {
             name: "USERS",
-            selector: row => "0/" + row.maxUsers
+            selector: row => totalUsers+ "/" + row.maxUsers
         },
         {
             name: "REQUESTS",

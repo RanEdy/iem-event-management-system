@@ -15,6 +15,7 @@ export const EventsTableStaff: React.FC = () => {
     const [startDateFilter, setStartDateFilter] = useState("");
     const [endDateFilter, setEndDateFilter] = useState("");
     const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null); // State for selected event
+    const [totalUsers, setTotalUsers] = useState<number>(0)
 
     const columns: TableColumn<IEvent>[] = [
         {
@@ -87,7 +88,7 @@ export const EventsTableStaff: React.FC = () => {
         },
         {
             name: "USERS",
-            selector: row => `${row.maxUsers || 0} / ${row.maxUsers}`,
+            selector: row => `${totalUsers || 0} / ${row.maxUsers}`,
             sortable: true,
             minWidth: "80px",
         },

@@ -245,13 +245,6 @@ export const EventsInformation: React.FC<EventsInformationProps> = ({
         <div className="mt-8 flex justify-between">
           <button
             type="button"
-            className="bg-blue-500 text-white font-bold px-6 py-2 rounded-md hover:bg-blue-600"
-            onClick={() => { /* Add request logic here */ }}
-          >
-            Request
-          </button>
-          <button
-            type="button"
             className="bg-gray-500 text-white font-bold px-6 py-2 rounded-md hover:bg-gray-600"
             onClick={onClose}
           >

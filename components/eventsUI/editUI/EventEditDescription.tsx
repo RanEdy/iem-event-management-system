@@ -276,7 +276,7 @@ export const EventEditDescription: React.FC<EventEditDescriptionProps> = ({
           <div className="w-full p-2 mb-4 whitespace-pre-wrap">{activeSection?.description || "No description provided."}</div>
         ) : (
           <textarea
-            className="w-full h-40 p-2 border-2 rounded-md mb-4"
+            className="w-full h-64 p-2 border-2 rounded-md mb-4"
             value={activeSection?.description || ""}
             onChange={handleDescChange}
             readOnly={isViewMode} // Make textarea read-only in view mode

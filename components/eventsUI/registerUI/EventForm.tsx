@@ -126,12 +126,14 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
       const foundState = data.places[0]["state"];
       const foundStateAbbreviation = data.places[0]["state abbreviation"];
 
+      const formattedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
+
       if (foundCity.toLowerCase() !== city.toLowerCase()) {
-        return { status: "error", message: `ZIP code ${zipCode} does not match the city ${city}. It actually belongs to  ${foundCity}, ${foundState} (${foundStateAbbreviation}).` }; 
+        return { status: "error", message: `The zip code ${zipCode} does not match the city ${formattedCity}. It actually belongs to  ${foundCity}, ${foundState} (${foundStateAbbreviation}).` }; 
       }
 
       if (foundState.toLowerCase() !== state.toLowerCase()) {
-        return { status: "error", message: `ZIP code ${zipCode} does not belong to the state ${state}. It actually belongs to ${foundState}.` };
+        return { status: "error", message: `The zip code ${zipCode} does not match the city ${formattedCity}, ${state}. It actually belongs to the ${foundCity} belonging to the state ${foundState} (${foundStateAbbreviation}).` }; 
       }
 
       return { status: "success", message: "Validation successful." };

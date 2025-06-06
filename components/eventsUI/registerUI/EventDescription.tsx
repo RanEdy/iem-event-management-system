@@ -41,6 +41,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
   // Section name editing
   const [editingSectionId, setEditingSectionId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [charCount, setCharCount] = useState(0);
 
   const handleFileButton = () => fileInputRef.current?.click();
 
@@ -119,6 +120,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
   // Description change
   const handleDescChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length <= 3000) {
+      setCharCount(e.target.value.length)
       const upd = [...sections];
       upd[activeIdx].description = e.target.value;
       setSections(upd);
@@ -129,7 +131,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
   const handleFilesChange = async (e: ChangeEvent<HTMLInputElement>) => {
   if (!e.target.files || activeSection === undefined) return;
   const filesArr = Array.from(e.target.files);
-  const maxSize = 5 * 1024 * 1024;
+  const maxSize = 20 * 1024 * 1024;
 
   const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
   const validated: TempFile[] = [];
@@ -209,11 +211,11 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
       {/* Content */}
       <div className="border-2 border-zinc-200 border-t-0 bg-white rounded-b-md p-4">
         <textarea
-          className="w-full h-40 p-2 border-2 rounded-md mb-4"
+          className="w-full h-40 p-2 border-2 rounded-md mb-2"
           value={activeSection?.description || ""}
           onChange={handleDescChange}
         />
-
+        <p className="text-sm text-right text-gray-500 mb-2">{charCount + "/3000"}</p>
         {/* UPLOAD FILES */}
           <div className="mb-4">
             <input
@@ -232,6 +234,7 @@ export const EventDescription: React.FC<EventDescriptionProps> = ({
               <FaCloudUploadAlt className="mr-2" /> UPLOAD FILES
             </button>
             <p className="text-sm text-gray-500 mt-1">Only (.png, .jpg and .pdf)</p>
+            <p className="text-sm text-gray-500 mt-1">Maximum size 20MB</p>
           </div>
 
         {/* FILES */}

@@ -292,55 +292,52 @@ export const RequestTable: React.FC<RequestTableProps> = ({ event }) => {
   return (
     <div className="h-[88%] w-full border-2 border-zinc-100 rounded-lg overflow-auto">
       {acceptDialog && (
-  <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
-    <div className="relative bg-white rounded-3xl p-6 shadow-lg my-4 w-11/12 sm:w-96 max-h-[90vh] overflow-y-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">CONFIRMATION</h2>
+        <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white rounded-3xl p-6 shadow-lg my-4 w-11/12 sm:w-96 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">CONFIRMATION</h2>
 
-      <p className="text-gray-500 text-base italic mb-6">
-        Select a role for the employee.
-      </p>
+            <p className="text-gray-500 text-base italic mb-6">
+              Select a role for the employee.
+            </p>
 
-      <div className="mb-6">
-        <label htmlFor="roleSelect" className="block text-sm font-medium text-gray-700 mb-2">
-          Role
-        </label>
-        <select
-          id="roleSelect"
-          name="role"
-          className="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-        >
-          {Object.values(UserRole).map((role) => (
-            <option key={role} value={role}>
-              {role.replaceAll('_', ' ')}
-            </option>
-          ))}
-        </select>
-      </div>
+            <div className="mb-6">
+              <label htmlFor="roleSelect" className="block text-sm font-medium text-gray-700 mb-2">
+                Role
+              </label>
+              <select
+                id="roleSelect"
+                name="role"
+                className="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+              >
+                {Object.values(UserRole).map((role) => (
+                  <option key={role} value={role}>
+                    {role.replaceAll('_', ' ')}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-base">
-        <button
-          type="button"
-          className="bg-bluedark-gradient-r text-white font-bold px-6 py-2 rounded-md hover:opacity-75 w-full"
-          onClick={(e) => handleAccept(e, event.id, selectedUserId)}
-        >
-          ACCEPT
-        </button>
-        <button
-          type="button"
-          className=" text-white bg-gray-400 font-bold px-6 py-2 rounded-md hover:bg-gray-300 w-full"
-          onClick={() => setAcceptDialog(false)}
-        >
-          CANCEL
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-base">
+              <button
+                type="button"
+                className="bg-bluedark-gradient-r text-white font-bold px-6 py-2 rounded-md hover:opacity-75 w-full"
+                onClick={(e) => handleAccept(e, event.id, selectedUserId)}
+              >
+                ACCEPT
+              </button>
+              <button
+                type="button"
+                className=" text-white bg-gray-400 font-bold px-6 py-2 rounded-md hover:bg-gray-300 w-full"
+                onClick={() => setAcceptDialog(false)}
+              >
+                CANCEL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {rejectDialog && (
         <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">
           <div className="relative bg-white rounded-3xl p-8 shadow-lg realtive my-4 lg:w-1/4 w-72 h-64 lg:h-1/3 ">
@@ -374,9 +371,11 @@ export const RequestTable: React.FC<RequestTableProps> = ({ event }) => {
         </div>
       )}
       <div className="p-4">
-        <div className="p-4 flex flex-colum justify-between lg:w-1/2">
-          <div>Total Requests: <span className="font-bold">{" " + users.length}</span></div>
-          <div>Event Capacity: <span className="font-bold">{" " + totalUsers + "/" + eventFetched?.maxUsers}</span></div>
+        <div className="p-4 flex flex-colum justify-between w-full">
+          <div className="w-fit text-lg mr-4">Event ID: <span className="font-bold text-lg">{"  " + eventFetched?.id}</span></div>
+          <div className="w-fit text-lg mr-4">Event Name: <span className="font-bold text-lg">{"  " + eventFetched?.name}</span></div>
+          <div className="w-fit text-lg mr-4">Total Requests: <span className="font-bold">{" " + users.length}</span></div>
+          <div className="w-fit text-lg mr-4">Event Capacity: <span className="font-bold">{" " + totalUsers + "/" + eventFetched?.maxUsers}</span></div>
         </div>
       </div>
       <hr />

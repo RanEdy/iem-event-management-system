@@ -145,9 +145,8 @@ export class EventRequestService {
 
         //Employee Repetition validation
         const usersInEvent = (await ServiceLocator.eventUserListService.findAll()).filter(relation => relation.eventId === eventId)
-        const repetition = usersInEvent.map(relation => {
-            if (relation.userId === userId) return relation
-        })
+        const repetition = usersInEvent.filter(relation => { relation.userId === userId })
+        console.log(repetition)
         if (repetition.length > 1) return "There is 1 or more users with the same id already in the event"
         
         //User active status validation

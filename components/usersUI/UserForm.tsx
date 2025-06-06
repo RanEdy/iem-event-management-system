@@ -52,8 +52,8 @@ export const UserForm: React.FC<UserFormProps> = ({
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [birthday, setBirthday] = useState<Date>(new Date());
-  const [hireDate, setHireDate] = useState<Date>(new Date());
+  const [birthday, setBirthday] = useState<Date | null>(null);
+  const [hireDate, setHireDate] = useState<Date | null>(null);
   const [contactName, setContactName] = useState<string>("");
   const [contactPhone, setContactPhone] = useState<string>("");
   const [guardCard, setGuardCard] = useState<boolean>(false);
@@ -238,8 +238,8 @@ export const UserForm: React.FC<UserFormProps> = ({
     setName("");
     setEmail("");
     setPhone("");
-    setBirthday(new Date());
-    setHireDate(new Date());
+    setBirthday(null);
+    setHireDate(null);
     setContactName("");
     setContactPhone("");
     setGuardCard(false);
@@ -346,7 +346,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                   }
                 }}
                 dateFormat="MMMM, dd,  yyyy"
-                placeholderText="Birthday*"
+                placeholderText="Date of Birth*"
               />
             </div>
 
@@ -365,6 +365,8 @@ export const UserForm: React.FC<UserFormProps> = ({
                 onChange={(date) => {
                   if (date) {
                     setHireDate(date);
+                  }  else {
+                    setHireDate(new Date());
                   }
                 }}
                 dateFormat="MMMM, dd,  yyyy"

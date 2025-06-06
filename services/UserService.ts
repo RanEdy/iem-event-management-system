@@ -187,7 +187,7 @@ export class UserService {
 
         // Regular expressions for validation
         const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-        const emailRegex = /^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
+        const emailRegex = /^[a-zA-Z0-9.]+@[a-zA-Z0-9]+(\.[a-zA-Z]{2,})+$/;
         const phoneRegex = /^[+\d\s()-]+$/; 
         const today = new Date();
 

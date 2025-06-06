@@ -30,8 +30,8 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
   const [showCityDropdown, setShowCityDropdown] = useState<boolean>(false);
 
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [publicEvent, setPublicEvent] = useState<boolean>(false);
   const [maxUsers, setMaxUsers] = useState<number>(1);
 
@@ -108,8 +108,31 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
     setShowCityDropdown(false);
   };
 
+  // Verify ZIP and city before validating the event
+  async function validateZipCity() {
+    const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
+    const data = await response.json();
+
+    if (data.places) {
+      const foundCity = data.places[0]["place name"];
+      return foundCity.toLowerCase() === city.toLowerCase();
+    }
+    return false;
+  }
+
+
   //Returns the json response or null
   const createEvent = async (): Promise<any | null> => {
+
+    // Verify ZIP and city before validating the event
+    const isValidZipCity = await validateZipCity();
+    if (!isValidZipCity) {
+      setErrorMessage("The Zipcode does not match the city entered.");
+      setErrorDialogOpen(true);
+      return null;
+    }
+
+
     try {
       // We valite the data before sending to the data base
       const validation = await fetch('/api/event/validate', {
@@ -342,8 +365,8 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
     setState("California");
     setZipCode('');
     setAddress('');
-    setStartDate(new Date());
-    setEndDate(new Date());
+    setStartDate(null);
+    setEndDate(null);
     setPublicEvent(false);
     setMaxUsers(1);
     setCitySearchTerm('');
@@ -524,7 +547,7 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
                 onChange={(e) => setMaxUsers(Number(e.target.value))}
                 placeholder="Max Users*"
                 min={1}
-                max={100000}
+                max={1000}
                 className="grid border-2 border-gray-300 grid-rows-1 p-2 placeholder-gray-400 rounded-md"
                 title="Max Users*"
               />
@@ -580,20 +603,20 @@ export const EventForm: React.FC<EventFormProps> = ({ title, eventId, onSave }) 
           <div className="bg-white p-6 rounded-md shadow-md w-full max-w-sm">
             <h3 className="text-lg font-semibold mb-2">Success</h3>
             <p className="text-gray-700">Event successfully created</p>
-              <button
-                type="button"
-                className="mt-4 px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
-                onClick={() => {
-                  setSuccessDialogOpen(false);
-                  cleanForm();
-                  // Call onSave before cleaning the form
-                  if (onSave) {
-                    onSave();
-                  }
-                }}
-              >
-                Close
-              </button>
+            <button
+              type="button"
+              className="mt-4 px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
+              onClick={() => {
+                setSuccessDialogOpen(false);
+                cleanForm();
+                // Call onSave before cleaning the form
+                if (onSave) {
+                  onSave();
+                }
+              }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

@@ -134,6 +134,10 @@ export class EventService
         const zipCodeRegex = /^\d{5}(-\d{4})?$/;
         const today = new Date();
 
+        // Parse the dates
+        const parsedStartDate = new Date(startDate);
+        const parsedEndDate = new Date(endDate);
+
         if (!name?.trim()) return { isValid: false, error: "Event name cannot be empty" };
         if (!nameRegex.test(name)) return { isValid: false, error: "Event name contains invalid characters" };
         if (name.length > 100) return { isValid: false, error: "Event name cannot exceed 100 characters" };
@@ -146,11 +150,11 @@ export class EventService
         if (!address?.trim()) return { isValid: false, error: "Address cannot be empty" };
         if (address.length > 200) return { isValid: false, error: "Address cannot exceed 200 characters" };
         if (!startDate) return { isValid: false, error: "Start date cannot be empty" };
-        if (startDate < today) return { isValid: false, error: "Start date cannot be in the past" };
+        if (parsedStartDate < today) return { isValid: false, error: "Start date cannot be in the past" };
         if (!endDate) return { isValid: false, error: "End date cannot be empty" };
         if (endDate <= startDate) return { isValid: false, error: "End date must be after start date" };
         if (maxUsers <= 0) return { isValid: false, error: "Max users must be greater than 0" };
-        if (maxUsers > 100000) return { isValid: false, error: "Max users cannot exceed 100000" };
+        if (maxUsers > 1000) return { isValid: false, error: "Max users cannot exceed 1000" };
 
         return { isValid: true, error: "" };
     }

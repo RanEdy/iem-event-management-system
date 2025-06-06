@@ -17,11 +17,7 @@ export async function POST(request: NextRequest) {
             endDate,
             maxUsers
         } = body;
-
-        // Parse the dates
-        const parsedStartDate = new Date(startDate);
-        const parsedEndDate = new Date(endDate);
-
+        
         // Validate the data
         const eventService = new EventService();
         
@@ -32,8 +28,8 @@ export async function POST(request: NextRequest) {
             state,
             zipCode,
             address,
-            startDate: parsedStartDate,
-            endDate: parsedEndDate,
+            startDate,
+            endDate,
             maxUsers: Number(maxUsers)
         });
 

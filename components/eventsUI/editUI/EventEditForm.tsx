@@ -62,11 +62,11 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
     const loadEventData = async () => {
       try {
         setLoading(true);
-        
+
         // Load event details
         const eventResponse = await fetch(`/api/event/${eventId}`);
         const eventData = await eventResponse.json();
-        
+
         if (eventData) {
           setEvent(eventData);
           setName(eventData.name);
@@ -91,15 +91,15 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
             sectionsData.map(async (section: IEventSection) => {
               const filesResponse = await fetch(`/api/sectionFile/findBySection?id=${section.id}`);
               const filesData = await filesResponse.json();
-              
-              const files: EditableFile[] = Array.isArray(filesData) 
+
+              const files: EditableFile[] = Array.isArray(filesData)
                 ? filesData.map((file: ISectionFile) => ({ ...file, isNew: false }))
                 : [];
 
               return { ...section, files };
             })
           );
-          
+
           setSections(sectionsWithFiles);
         } else {
           // If no sections exist, create a default one
@@ -159,8 +159,29 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
     setShowCityDropdown(false);
   };
 
+  // Verify ZIP and city before validating the event
+  async function validateZipCity() {
+    const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
+    const data = await response.json();
+
+    if (data.places) {
+      const foundCity = data.places[0]["place name"];
+      return foundCity.toLowerCase() === city.toLowerCase();
+    }
+    return false;
+  }
+
   const updateEvent = async (): Promise<any | null> => {
     try {
+
+      // Verify ZIP and city before validating the event
+      const isValidZipCity = await validateZipCity();
+      if (!isValidZipCity) {
+        setErrorMessage("The Zipcode does not match the city entered.");
+        setErrorDialogOpen(true);
+        return null;
+      }
+
       // Validate data before sending
       const validation = await fetch('/api/event/validate', {
         method: 'POST',
@@ -231,20 +252,20 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
       // Update/Create sections
       for (const section of sections) {
         const { files, ...sectionNoFiles } = section;
-        
+
         if (section.id < 0 || section.id > 1000000) { // New section (temporal ID)
           const response = await fetch('/api/eventSection', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ 
-              ...sectionNoFiles, 
+            body: JSON.stringify({
+              ...sectionNoFiles,
               eventId: eventId,
-              id: undefined 
+              id: undefined
             }),
           });
-          
+
           const result = await response.json();
           if (result.success) {
             section.id = result.section.id; // Update with real ID
@@ -354,7 +375,7 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
     if (section.id > 0 && section.id < 1000000) { // Existing section
       setDeletedSections(prev => [...prev, section.id]);
     }
-    
+
     const updated = sections.filter((_, idx) => idx !== sectionIndex);
     setSections(updated);
   };
@@ -364,7 +385,7 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
     if (!file.isNew && file.id) {
       setDeletedFiles(prev => [...prev, file.id]);
     }
-    
+
     const updated = [...sections];
     updated[sectionIndex].files = updated[sectionIndex].files.filter((_, idx) => idx !== fileIndex);
     setSections(updated);
@@ -475,7 +496,7 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
             {/* FIRST CELL: START DATE */}
             <div className="grid grid-rows-2">
               <label className="text-lg font-bold text-center">
-                Start date*
+                Start date
                 <hr className="border-t-2 border-gray-300 mt-2" />
               </label>
               <DatePicker
@@ -497,7 +518,7 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
             {/* SECOND CELL: END DATE */}
             <div className="grid grid-rows-2">
               <label className="text-lg font-bold text-center">
-                End date*
+                End date
                 <hr className="border-t-2 border-gray-300 mt-2" />
               </label>
               <DatePicker
@@ -525,7 +546,7 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
             {/* FIRST CELL: MAX USERS */}
             <div className="grid grid-rows-2">
               <label className="text-lg font-bold text-center">
-                Max Users*
+                Max Users
                 <hr className="border-t-2 border-gray-300 mt-2" />
               </label>
               <input
@@ -536,7 +557,7 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
                 onChange={(e) => setMaxUsers(Number(e.target.value))}
                 placeholder="Max Users*"
                 min={1}
-                max={100000}
+                max={1000}
                 className="grid border-2 border-gray-300 grid-rows-1 p-2 placeholder-gray-400 rounded-md"
                 title="Max Users*"
               />
@@ -565,14 +586,14 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
           </div>
 
           {/* DESCRIPTION SECTION */}
-          <EventEditDescription 
-            event={event} 
-            sections={sections} 
+          <EventEditDescription
+            event={event}
+            sections={sections}
             setSections={setSections}
             onRemoveSection={handleRemoveSection}
             onRemoveFile={handleRemoveFile}
           />
-          
+
           {/* BUTTONS */}
           <button
             type="submit"
@@ -588,24 +609,24 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
           <div className=" bg-white rounded-md p-6 shadow-md w-full max-w-sm">
             <h3 className="text-lg font-semibold mb-2">Success</h3>
             <p className="text-gray-700">Event successfully updated</p>
-            
-              <button
-                type="button"
-                className="mt-4 px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
-                onClick={() => {
-                  setSuccessDialogOpen(false);
-                  if (onSave) {
-                    onSave();
-                  }
-                }}
-              >
-                Close
-              </button>
-            
+
+            <button
+              type="button"
+              className="mt-4 px-4 py-2 bg-bluedark-gradient-r hover:opacity-75 text-white rounded-md"
+              onClick={() => {
+                setSuccessDialogOpen(false);
+                if (onSave) {
+                  onSave();
+                }
+              }}
+            >
+              Close
+            </button>
+
           </div>
         </div>
       )}
-      
+
       {/* ERROR DIALOG */}
       {errorDialogOpen && (
         <div className="fixed inset-0 flex items-center justify-center py-4 bg-black bg-opacity-50 z-50">

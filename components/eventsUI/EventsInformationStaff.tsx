@@ -30,8 +30,8 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
   // Request constants and interfaces
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showAlreadyRegistered, setShowAlreadyRegistered] = useState(false);
+  const [eventFull, setEventFull] = useState(false);
   // Send request logic
   const { userSession } = useLogin();
 
@@ -138,11 +138,11 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
   const getStatusDisplay = (status: EventStatus) => {
     switch (status) {
       case EventStatus.IN_PROCESS:
-        return { text: "En Proceso", color: "text-blue-600" };
+        return { text: "In Process", color: "text-blue-600" };
       case EventStatus.DONE:
-        return { text: "Completado", color: "text-green-600" };
+        return { text: "Completed", color: "text-green-600" };
       case EventStatus.CANCELLED:
-        return { text: "Cancelado", color: "text-red-600" };
+        return { text: "Canceled", color: "text-red-600" };
       default:
         return { text: status, color: "text-gray-600" };
     }
@@ -162,9 +162,14 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
   // Request logic
   const handleRequest = async () => {
     if (!userSession?.id || !event?.id) {
-      setToastMessage("Error: User session or event ID not found.");
+      console.log("Error: User session or event ID not found.");
       return;
     }
+    
+    // if (event.currentUsers >= event.maxUsers) {
+    //   setEventFull(true);
+    //   return;
+    // }
 
     try {
       // The API endpoint should ideally filter by userId and eventId.
@@ -188,14 +193,13 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
       }
     } catch (err: any) {
       console.error("Error checking existing requests: ", err);
-      setToastMessage(err.message || "Error checking existing requests.");
     }
   };
 
   const handleConfirmRequest = async () => {
     setShowConfirmation(false);
     if (!event || !userSession?.id) {
-      setToastMessage("Error: No event or user session found");
+      console.log("Error: No event or user session found");
       return;
     }
 
@@ -219,20 +223,18 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
 
       const result = await response.json();
       if (result.success) {
-        setToastMessage("Event request sent successfully!");
+        console.log("Event request sent successfully!");
         setShowSuccess(true);
       } else {
-        setToastMessage(result.error || "Error sending event request.");
+        console.log(result.error || "Error sending event request.");
       }
     } catch (err: any) {
       console.error("An error: ", err);
-      setToastMessage(err.message || "Error sending event request.");
     }
   };
 
   const handleCloseSuccess = () => {
     setShowSuccess(false);
-    setToastMessage(null);
     onClose();
   };
 
@@ -380,12 +382,6 @@ export const EventsInformationStaff: React.FC<EventsInformationStaffProps> = ({
                   </button>
                 </div>
             </div>
-          </div>
-        )}
-        {/* Toast */}
-        {toastMessage && (
-          <div className="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
-            {toastMessage}
           </div>
         )}
       </div>

@@ -161,23 +161,44 @@ export const EventEditForm: React.FC<EventEditFormProps> = ({ title, eventId, on
 
   // Verify ZIP and city before validating the event
   async function validateZipCity() {
-    const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-    const data = await response.json();
+    try {
+      const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
 
-    if (data.places) {
+      if (!response.ok) {
+        return { status: "error", message: `Invalid ZIP code ${zipCode}.` };
+      }
+
+      const data = await response.json();
+      if (!data.places || data.places.length === 0) {
+        return { status: "error", message: `No information found for ZIP code: ${zipCode}.` };
+      }
+
       const foundCity = data.places[0]["place name"];
-      return foundCity.toLowerCase() === city.toLowerCase();
+      const foundState = data.places[0]["state"];
+      const foundStateAbbreviation = data.places[0]["state abbreviation"];
+
+      if (foundCity.toLowerCase() !== city.toLowerCase()) {
+        return { status: "error", message: `ZIP code ${zipCode} does not match the city ${city}. It actually belongs to  ${foundCity}, ${foundState} (${foundStateAbbreviation}).` }; 
+      }
+
+      if (foundState.toLowerCase() !== state.toLowerCase()) {
+        return { status: "error", message: `ZIP code ${zipCode} does not belong to the state ${state}. It actually belongs to ${foundState}.` };
+      }
+
+      return { status: "success", message: "Validation successful." };
+
+    } catch (error) {
+      return { status: "error", message: `Error validating ZIP code.` };
     }
-    return false;
   }
 
   const updateEvent = async (): Promise<any | null> => {
     try {
 
       // Verify ZIP and city before validating the event
-      const isValidZipCity = await validateZipCity();
-      if (!isValidZipCity) {
-        setErrorMessage("The Zipcode does not match the city entered.");
+      const validationResultZipCode = await validateZipCity();
+      if (validationResultZipCode.status === "error") {
+        setErrorMessage(validationResultZipCode.message); 
         setErrorDialogOpen(true);
         return null;
       }

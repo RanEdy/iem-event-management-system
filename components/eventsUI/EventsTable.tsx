@@ -17,14 +17,12 @@ export const EventsTable: React.FC = () =>
     const [showToast, setShowToast] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null); // Add this state
-    const [totalUsers, setTotalUsers] = useState<number>(0)
+    const [totalUsers, setTotalUsers] = useState<number[]>([])
 
-    const loadEvents = async () =>
-    {
-        fetch("api/event")
+    const loadEvents = async () => {
+    fetch("api/event")
         .then(res => res.json())
         .then((data: IEvent[]) => {
-            // Cast string dates to Date objects and filter only events in process
             const parsedEvents = data
                 .filter(event => event.status === EventStatus.IN_PROCESS)
                 .map(event => ({
@@ -33,9 +31,35 @@ export const EventsTable: React.FC = () =>
                     endDate: new Date(event.endDate),
                 }));
             setEvents(parsedEvents);
+
+            const eventIds = parsedEvents.map(event => event.id);
+            loadTotalUsers(eventIds);
         })
         .catch(error => console.error("Error fetching or parsing events:", error));
-    }
+};
+
+    const loadTotalUsers = async (eventIds: number[]) => {
+    const userCounts: number[] = [];
+
+    await Promise.all(eventIds.map(async (id) => {
+        try {
+            const res = await fetch(`api/event/totalUsers/`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ eventId: id })
+            });
+            const data = await res.json();
+            userCounts[id] = data.totalUsers || 0;
+        } catch (error) {
+            console.error(`Error loading users for event ${id}`, error);
+            userCounts[id] = 0;
+        }
+    }));
+
+    setTotalUsers(userCounts);
+};
 
     useEffect(() => {
         if (searchTerm)
@@ -132,7 +156,7 @@ export const EventsTable: React.FC = () =>
         },
         {
             name: "USERS",
-            selector: row => totalUsers+ "/" + row.maxUsers
+            selector: row => (totalUsers[row.id] ?? 0) + "/" + row.maxUsers
         },
         {
             name: "REQUESTS",
